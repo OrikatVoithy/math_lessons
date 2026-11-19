@@ -220,6 +220,13 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); pad
 .legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
 .legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
 
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.nextlevel:focus-visible, .golink:focus-visible, a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
 svg .num { font-family: var(--mono); font-weight: 700; }
@@ -464,12 +471,13 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </div>
     <ol class="path">
       <li class="panel now"><span class="lv">Level 1</span><h3>Name the sides</h3><p>Opposite, adjacent, hypotenuse, and SOH CAH TOA.</p><span class="pill">You are here</span></li>
-      <li class="panel later"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><span class="pill">Coming next</span></li>
-      <li class="panel later"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><span class="pill">Coming soon</span></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><a class="golink" href="level-2/">Start Level 2 →</a></li>
+      <li class="panel later"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><span class="pill">Coming next</span></li>
       <li class="panel later"><span class="lv">Level 4</span><h3>Special angles</h3><p>Exact values for 30°, 45° and 60° without a calculator.</p><span class="pill">Coming soon</span></li>
       <li class="panel later"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><span class="pill">Coming soon</span></li>
       <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming soon</span></li>
     </ol>
+    <a class="nextlevel panel" href="level-2/"><span><span class="eyebrow">Next</span><b>Level 2: Find a missing side</b></span><span aria-hidden="true">→</span></a>
   </section>
 </div>
 
@@ -812,13 +820,27 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
   }));
 
-  // Used by tests/check-layout.js to draw every triangle shape.
-  window.__trigTest = {
-    triples: TRIPLES,
-    setLab(theta, L, view) { st.theta = theta; st.L = L; st.view = view; $(view === "A" ? "viewA" : "viewB").checked = true; render(); return { theta: st.theta, L: st.L, max: maxL(st.theta) }; },
-    limits: { minTheta: 10, maxTheta: 80, minL: MIN_L, maxL },
-    question(force) { newQuestion(force); },
-    answer(i) { answer(i); },
+  // Used by tests/check-layout.js to draw every triangle shape the page can show.
+  window.__layoutTest = {
+    svgs: ["lab", "mini"],
+    cases() {
+      const out = [];
+      for (const view of ["A", "B"]) for (let th = 10; th <= 80; th += 1) for (const big of [false, true])
+        out.push({ kind: "lab", view, th, big, name: `lab view=${view} θ=${th} ${big ? "large" : "small"}` });
+      for (const triple of TRIPLES) for (const swap of [false, true]) for (const at of ["A", "B"]) for (const flip of [false, true]) for (const answered of [false, true])
+        out.push({ kind: "practice", triple, swap, at, flip, answered, name: `practice ${triple.join("-")} swap=${swap} θ@${at} flip=${flip} ${answered ? "after" : "before"}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") {
+        st.theta = c.th; st.view = c.view; st.L = c.big ? maxL(c.th) : MIN_L;
+        $(c.view === "A" ? "viewA" : "viewB").checked = true;
+        render();
+      } else {
+        newQuestion({ triple: c.triple, swap: c.swap, at: c.at, flip: c.flip });
+        if (c.answered) answer(0);
+      }
+    },
   };
 })();
 </script>

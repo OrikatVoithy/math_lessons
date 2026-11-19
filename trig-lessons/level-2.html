@@ -1,0 +1,929 @@
+<title>Missing Side Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../">← Level 1: Name the sides</a>
+      <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+        <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+        <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+        <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+      </div>
+    </div>
+    <div class="eyebrow">Trigonometry · Level 2 of 6</div>
+    <h1>Find a missing side</h1>
+    <p class="lede">In Level 1 you learned what sin, cos and tan are. Now you'll use them for real: work out a side you can't measure, from one angle and one side you can.</p>
+  </header>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">Quick recap</div>
+        <h2>Name the sides, then pick the ratio</h2>
+        <p>Find the angle <b class="ang">θ</b> first. The <b class="hyp">hypotenuse</b> is the longest side, across from the square corner. The <b class="opp">opposite</b> is across from θ. The <b class="adj">adjacent</b> is next to θ.</p>
+        <p>Then each ratio links two of those sides:</p>
+        <ul class="checks">
+          <li><b>SOH</b>: sin θ = <b class="opp">opposite</b> ÷ <b class="hyp">hypotenuse</b></li>
+          <li><b>CAH</b>: cos θ = <b class="adj">adjacent</b> ÷ <b class="hyp">hypotenuse</b></li>
+          <li><b>TOA</b>: tan θ = <b class="opp">opposite</b> ÷ <b class="adj">adjacent</b></li>
+        </ul>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
+          <polygon points="30,150 210,150 210,40" class="f-hyp-soft"/>
+          <line x1="30" y1="150" x2="210" y2="150" class="s-adj" stroke-width="4" stroke-linecap="round"/>
+          <line x1="210" y1="150" x2="210" y2="40" class="s-opp" stroke-width="4" stroke-linecap="round"/>
+          <line x1="30" y1="150" x2="210" y2="40" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
+          <path d="M196,150 L196,136 L210,136" class="s-muted" stroke-width="1.5" fill="none"/>
+          <path d="M60,150 A30,30 0 0 0 55.6,134.4" class="s-angle" stroke-width="3" fill="none"/>
+          <text x="74" y="143" class="t-angle" font-size="16" font-weight="700">θ</text>
+          <text x="120" y="172" text-anchor="middle" class="t-adj" font-size="14" font-weight="700">adjacent</text>
+          <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
+          <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
+        </svg>
+        <figcaption>Not sure about this? <a href="../">Go back to Level 1</a>.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The key move</div>
+        <h2>Turn the equation around</h2>
+        <p>A 5 m ladder leans against a wall at 60° to the ground. How high does it reach? The height is <b class="opp">opposite</b> the angle and the ladder is the <b class="hyp">hypotenuse</b>, so SOH gives:</p>
+        <p class="big">sin 60° = height ÷ 5</p>
+        <p>The calculator says sin 60° = 0.866, so the question becomes <span class="num">0.866 = ? ÷ 5</span>. Which number, divided by 5, gives 0.866? To undo "divide by 5", multiply by 5: <span class="num">? = 5 × 0.866 ≈ 4.3 m</span>.</p>
+        <p>The missing side can end up in one of two places in the fraction, and that tells you what to do:</p>
+      </div>
+      <div class="span">
+        <div class="pair">
+          <div class="card">
+            <div class="eyebrow">The ? is on top</div>
+            <h3>Multiply</h3>
+            <p>Ladder: <span class="num">sin 60° = ? ÷ 5</span></p>
+            <p class="big">? = 5 × sin 60°</p>
+            <p><span class="num">= 5 × 0.866 ≈ 4.3 m</span></p>
+          </div>
+          <div class="card">
+            <div class="eyebrow">The ? is on the bottom</div>
+            <h3>Divide</h3>
+            <p>A ramp rises 1 m at 10°. How long is it? <span class="num">sin 10° = 1 ÷ ?</span></p>
+            <p class="big">? = 1 ÷ sin 10°</p>
+            <p><span class="num">= 1 ÷ 0.174 ≈ 5.8 m</span></p>
+          </div>
+        </div>
+        <p class="tip">Remember it like this: <b>? on top, multiply. ? on the bottom, divide.</b></p>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">A shortcut</div>
+        <h2>Cover-up triangles</h2>
+        <p>Some people find this picture easier. Put the top side of the ratio at the top of a triangle, with the ratio and the bottom side underneath. Cover the thing you want with a finger, and what's left tells you the sum.</p>
+      </div>
+      <div class="span">
+        <div class="cover">
+          <figure>
+            <svg viewBox="0 0 140 110" role="img" aria-label="SOH triangle: O on top, S times H underneath.">
+              <polygon points="70,8 132,100 8,100" class="f-tri"/>
+              <line x1="36" y1="60" x2="104" y2="60" class="s-ink" stroke-width="2"/>
+              <text x="70" y="50" text-anchor="middle" class="t-opp" font-size="22" font-weight="700">O</text>
+              <text x="48" y="89" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">S</text>
+              <text x="70" y="88" text-anchor="middle" class="t-ink" font-size="16">×</text>
+              <text x="92" y="89" text-anchor="middle" class="t-hyp" font-size="20" font-weight="700">H</text>
+            </svg>
+            <figcaption>O = S × H · H = O ÷ S</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 140 110" role="img" aria-label="CAH triangle: A on top, C times H underneath.">
+              <polygon points="70,8 132,100 8,100" class="f-tri"/>
+              <line x1="36" y1="60" x2="104" y2="60" class="s-ink" stroke-width="2"/>
+              <text x="70" y="50" text-anchor="middle" class="t-adj" font-size="22" font-weight="700">A</text>
+              <text x="48" y="89" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">C</text>
+              <text x="70" y="88" text-anchor="middle" class="t-ink" font-size="16">×</text>
+              <text x="92" y="89" text-anchor="middle" class="t-hyp" font-size="20" font-weight="700">H</text>
+            </svg>
+            <figcaption>A = C × H · H = A ÷ C</figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 140 110" role="img" aria-label="TOA triangle: O on top, T times A underneath.">
+              <polygon points="70,8 132,100 8,100" class="f-tri"/>
+              <line x1="36" y1="60" x2="104" y2="60" class="s-ink" stroke-width="2"/>
+              <text x="70" y="50" text-anchor="middle" class="t-opp" font-size="22" font-weight="700">O</text>
+              <text x="48" y="89" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">T</text>
+              <text x="70" y="88" text-anchor="middle" class="t-ink" font-size="16">×</text>
+              <text x="92" y="89" text-anchor="middle" class="t-adj" font-size="20" font-weight="700">A</text>
+            </svg>
+            <figcaption>O = T × A · A = O ÷ T</figcaption>
+          </figure>
+        </div>
+        <p class="tip">Example: you want the <b class="hyp">hypotenuse</b> and you know the <b class="opp">opposite</b>, so use SOH. Cover H, and O sits over S, so H = O ÷ S. Side by side means multiply, one above the other means divide.</p>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">How to solve</div>
+        <h2>A four-step recipe</h2>
+        <ol class="recipe">
+          <li><b>Name the sides</b> from θ: hypotenuse, opposite, adjacent.</li>
+          <li><b>Mark</b> the side you know and the side you want.</li>
+          <li><b>Pick the ratio</b> that uses both of them: SOH, CAH or TOA.</li>
+          <li><b>Write the equation and solve.</b> ? on top: multiply. ? on the bottom: divide.</li>
+        </ol>
+      </div>
+      <div class="span">
+        <div class="pair">
+          <div class="example">
+            <div class="eyebrow">Example: multiply</div>
+            <p><b>The sun is 35° above the horizon. A tree's shadow is 12 m long. How tall is the tree?</b></p>
+            <ol class="recipe compact">
+              <li>The tree is <b class="opp">opposite</b> the 35° angle. The shadow on the ground is <b class="adj">adjacent</b>.</li>
+              <li>Know: adjacent = 12 m. Want: opposite.</li>
+              <li>Opposite and adjacent: <b>TOA</b>, so use tan.</li>
+              <li><span class="num">tan 35° = ? ÷ 12</span>. ? on top, so <span class="num">? = 12 × 0.700 ≈ 8.4 m</span>.</li>
+            </ol>
+          </div>
+          <div class="example">
+            <div class="eyebrow">Example: divide</div>
+            <p><b>A ladder's foot is 1.5 m from a wall. The ladder makes 70° with the ground. How long is the ladder?</b></p>
+            <ol class="recipe compact">
+              <li>The ladder is the <b class="hyp">hypotenuse</b>. The 1.5 m along the ground is <b class="adj">adjacent</b>.</li>
+              <li>Know: adjacent = 1.5 m. Want: hypotenuse.</li>
+              <li>Adjacent and hypotenuse: <b>CAH</b>, so use cos.</li>
+              <li><span class="num">cos 70° = 1.5 ÷ ?</span>. ? on the bottom, so <span class="num">? = 1.5 ÷ 0.342 ≈ 4.4 m</span>.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Check your answer</div>
+        <h2>Does it make sense?</h2>
+        <ul class="checks">
+          <li><b>The hypotenuse is always the longest side.</b> If your hypotenuse comes out shorter than another side, you probably multiplied when you should have divided, or the other way round.</li>
+          <li><b>Angles under 45° give a short opposite side.</b> Below 45° the opposite is shorter than the adjacent, and above 45° it's longer. At exactly 45° they're equal.</li>
+          <li><b>Check the calculator is in degrees</b> (DEG on the screen). Test it: sin 30 should give 0.5.</li>
+        </ul>
+      </div>
+    </li>
+  </ol>
+
+  <div>
+    <div class="eyebrow">Step 6</div>
+    <h2>Try it yourself</h2>
+    <p class="lede" style="margin-top:8px">Pick an angle, the side you know and the side you want. Work it out on paper first, then show the steps one at a time to check.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Missing side solver">
+    <div class="stage">
+      <svg id="solver" viewBox="0 0 400 280" role="img" aria-label="Right triangle showing the known side and the missing side"></svg>
+      <div class="hint">The picture is drawn to the angle you choose.</div>
+    </div>
+    <div class="readout">
+      <div class="controls">
+        <div class="row">
+          <label class="label" for="angle">Angle θ</label>
+          <input type="range" id="angle" min="15" max="75" step="1" value="35">
+          <output class="out" id="angleOut" for="angle">35°</output>
+        </div>
+        <div class="row">
+          <span class="label">I know the</span>
+          <div class="seg" role="radiogroup" aria-label="Side you know">
+            <input type="radio" name="know" id="knowOpp" value="opp"><label for="knowOpp">opposite</label>
+            <input type="radio" name="know" id="knowAdj" value="adj" checked><label for="knowAdj">adjacent</label>
+            <input type="radio" name="know" id="knowHyp" value="hyp"><label for="knowHyp">hypotenuse</label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="label" for="len">Its length</label>
+          <input type="range" id="len" min="1" max="20" step="0.5" value="12">
+          <output class="out" id="lenOut" for="len">12 m</output>
+        </div>
+        <div class="row">
+          <span class="label">I want the</span>
+          <div class="seg" role="radiogroup" aria-label="Side you want">
+            <input type="radio" name="want" id="wantOpp" value="opp" checked><label for="wantOpp">opposite</label>
+            <input type="radio" name="want" id="wantAdj" value="adj"><label for="wantAdj">adjacent</label>
+            <input type="radio" name="want" id="wantHyp" value="hyp"><label for="wantHyp">hypotenuse</label>
+          </div>
+        </div>
+      </div>
+      <ol class="work" id="work" aria-live="polite"></ol>
+      <div class="row">
+        <button type="button" class="primary" id="stepNext">Show next step</button>
+        <button type="button" id="stepAll">Show all</button>
+        <button type="button" id="stepHide">Hide steps</button>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Word problems</h2>
+      <p class="lede" style="margin-top:8px">Use a calculator, or the values given under each problem. Type your answer to one decimal place.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig">
+        <svg id="pmini" viewBox="0 0 260 190" role="img" aria-label="Diagram for the word problem"></svg>
+        <div class="scale-note" id="scaleNote"></div>
+        <div class="legend" id="legend" hidden></div>
+      </div>
+      <div class="q">
+        <div class="qtext" id="ptext"></div>
+        <div class="values" id="pvalues"></div>
+        <form class="answer-row" id="pform">
+          <label for="pans" class="sr">Your answer in metres</label>
+          <input id="pans" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 4.3">
+          <span>m</span>
+          <button type="submit" class="primary" id="pcheck">Check</button>
+          <button type="button" id="phint">Hint</button>
+        </form>
+        <div class="feedback" id="pfeedback" aria-live="polite"></div>
+        <div class="qfoot">
+          <span class="streak" id="pstreak"></span>
+          <button type="button" id="pnext">Next problem</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">From here to the unit circle</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>Name the sides</h3><p>Opposite, adjacent, hypotenuse, and SOH CAH TOA.</p><a class="golink" href="../">Review Level 1 →</a></li>
+      <li class="panel now"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 4</span><h3>Special angles</h3><p>Exact values for 30°, 45° and 60° without a calculator.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+</div>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Drawing helpers (same as Level 1) ---------- */
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) {
+      const v = String(attrs[k]);
+      if ((k === "fill" || k === "stroke") && v.startsWith("var(")) n.style.setProperty(k, v);
+      else n.setAttribute(k, v);
+    }
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+  const norm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  function arcPath(c, p1, p2, r) {
+    const u1 = norm(sub(p1, c)), u2 = norm(sub(p2, c));
+    const s = { x: c.x + r * u1.x, y: c.y + r * u1.y }, e = { x: c.x + r * u2.x, y: c.y + r * u2.y };
+    const sweep = (u1.x * u2.y - u1.y * u2.x) > 0 ? 1 : 0;
+    return `M${s.x},${s.y} A${r},${r} 0 0 ${sweep} ${e.x},${e.y}`;
+  }
+  function rightMark(C, P, Q, s) {
+    const u = norm(sub(P, C)), v = norm(sub(Q, C));
+    const a = { x: C.x + s * u.x, y: C.y + s * u.y };
+    const b = { x: a.x + s * v.x, y: a.y + s * v.y };
+    const c = { x: C.x + s * v.x, y: C.y + s * v.y };
+    return `M${a.x},${a.y} L${b.x},${b.y} L${c.x},${c.y}`;
+  }
+  function sideLabel(P, Q, cen, off) {
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    const d = norm(sub(Q, P));
+    let n = { x: -d.y, y: d.x };
+    if ((m.x - cen.x) * n.x + (m.y - cen.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+    return {
+      x: m.x + off * n.x, y: m.y + off * n.y, n,
+      anchor: n.x > 0.35 ? "start" : n.x < -0.35 ? "end" : "middle",
+      baseline: n.y > 0.35 ? "hanging" : n.y < -0.35 ? "auto" : "middle",
+    };
+  }
+
+  const COL = { opp: "var(--opp)", adj: "var(--adj)", hyp: "var(--hyp)" };
+  const NAME = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
+  const RATIO = { sin: ["opp", "hyp"], cos: ["adj", "hyp"], tan: ["opp", "adj"] };
+  const MNEMONIC = { sin: "SOH", cos: "CAH", tan: "TOA" };
+  const trig = (fn, deg) => Math[fn](deg * Math.PI / 180);
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const fmtLen = (x) => String(parseFloat(x.toFixed(2)));
+  const fmt1 = (x) => x.toFixed(1);
+
+  function pickFn(a, b) {
+    for (const fn in RATIO) { const [n, d] = RATIO[fn]; if ((n === a && d === b) || (n === b && d === a)) return fn; }
+  }
+  // Solve for the wanted side. "shown" uses the 3-decimal value a student would read off a calculator.
+  function solve(theta, known, k, want) {
+    const fn = pickFn(known, want);
+    const [n, d] = RATIO[fn];
+    const v = r3(trig(fn, theta));
+    const top = n === want;
+    return { fn, n, d, v, top, exact: top ? k * trig(fn, theta) : k / trig(fn, theta), shown: top ? k * v : k / v };
+  }
+
+  /*
+   * Right triangle with θ at A (bottom left) and the square corner at C (bottom right).
+   * opts.area: box the triangle is fitted into. opts.labels: text per side. opts.twoLine: name + value labels.
+   */
+  function drawTriangle(svg, opts) {
+    svg.replaceChildren();
+    const { area } = opts;
+    const drawn = Math.min(opts.maxDraw ?? 90, Math.max(opts.minDraw ?? 0, opts.theta));
+    const t = drawn * Math.PI / 180;
+    const W = area.x1 - area.x0, H = area.yBase - area.yTop;
+    const s = Math.min(W / Math.cos(t), H / Math.sin(t));
+    const w = s * Math.cos(t), h = s * Math.sin(t);
+    const left = area.x0 + (W - w) / 2, base = area.yBase - (H - h) / 2;
+    const A = { x: left, y: base }, C = { x: left + w, y: base }, B = { x: left + w, y: base - h };
+    const cen = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+    const sides = [[A, C, "adj"], [C, B, "opp"], [A, B, "hyp"]];
+    const colour = (role) => (opts.colorRoles ? COL[role] : "var(--ink)");
+
+    if (opts.colorRoles) el("polygon", { points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`, fill: "var(--hyp)", "fill-opacity": "0.06" }, svg);
+    for (const [P, Q, role] of sides) {
+      const highlight = opts.emphasis && opts.emphasis.includes(role);
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: colour(role), "stroke-width": opts.colorRoles ? (highlight ? 5 : 3) : 2.5, "stroke-linecap": "round",
+        ...(opts.colorRoles && !highlight ? { "stroke-opacity": 0.45 } : {}) }, svg);
+    }
+    el("path", { d: rightMark(C, A, B, opts.small ? 10 : 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+
+    // Angle mark and its label: inside the corner when there is room, otherwise to the left along the ground.
+    const room = Math.min(dist(A, C), dist(A, B));
+    const arcR = Math.min(opts.small ? 20 : 28, 0.6 * room);
+    el("path", { d: arcPath(A, C, B, arcR), fill: "none", stroke: "var(--angle)", "stroke-width": opts.small ? 2.5 : 3 }, svg);
+    const rIn = arcR + (opts.small ? 20 : 26);
+    const inside = drawn >= 48 && room > rIn * 1.6;
+    const fs = opts.small ? 14 : 16;
+    if (inside) {
+      const b = norm({ x: norm(sub(C, A)).x + norm(sub(B, A)).x, y: norm(sub(C, A)).y + norm(sub(B, A)).y });
+      el("text", { x: A.x + rIn * b.x, y: A.y + rIn * b.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    } else {
+      el("text", { x: A.x - 8, y: A.y, "text-anchor": "end", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    }
+
+    for (const [P, Q, role] of sides) {
+      const lab = opts.labels[role];
+      if (!lab) continue;
+      const fill = lab.colour ? COL[role] : colour(role);
+      if (!opts.twoLine && role !== "hyp") {
+        const pos = sideLabel(P, Q, cen, 8);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab.value);
+      } else if (!opts.twoLine) {
+        // Hypotenuse number written along the slope, so a long number can't clip the line.
+        const pos = sideLabel(P, Q, cen, 6);
+        const ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 15 }, svg, lab.value);
+      } else if (role === "hyp") {
+        const pos = sideLabel(P, Q, cen, 10);
+        let ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        const t2 = el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", {}, t2, NAME[role] + (lab.value ? " " : ""));
+        if (lab.value) el("tspan", { class: "num", "font-size": 14 }, t2, lab.value);
+      } else {
+        const pos = sideLabel(P, Q, cen, 10);
+        const lines = lab.value ? 2 : 1;
+        const blockH = lines * 17;
+        const top = pos.baseline === "hanging" ? pos.y : pos.baseline === "auto" ? pos.y - blockH : pos.y - blockH / 2;
+        const t2 = el("text", { "text-anchor": pos.anchor, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", { x: pos.x, y: top + 13 }, t2, NAME[role]);
+        if (lab.value) el("tspan", { x: pos.x, y: top + 30, class: "num", "font-size": 14 }, t2, lab.value);
+      }
+    }
+    return { clamped: drawn !== opts.theta };
+  }
+
+  /* ---------- Worked steps ---------- */
+  function workSteps(theta, known, k, want, sol) {
+    const K = fmtLen(k);
+    const eq = sol.top ? `${sol.fn} ${theta}° = ? ÷ ${K}` : `${sol.fn} ${theta}° = ${K} ÷ ?`;
+    const ans = fmt1(sol.shown);
+    let check;
+    if (want === "hyp") check = `Check: the hypotenuse (${ans} m) is longer than the ${NAME[known]} (${K} m). ✓`;
+    else if (known === "hyp") check = `Check: the ${NAME[want]} (${ans} m) is shorter than the hypotenuse (${K} m). ✓`;
+    else {
+      const opp = want === "opp" ? sol.shown : k, adj = want === "adj" ? sol.shown : k;
+      check = theta < 45 ? `Check: θ is under 45°, so the opposite (${fmt1(opp)} m) should be shorter than the adjacent (${fmt1(adj)} m). ✓`
+        : theta > 45 ? `Check: θ is over 45°, so the opposite (${fmt1(opp)} m) should be longer than the adjacent (${fmt1(adj)} m). ✓`
+        : `Check: at 45° the opposite and adjacent are equal. ✓`;
+    }
+    return [
+      `From θ = ${theta}°, the side you know is the <b class="${known}">${NAME[known]}</b> (${K} m). You want the <b class="${want}">${NAME[want]}</b>.`,
+      `Which of SOH CAH TOA uses the ${NAME[known]} and the ${NAME[want]}? <b>${MNEMONIC[sol.fn]}</b>, so use <b>${sol.fn}</b>.`,
+      `Write it out: ${sol.fn} = <b class="${sol.n}">${NAME[sol.n]}</b> ÷ <b class="${sol.d}">${NAME[sol.d]}</b>, so <span class="num">${eq}</span>.`,
+      sol.top
+        ? `The ? is on top, so <b>multiply</b>: <span class="num">? = ${K} × ${sol.fn} ${theta}° = ${K} × ${sol.v.toFixed(3)} ≈ ${ans} m</span>.`
+        : `The ? is on the bottom, so <b>divide</b>: <span class="num">? = ${K} ÷ ${sol.fn} ${theta}° = ${K} ÷ ${sol.v.toFixed(3)} ≈ ${ans} m</span>.`,
+      check,
+    ];
+  }
+
+  /* ---------- Solver lab ---------- */
+  const lab = { theta: 35, known: "adj", k: 12, want: "opp", shown: 0 };
+  const LAB_AREA = { x0: 70, x1: 290, yTop: 40, yBase: 228 };
+
+  function renderLab() {
+    const sol = solve(lab.theta, lab.known, lab.k, lab.want);
+    const steps = workSteps(lab.theta, lab.known, lab.k, lab.want, sol);
+    const done = lab.shown >= 4;
+    const labels = { opp: {}, adj: {}, hyp: {} };
+    labels[lab.known] = { value: `${fmtLen(lab.k)} m` };
+    labels[lab.want] = { value: done ? `${fmt1(sol.shown)} m` : "?" };
+    drawTriangle($("solver"), { theta: lab.theta, area: LAB_AREA, labels, twoLine: true, colorRoles: true,
+      emphasis: [lab.known, lab.want], angleText: `${lab.theta}°` });
+
+    $("work").innerHTML = steps.map((s, i) => `<li${i < lab.shown ? "" : " hidden"}>${s}</li>`).join("");
+    $("stepNext").disabled = lab.shown >= steps.length;
+    $("stepNext").textContent = lab.shown === 0 ? "Show first step" : "Show next step";
+    $("angleOut").textContent = `${lab.theta}°`;
+    $("lenOut").textContent = `${fmtLen(lab.k)} m`;
+    for (const r of ["opp", "adj", "hyp"]) {
+      const id = "want" + r[0].toUpperCase() + r.slice(1);
+      $(id).disabled = r === lab.known;
+      $(id).checked = r === lab.want;
+    }
+  }
+  function changed() { lab.shown = 0; renderLab(); }
+  $("angle").addEventListener("input", (e) => { lab.theta = +e.target.value; changed(); });
+  $("len").addEventListener("input", (e) => { lab.k = +e.target.value; changed(); });
+  document.querySelectorAll('input[name="know"]').forEach((r) => r.addEventListener("change", () => {
+    lab.known = r.value;
+    if (lab.want === lab.known) lab.want = ["opp", "adj", "hyp"].find((x) => x !== lab.known);
+    changed();
+  }));
+  document.querySelectorAll('input[name="want"]').forEach((r) => r.addEventListener("change", () => { lab.want = r.value; changed(); }));
+  $("stepNext").addEventListener("click", () => { lab.shown += 1; renderLab(); });
+  $("stepAll").addEventListener("click", () => { lab.shown = 5; renderLab(); });
+  $("stepHide").addEventListener("click", () => { lab.shown = 0; renderLab(); });
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  // Every problem puts θ at the bottom left with the square corner on the right, matching the picture.
+  const PROBLEMS = [
+    { id: "ladder-height", known: "hyp", want: "opp", ang: [55, 80], len: [3, 8, 0.5],
+      text: (a, k) => `A ${k} m ladder leans against a wall. It makes an angle of ${a}° with the ground. How high up the wall does it reach?` },
+    { id: "ladder-foot", known: "hyp", want: "adj", ang: [60, 80], len: [3, 8, 0.5],
+      text: (a, k) => `A ${k} m ladder leans against a wall at ${a}° to the ground. How far is the foot of the ladder from the wall?` },
+    { id: "ladder-length", known: "adj", want: "hyp", ang: [60, 78], len: [1, 2.5, 0.5],
+      text: (a, k) => `The foot of a ladder is ${k} m from a wall, and the ladder makes ${a}° with the ground. How long is the ladder?` },
+    { id: "tree-shadow", known: "adj", want: "opp", ang: [25, 65], len: [4, 20, 1],
+      text: (a, k) => `The sun is ${a}° above the horizon. A tree casts a shadow ${k} m long. How tall is the tree?` },
+    { id: "post-shadow", known: "opp", want: "adj", ang: [25, 65], len: [2, 10, 1],
+      text: (a, k) => `A lamp post is ${k} m tall. The sun is ${a}° above the horizon. How long is the lamp post's shadow?` },
+    { id: "kite", known: "hyp", want: "opp", ang: [30, 70], len: [20, 60, 5],
+      text: (a, k) => `A kite's string is ${k} m long and pulled tight. It makes ${a}° with the ground. How high is the kite?` },
+    { id: "ramp", known: "opp", want: "hyp", ang: [4, 10], len: [0.3, 1, 0.1],
+      text: (a, k) => `A wheelchair ramp has to rise ${k} m. Its slope is ${a}°. How long does the ramp need to be?` },
+    { id: "hill", known: "hyp", want: "opp", ang: [5, 15], len: [100, 500, 50],
+      text: (a, k) => `A road climbs a hill at ${a}°. You drive ${k} m along the road. How much higher are you than where you started?` },
+    { id: "river", known: "adj", want: "opp", ang: [30, 70], len: [10, 50, 5],
+      text: (a, k) => `You want to know how wide a river is. You stand on the bank ${k} m from the spot straight across from a tree. The angle between the bank and the tree is ${a}°. How wide is the river?` },
+    { id: "plane", known: "hyp", want: "adj", ang: [10, 25], len: [500, 2000, 100],
+      text: (a, k) => `A plane takes off and climbs in a straight line at ${a}°. After flying ${k} m, how far is it from the runway, measured along the ground?` },
+    { id: "slide", known: "opp", want: "hyp", ang: [30, 50], len: [1.5, 3, 0.5],
+      text: (a, k) => `The top of a slide is ${k} m above the ground. The slide makes ${a}° with the ground. How long is the slide?` },
+  ];
+  const MINI_AREA = { x0: 52, x1: 182, yTop: 36, yBase: 154 };
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const between = (lo, hi, step) => lo + step * rnd(Math.round((hi - lo) / step) + 1);
+
+  let p = null;
+  let pstreak = 0;
+  try { pstreak = +(localStorage.getItem("trig-l2-streak") || 0) || 0; } catch (_) {}
+  const saveStreak = () => { try { localStorage.setItem("trig-l2-streak", String(pstreak)); } catch (_) {} };
+
+  function drawProblem() {
+    const reveal = p.answered;
+    const labels = {};
+    labels[p.known] = { value: `${fmtLen(p.k)} m` };
+    labels[p.want] = { value: reveal ? `${fmt1(p.sol.exact)} m` : "?" };
+    const res = drawTriangle($("pmini"), { theta: p.a, area: MINI_AREA, labels, twoLine: false, colorRoles: reveal,
+      emphasis: ["opp", "adj", "hyp"], small: true, angleText: `${p.a}°`, minDraw: 20, maxDraw: 70 });
+    $("scaleNote").textContent = res.clamped ? "Picture not drawn to scale." : "";
+    if (reveal) {
+      $("legend").innerHTML = ["opp", "adj", "hyp"].map((r) => {
+        const v = r === p.known ? `${fmtLen(p.k)} m` : r === p.want ? `${fmt1(p.sol.exact)} m` : "";
+        return `<span><i class="sw ${r}"></i>${v ? `<b class="${r} num">${v}</b> ` : ""}${NAME[r]}</span>`;
+      }).join("");
+    }
+    $("legend").hidden = !reveal;
+  }
+
+  function newProblem(force) {
+    const f = force || {};
+    const tpl = f.tpl ? PROBLEMS.find((x) => x.id === f.tpl) : PROBLEMS[rnd(PROBLEMS.length)];
+    const a = f.a ?? between(tpl.ang[0], tpl.ang[1], 1);
+    const k = f.k ?? parseFloat(between(tpl.len[0], tpl.len[1], tpl.len[2]).toFixed(2));
+    p = { tpl, a, k, known: tpl.known, want: tpl.want, sol: solve(a, tpl.known, k, tpl.want), answered: false, hint: 0 };
+    $("ptext").textContent = tpl.text(a, fmtLen(k));
+    $("pvalues").innerHTML = ["sin", "cos", "tan"].map((fn) => `<span>${fn} ${a}° = ${r3(trig(fn, a)).toFixed(3)}</span>`).join("");
+    $("pans").value = "";
+    $("pans").disabled = false;
+    $("pcheck").disabled = false;
+    $("phint").disabled = false;
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "";
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+  }
+
+  const close = (x, target) => Math.abs(x - target) <= Math.max(0.15, 0.02 * target);
+
+  function checkAnswer(x) {
+    const s = p.sol;
+    const ok = close(x, s.exact) || Math.abs(x - s.shown) <= 0.051;
+    const fb = $("pfeedback");
+    const steps = `<ol class="work">${workSteps(p.a, p.known, p.k, p.want, s).slice(0, 4).map((t) => `<li>${t}</li>`).join("")}</ol>`;
+    if (ok) {
+      pstreak += 1;
+      fb.className = "feedback good";
+      fb.innerHTML = `Correct, about ${fmt1(s.exact)} m.${steps}`;
+    } else {
+      pstreak = 0;
+      let why = "";
+      for (const fn of ["sin", "cos", "tan"]) for (const mul of [true, false]) {
+        const v = mul ? p.k * trig(fn, p.a) : p.k / trig(fn, p.a);
+        if (fn === s.fn && mul === s.top) continue;
+        if (close(x, v)) {
+          why = fn === s.fn
+            ? `You picked the right ratio (${fn}), but you ${mul ? "multiplied" : "divided"}. The ? is on the ${s.top ? "top" : "bottom"}, so ${s.top ? "multiply" : "divide"}.`
+            : `It looks like you used ${fn}. You know the ${NAME[p.known]} and want the ${NAME[p.want]}, so use ${s.fn} (${MNEMONIC[s.fn]}).`;
+        }
+      }
+      fb.className = "feedback bad";
+      fb.innerHTML = `Not quite. The answer is about ${fmt1(s.exact)} m. ${why}${steps}`;
+    }
+    p.answered = true;
+    $("pans").disabled = true;
+    $("pcheck").disabled = true;
+    $("phint").disabled = true;
+    saveStreak();
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+    $("pnext").focus();
+  }
+
+  $("pform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (p.answered) return;
+    const raw = $("pans").value.trim().replace(",", ".");
+    const x = parseFloat(raw);
+    if (!raw || Number.isNaN(x)) {
+      $("pfeedback").className = "feedback bad";
+      $("pfeedback").textContent = "Type a number first, for example 4.3.";
+      return;
+    }
+    checkAnswer(x);
+  });
+  $("phint").addEventListener("click", () => {
+    p.hint += 1;
+    const s = p.sol;
+    const lines = [
+      `From the ${p.a}° angle, you know the <b class="${p.known}">${NAME[p.known]}</b> and want the <b class="${p.want}">${NAME[p.want]}</b>.`,
+      `Those two sides go with <b>${MNEMONIC[s.fn]}</b>, so use ${s.fn}: <span class="num">${s.top ? `${s.fn} ${p.a}° = ? ÷ ${fmtLen(p.k)}` : `${s.fn} ${p.a}° = ${fmtLen(p.k)} ÷ ?`}</span>.`,
+      `The ? is on the ${s.top ? "top, so multiply" : "bottom, so divide"}.`,
+    ];
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "Hint: " + lines.slice(0, p.hint).join(" ");
+    if (p.hint >= lines.length) $("phint").disabled = true;
+  });
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Theme switch (same as Level 1) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-theme", mode);
+      root.dataset.themeByPage = "1";
+    } else if (root.dataset.themeByPage) {
+      root.removeAttribute("data-theme");
+      delete root.dataset.themeByPage;
+    }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests/check-layout.js ---------- */
+  window.__layoutTest = {
+    svgs: ["solver", "pmini"],
+    cases() {
+      const out = [];
+      for (let th = 15; th <= 75; th += 2) for (const known of ["opp", "adj", "hyp"]) for (const want of ["opp", "adj", "hyp"]) {
+        if (want === known) continue;
+        for (const shown of [0, 5]) out.push({ kind: "lab", th, known, want, k: 12.5, shown, name: `solver θ=${th} know=${known} want=${want} steps=${shown}` });
+      }
+      for (const tpl of PROBLEMS) for (const a of tpl.ang) for (const k of tpl.len.slice(0, 2)) for (const answered of [false, true])
+        out.push({ kind: "practice", tpl: tpl.id, a, k, answered, name: `problem ${tpl.id} ${a}° ${k} m ${answered ? "after" : "before"}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { Object.assign(lab, { theta: c.th, known: c.known, want: c.want, k: c.k, shown: c.shown }); renderLab(); }
+      else { newProblem({ tpl: c.tpl, a: c.a, k: c.k }); if (c.answered) checkAnswer(p.sol.exact); }
+    },
+    solve,
+  };
+})();
+</script>
