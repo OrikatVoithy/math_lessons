@@ -1,0 +1,537 @@
+<title>Triangle Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 18px; display: grid; gap: 6px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+svg text { font-family: var(--body); }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Trigonometry · Level 1 of 6</div>
+    <h1>Opposite, adjacent, hypotenuse</h1>
+    <p class="lede">sin, cos and tan just compare two sides of a right triangle. Drag the corner of the triangle and watch the numbers change. Then try the practice questions below.</p>
+  </header>
+
+  <section class="panel lab" aria-label="Interactive triangle">
+    <div class="stage">
+      <svg id="lab" viewBox="0 0 400 300" role="img" aria-label="Right triangle with labelled sides"></svg>
+      <div class="hint">Drag the big dot, or tap anywhere in the box. Keyboard: focus the dot, then use the arrow keys.</div>
+    </div>
+    <div class="readout">
+      <div class="angle-big"><span class="val" id="angVal">36.9°</span><span class="lbl">is angle <b class="ang">θ</b></span></div>
+      <div class="ratios" id="ratios"></div>
+      <div class="controls">
+        <div class="row">
+          <span class="label">Look from</span>
+          <div class="seg" role="radiogroup" aria-label="Which angle is θ">
+            <input type="radio" name="view" id="viewA" value="A" checked><label for="viewA">bottom corner</label>
+            <input type="radio" name="view" id="viewB" value="B"><label for="viewB">top corner</label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="label" for="size">Size</label>
+          <input type="range" id="size" min="70" max="330" step="1" value="200">
+        </div>
+        <div class="row">
+          <span class="label">Jump to</span>
+          <button type="button" data-preset="345">3‑4‑5</button>
+          <button type="button" data-preset="30">30°</button>
+          <button type="button" data-preset="45">45°</button>
+          <button type="button" data-preset="60">60°</button>
+        </div>
+      </div>
+      <div class="note" id="note"></div>
+    </div>
+  </section>
+
+  <section class="trio" aria-label="SOH CAH TOA">
+    <div class="panel card"><div class="mn">SOH</div><h3>sin = <span class="opp">opposite</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How tall the triangle is compared with its longest side.</p></div>
+    <div class="panel card"><div class="mn">CAH</div><h3>cos = <span class="adj">adjacent</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How wide it is compared with its longest side.</p></div>
+    <div class="panel card"><div class="mn">TOA</div><h3>tan = <span class="opp">opposite</span> ÷ <span class="adj">adjacent</span></h3><p>How steep it is. This is the slope.</p></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Check yourself</h2>
+      <p class="lede" style="margin-top:8px">First find θ. Then work out which side is opposite it and which is next to it. The triangle may be flipped.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="mini" viewBox="0 0 260 190" role="img" aria-label="Practice triangle"></svg></div>
+      <div class="q">
+        <div class="qtext" id="qtext"></div>
+        <div class="opts" id="opts"></div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="qfoot">
+          <span class="streak" id="streak"></span>
+          <button type="button" class="primary" id="next">Next question</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">From here to the unit circle</h2>
+    </div>
+    <ol class="path">
+      <li class="panel now"><span class="lv">Level 1</span><h3>Name the sides</h3><p>Opposite, adjacent, hypotenuse, and SOH CAH TOA.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 4</span><h3>Special angles</h3><p>Exact values for 30°, 45° and 60° without a calculator.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+</div>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const UNIT = 40; // px per length unit
+  const A = { x: 40, y: 264 };
+  const st = { theta: Math.atan2(3, 4) * 180 / Math.PI, L: 200, view: "A" };
+
+  const $ = (id) => document.getElementById(id);
+  const svg = $("lab");
+
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+  const norm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+
+  function arcPath(c, p1, p2, r) {
+    const u1 = norm(sub(p1, c)), u2 = norm(sub(p2, c));
+    const s = { x: c.x + r * u1.x, y: c.y + r * u1.y }, e = { x: c.x + r * u2.x, y: c.y + r * u2.y };
+    const sweep = (u1.x * u2.y - u1.y * u2.x) > 0 ? 1 : 0;
+    return `M${s.x},${s.y} A${r},${r} 0 0 ${sweep} ${e.x},${e.y}`;
+  }
+  function arcLabelPos(c, p1, p2, r) {
+    const b = norm({ x: norm(sub(p1, c)).x + norm(sub(p2, c)).x, y: norm(sub(p1, c)).y + norm(sub(p2, c)).y });
+    return { x: c.x + r * b.x, y: c.y + r * b.y };
+  }
+  function rightMark(C, P, Q, s) {
+    const u = norm(sub(P, C)), v = norm(sub(Q, C));
+    const a = { x: C.x + s * u.x, y: C.y + s * u.y };
+    const b = { x: a.x + s * v.x, y: a.y + s * v.y };
+    const c = { x: C.x + s * v.x, y: C.y + s * v.y };
+    return `M${a.x},${a.y} L${b.x},${b.y} L${c.x},${c.y}`;
+  }
+  function sideLabelPos(P, Q, centroid, off) {
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    const d = norm(sub(m, centroid));
+    return { x: m.x + off * d.x, y: m.y + off * d.y };
+  }
+
+  function maxL(theta) {
+    const t = theta * Math.PI / 180;
+    return Math.min(336 / Math.cos(t), 236 / Math.sin(t));
+  }
+  function clampState() {
+    st.theta = Math.max(8, Math.min(82, st.theta));
+    st.L = Math.max(70, Math.min(maxL(st.theta), st.L));
+  }
+  function geo() {
+    const t = st.theta * Math.PI / 180;
+    const B = { x: A.x + st.L * Math.cos(t), y: A.y - st.L * Math.sin(t) };
+    return { A, B, C: { x: B.x, y: A.y } };
+  }
+
+  const COL = { opp: "var(--opp)", adj: "var(--adj)", hyp: "var(--hyp)" };
+  const NAME = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
+
+  function drawLab() {
+    const { B, C } = geo();
+    svg.replaceChildren();
+    const cen = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+    const roleBottom = st.view === "A" ? "adj" : "opp"; // side AC
+    const roleVert = st.view === "A" ? "opp" : "adj";   // side BC
+
+    el("polygon", { points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`, fill: "var(--hyp)", "fill-opacity": "0.06", stroke: "none" }, svg);
+    const sides = [
+      [A, C, roleBottom], [C, B, roleVert], [A, B, "hyp"]
+    ];
+    for (const [P, Q, role] of sides) {
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: COL[role], "stroke-width": 5, "stroke-linecap": "round" }, svg);
+    }
+    el("path", { d: rightMark(C, A, B, 14), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+
+    const V = st.view === "A" ? A : B;
+    const P1 = st.view === "A" ? C : A, P2 = st.view === "A" ? B : C;
+    el("path", { d: arcPath(V, P1, P2, 30), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    const lp = arcLabelPos(V, P1, P2, 46);
+    el("text", { x: lp.x, y: lp.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": 18, "font-weight": 700 }, svg, "θ");
+
+    for (const [P, Q, role] of sides) {
+      const len = Math.hypot(Q.x - P.x, Q.y - P.y) / UNIT;
+      const pos = sideLabelPos(P, Q, cen, role === "hyp" ? 26 : 22);
+      const anchor = Math.abs(P.x - Q.x) < 1 ? "start" : "middle";
+      const t = el("text", { x: pos.x - (anchor === "start" ? 6 : 0), y: pos.y, "text-anchor": anchor, fill: COL[role], "font-size": 14, "font-weight": 700 }, svg);
+      el("tspan", { x: pos.x - (anchor === "start" ? 6 : 0), dy: "-0.25em" }, t, NAME[role]);
+      el("tspan", { x: pos.x - (anchor === "start" ? 6 : 0), dy: "1.2em", class: "num", "font-size": 13 }, t, len.toFixed(1));
+    }
+
+    el("circle", { cx: B.x, cy: B.y, r: 18, fill: "var(--ink)", "fill-opacity": 0.08 }, svg);
+    const h = el("circle", { cx: B.x, cy: B.y, r: 9, fill: "var(--ink)", stroke: "var(--surface)", "stroke-width": 3, class: "handle", tabindex: 0, role: "slider",
+      "aria-label": "Triangle corner. Up and down change the angle, left and right change the size.",
+      "aria-valuenow": Math.round(st.theta), "aria-valuemin": 8, "aria-valuemax": 82, style: "cursor:grab" }, svg);
+    h.addEventListener("keydown", onKey);
+    if (focusHandle) { h.focus(); focusHandle = false; }
+  }
+
+  function drawReadout() {
+    const { B, C } = geo();
+    const ac = (C.x - A.x) / UNIT, bc = (C.y - B.y) / UNIT, hyp = st.L / UNIT;
+    const opp = st.view === "A" ? bc : ac, adj = st.view === "A" ? ac : bc;
+    const ang = st.view === "A" ? st.theta : 90 - st.theta;
+    $("angVal").textContent = ang.toFixed(1) + "°";
+    const rows = [
+      ["sin θ", "opp", "hyp", opp, hyp],
+      ["cos θ", "adj", "hyp", adj, hyp],
+      ["tan θ", "opp", "adj", opp, adj],
+    ];
+    $("ratios").innerHTML = rows.map(([fn, n, d, nv, dv]) => `
+      <div class="ratio">
+        <span class="fn">${fn}</span>
+        <span class="words"><b class="${n}">${NAME[n]}</b> ÷ <b class="${d}">${NAME[d]}</b><br><span class="nums">${nv.toFixed(1)} ÷ ${dv.toFixed(1)}</span></span>
+        <span class="out">${(nv / dv).toFixed(2)}</span>
+      </div>`).join("");
+
+    const size = $("size");
+    size.max = Math.floor(maxL(st.theta));
+    size.value = Math.round(st.L);
+
+    $("note").innerHTML = st.view === "A"
+      ? "Move the <b>size</b> slider. The sides get longer, but sin, cos and tan stay the same. They only depend on the angle."
+      : "From the top corner, <b class=\"opp\">opposite</b> and <b class=\"adj\">adjacent</b> have swapped. The <b class=\"hyp\">hypotenuse</b> never changes. That is why you always find θ first.";
+  }
+
+  let focusHandle = false;
+  function render() { clampState(); drawLab(); drawReadout(); }
+
+  function toSvg(e) {
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  function moveTo(p) {
+    const dx = p.x - A.x, dy = A.y - p.y;
+    if (dx <= 1 || dy <= 1) {
+      st.theta = Math.atan2(Math.max(dy, 1), Math.max(dx, 1)) * 180 / Math.PI;
+    } else {
+      st.theta = Math.atan2(dy, dx) * 180 / Math.PI;
+    }
+    st.L = Math.hypot(Math.max(dx, 1), Math.max(dy, 1));
+    render();
+  }
+  let dragging = false;
+  svg.addEventListener("pointerdown", (e) => { dragging = true; svg.setPointerCapture(e.pointerId); moveTo(toSvg(e)); });
+  svg.addEventListener("pointermove", (e) => { if (dragging) moveTo(toSvg(e)); });
+  const stop = () => { dragging = false; };
+  svg.addEventListener("pointerup", stop);
+  svg.addEventListener("pointercancel", stop);
+
+  function onKey(e) {
+    const map = { ArrowUp: [1, 0], ArrowDown: [-1, 0], ArrowRight: [0, 8], ArrowLeft: [0, -8] };
+    const m = map[e.key];
+    if (!m) return;
+    e.preventDefault();
+    st.theta += m[0]; st.L += m[1];
+    focusHandle = true;
+    render();
+  }
+
+  document.querySelectorAll('input[name="view"]').forEach((r) =>
+    r.addEventListener("change", () => { st.view = r.value; render(); }));
+  $("size").addEventListener("input", (e) => { st.L = +e.target.value; render(); });
+  document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
+    const p = b.dataset.preset;
+    if (p === "345") { st.theta = Math.atan2(3, 4) * 180 / Math.PI; st.L = 200; }
+    else { st.theta = +p; }
+    render();
+  }));
+
+  render();
+
+  /* ---------- Practice ---------- */
+  const TRIPLES = [[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10], [7, 24, 25], [9, 12, 15], [20, 21, 29]];
+  const mini = $("mini");
+  let q = null;
+  let streak = 0;
+  try { streak = +(localStorage.getItem("trig-l1-streak") || 0) || 0; } catch (_) {}
+  const saveStreak = () => { try { localStorage.setItem("trig-l1-streak", String(streak)); } catch (_) {} };
+
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const frac = (n, d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+
+  function newQuestion() {
+    let [a, b, c] = TRIPLES[rnd(TRIPLES.length)];
+    if (Math.random() < 0.5) [a, b] = [b, a]; // a = vertical leg, b = horizontal leg
+    const at = Math.random() < 0.5 ? "A" : "B";
+    const fn = ["sin", "cos", "tan"][rnd(3)];
+    const opp = at === "A" ? a : b, adj = at === "A" ? b : a;
+    const correct = fn === "sin" ? [opp, c] : fn === "cos" ? [adj, c] : [opp, adj];
+    const pool = [[opp, c], [adj, c], [opp, adj], [adj, opp], [c, opp], [c, adj]]
+      .filter((p) => !(p[0] === correct[0] && p[1] === correct[1]));
+    const picks = [correct];
+    while (picks.length < 4) {
+      const p = pool.splice(rnd(pool.length), 1)[0];
+      picks.push(p);
+    }
+    for (let i = picks.length - 1; i > 0; i--) { const j = rnd(i + 1); [picks[i], picks[j]] = [picks[j], picks[i]]; }
+    q = { a, b, c, at, fn, opp, adj, correct, picks, flip: Math.random() < 0.5, answered: false };
+    drawMini(false);
+    $("qtext").innerHTML = `What is <span class="fnq">${fn} <span class="ang">θ</span></span> in this triangle?`;
+    $("opts").innerHTML = picks.map((p, i) => `<button type="button" class="opt" data-i="${i}">${frac(p[0], p[1])}</button>`).join("");
+    $("opts").querySelectorAll(".opt").forEach((btn) => btn.addEventListener("click", () => answer(+btn.dataset.i)));
+    $("feedback").textContent = "";
+    $("feedback").className = "feedback";
+    $("streak").textContent = `Right in a row: ${streak}`;
+  }
+
+  function drawMini(reveal) {
+    mini.replaceChildren();
+    const { a, b, at, flip } = q;
+    const s = Math.min(170 / b, 130 / a);
+    const fx = (x) => flip ? 260 - x : x;
+    const base = 160, left = 45;
+    const A2 = { x: fx(left), y: base };
+    const C2 = { x: fx(left + b * s), y: base };
+    const B2 = { x: fx(left + b * s), y: base - a * s };
+    const cen = { x: (A2.x + B2.x + C2.x) / 3, y: (A2.y + B2.y + C2.y) / 3 };
+    const roleAC = at === "A" ? "adj" : "opp";
+    const roleBC = at === "A" ? "opp" : "adj";
+    const sides = [[A2, C2, roleAC, b], [C2, B2, roleBC, a], [A2, B2, "hyp", q.c]];
+    for (const [P, Q, role] of sides) {
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: reveal ? COL[role] : "var(--ink)", "stroke-width": reveal ? 4 : 2.5, "stroke-linecap": "round" }, mini);
+    }
+    el("path", { d: rightMark(C2, A2, B2, 10), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, mini);
+    const V = at === "A" ? A2 : B2;
+    const P1 = at === "A" ? C2 : A2, P2 = at === "A" ? B2 : C2;
+    el("path", { d: arcPath(V, P1, P2, 20), fill: "none", stroke: "var(--angle)", "stroke-width": 2.5 }, mini);
+    const lp = arcLabelPos(V, P1, P2, 33);
+    el("text", { x: lp.x, y: lp.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": 15, "font-weight": 700 }, mini, "θ");
+    for (const [P, Q, role, len] of sides) {
+      const pos = sideLabelPos(P, Q, cen, 16);
+      const vertical = Math.abs(P.x - Q.x) < 1;
+      const anchor = vertical ? (pos.x > cen.x ? "start" : "end") : "middle";
+      const t = el("text", { x: pos.x, y: pos.y, "text-anchor": anchor, "dominant-baseline": "middle", fill: reveal ? COL[role] : "var(--ink)", "font-size": 14 }, mini);
+      el("tspan", { class: "num" }, t, String(len));
+      if (reveal) el("tspan", { "font-size": 11, dx: 4 }, t, NAME[role]);
+    }
+  }
+
+  function answer(i) {
+    if (q.answered) return;
+    q.answered = true;
+    const pick = q.picks[i];
+    const ok = pick[0] === q.correct[0] && pick[1] === q.correct[1];
+    const btns = $("opts").querySelectorAll(".opt");
+    btns.forEach((b, j) => {
+      b.disabled = true;
+      const p = q.picks[j];
+      if (p[0] === q.correct[0] && p[1] === q.correct[1]) b.classList.add("right");
+      else if (j === i) b.classList.add("wrong");
+    });
+    drawMini(true);
+    const rule = { sin: ["opp", "hyp"], cos: ["adj", "hyp"], tan: ["opp", "adj"] }[q.fn];
+    const val = { opp: q.opp, adj: q.adj, hyp: q.c };
+    const why = `${q.fn} = <b class="${rule[0]}">${NAME[rule[0]]}</b> ÷ <b class="${rule[1]}">${NAME[rule[1]]}</b> = ${val[rule[0]]} ÷ ${val[rule[1]]}.`;
+    const fb = $("feedback");
+    if (ok) {
+      streak += 1;
+      fb.className = "feedback good";
+      fb.innerHTML = `Correct. ${why}`;
+    } else {
+      streak = 0;
+      fb.className = "feedback bad";
+      fb.innerHTML = `Not quite. From θ, the side across is <b class="opp">${q.opp}</b> and the side next to it is <b class="adj">${q.adj}</b>. ${why}`;
+    }
+    saveStreak();
+    $("streak").textContent = `Right in a row: ${streak}`;
+    $("next").focus();
+  }
+
+  $("next").addEventListener("click", newQuestion);
+  newQuestion();
+})();
+</script>
