@@ -1,0 +1,4 @@
+[build]
+  base = "trig-lessons"
+  command = "sh build.sh"
+  publish = "dist"
