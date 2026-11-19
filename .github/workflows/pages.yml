@@ -4,7 +4,7 @@ name: Publish lessons to GitHub Pages
 
 on:
   push:
-    branches: [main, maidoo/clever-bohr-8mmumh]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
