@@ -120,6 +120,8 @@ function auditContrast(context) {
         await page.goto("file://" + file);
         await page.waitForTimeout(400);
         await page.evaluate(`window.__audit = ${auditSvgs.toString()}`);
+        // Pages that show content in stages (one step at a time) reveal everything for the check.
+        await page.evaluate(() => window.__layoutTest && window.__layoutTest.prepare && window.__layoutTest.prepare());
 
         problems.push(...await page.evaluate(auditContrast, ctx));
         problems.push(...await page.evaluate((c) => window.__audit(c), `${ctx} page`));

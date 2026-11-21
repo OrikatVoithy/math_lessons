@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
 <style>
 /* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
 :root {
@@ -251,6 +251,62 @@ ul.checks.num { list-style: none; padding-left: 0; }
 .big-line { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; }
 @media (max-width: 760px) { .useful, .boxes { grid-template-columns: minmax(0, 1fr); } }
 
+/* One step at a time, quick checks, Arabic help */
+.topright { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.artoggle { font-size: 0.85rem; padding: 4px 12px; }
+.artoggle[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.stepnav { display: grid; gap: 10px; }
+.stepnav-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepnav-top .eyebrow { margin: 0; }
+.linkbtn { border: 0; background: none; padding: 4px 0; color: var(--hyp); font-weight: 700; text-decoration: underline; }
+.linkbtn:hover { border: 0; opacity: 0.85; }
+.dots { display: flex; gap: 8px; flex-wrap: wrap; }
+.dot { width: 36px; height: 36px; padding: 0; border-radius: 50%; font-family: var(--mono); font-weight: 700; display: grid; place-items: center; }
+.dot.done { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.dot.cur { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.dot:disabled { opacity: 0.4; cursor: not-allowed; }
+.stepbtns { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepbtns button { padding: 10px 18px; font-size: 1rem; }
+.stepbtns button:disabled { opacity: 0.45; cursor: not-allowed; }
+.nexthint { color: var(--muted); font-size: 0.9rem; flex: 1 1 10rem; text-align: center; }
+.after { display: grid; gap: 40px; }
+.checkq { border-top: 2px dashed var(--line); padding-top: 16px; display: grid; gap: 18px; min-width: 0; }
+.checkq-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.badge { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--surface); border-radius: 999px; padding: 3px 10px; }
+.checkq-sub { color: var(--muted); font-size: 0.9rem; }
+.checkq-item { display: grid; gap: 10px; min-width: 0; }
+.checkq-q { font-weight: 700; font-size: 1.05rem; }
+.checkq-q .qn { font-family: var(--mono); color: var(--muted); }
+.checkq-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkq-opts button { border-radius: 10px; padding: 10px 16px; font-size: 1rem; text-align: left; }
+.checkq-opts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.checkq-opts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.checkq-opts button:disabled { cursor: default; }
+.checkq-opts button:disabled:not(.right):not(.wrong) { opacity: 0.5; }
+.checkq-fb { min-height: 1.5em; }
+.checkq-fb.good { color: var(--good); font-weight: 700; }
+.checkq-fb.bad { color: var(--bad); }
+.tapfig { width: 100%; max-width: 320px; height: auto; display: block; }
+.tapfig .vis { stroke: var(--ink); }
+.tapfig .hit { fill: var(--hyp); fill-opacity: 0; stroke: none; }
+.tapfig .hit.corner { fill: var(--hyp); fill-opacity: 0.08; stroke: var(--muted); stroke-opacity: 1; stroke-width: 1.5; stroke-dasharray: 3 3; }
+.tap { cursor: pointer; outline: none; }
+.tap:hover .hit, .tap:focus-visible .hit { fill-opacity: 0.16; }
+.tap:hover .hit.corner, .tap:focus-visible .hit.corner { fill-opacity: 0.22; stroke: var(--hyp); }
+.tap.wrong .vis { stroke: var(--bad); }
+.tap.wrong .hit.corner { fill: var(--bad); fill-opacity: 0.18; stroke: var(--bad); }
+.tap.right .vis { stroke: var(--opp); stroke-width: 5; }
+.tap.right .hit.corner { fill: var(--good); fill-opacity: 0.25; stroke: var(--good); }
+.ar, .step .ar-box { display: none; font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif; }
+.step .ar-box { grid-column: 2 / -1; }
+.ar-on .ar { display: revert; }
+.ar-on .step .ar-box { display: block; }
+@media (max-width: 480px) { .step .ar-box { grid-column: 1; } }
+dt .ar { font-weight: 400; color: var(--muted); margin-inline-start: 4px; }
+.ratio-card p.ar { color: var(--muted); }
+.ar-box { background: var(--paper); border-radius: 10px; padding: 14px 16px; line-height: 1.9; font-size: 1.05rem; }
+.ar-label { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
 svg .num { font-family: var(--mono); font-weight: 700; }
@@ -273,15 +329,26 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   <header>
     <div class="topbar">
       <div class="eyebrow">Trigonometry · Level 1 of 6</div>
-      <div class="seg theme" role="radiogroup" aria-label="Colour theme">
-        <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
-        <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
-        <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
       </div>
     </div>
     <h1>What are sin, cos and tan?</h1>
-    <p class="lede">Read the 7 short steps below, one at a time. Then play with the triangle and try the questions.</p>
+    <p class="lede">Go through the 7 short steps one at a time. Each step ends with a quick question. After that, play with the triangle and try the practice.</p>
   </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
 
   <ol class="steps">
     <li class="panel step">
@@ -348,9 +415,9 @@ svg .num { font-family: var(--mono); font-weight: 700; }
         <h2>Name the sides from θ</h2>
         <p>Stand at <b class="ang">θ</b> and look at the triangle. Each side gets a name:</p>
         <dl class="defs">
-          <div><dt class="hyp">Hypotenuse</dt><dd>The longest side. It is across from the square corner.</dd></div>
-          <div><dt class="opp">Opposite</dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
-          <div><dt class="adj">Adjacent</dt><dd>The other side that touches θ. "Adjacent" means "next to".</dd></div>
+          <div><dt class="hyp">Hypotenuse <span class="ar" lang="ar">الوتر</span></dt><dd>The longest side. It is across from the square corner.</dd></div>
+          <div><dt class="opp">Opposite <span class="ar" lang="ar">المقابل</span></dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
+          <div><dt class="adj">Adjacent <span class="ar" lang="ar">المجاور</span></dt><dd>The other side that touches θ. "Adjacent" means "next to".</dd></div>
         </dl>
       </div>
       <figure>
@@ -426,6 +493,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
               <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
             </svg>
             <div class="eq"><b>sin θ</b> = <span class="frac"><span class="opp">opposite</span><span class="hyp">hypotenuse</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">جا θ (sin) = المقابل ÷ الوتر</p>
             <p>Example: sin 30° = 0.5. So the opposite side is half as long as the hypotenuse.</p>
           </div>
           <div class="card ratio-card">
@@ -439,6 +507,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
               <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
             </svg>
             <div class="eq"><b>cos θ</b> = <span class="frac"><span class="adj">adjacent</span><span class="hyp">hypotenuse</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">جتا θ (cos) = المجاور ÷ الوتر</p>
             <p>Example: cos 60° = 0.5. So the adjacent side is half as long as the hypotenuse.</p>
           </div>
           <div class="card ratio-card">
@@ -452,6 +521,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
               <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
             </svg>
             <div class="eq"><b>tan θ</b> = <span class="frac"><span class="opp">opposite</span><span class="adj">adjacent</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">ظا θ (tan) = المقابل ÷ المجاور</p>
             <p>Example: tan 45° = 1. So the opposite and adjacent sides are the same length.</p>
           </div>
         </div>
@@ -570,6 +640,13 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </li>
   </ol>
 
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
   <div>
     <div class="eyebrow">Step 8</div>
     <h2>Now try it yourself</h2>
@@ -643,6 +720,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </ol>
     <a class="nextlevel panel" href="level-2/"><span><span class="eyebrow">Next</span><b>Level 2: Find a missing side</b></span><span aria-hidden="true">→</span></a>
   </section>
+  </div>
 </div>
 
 <script>
@@ -963,6 +1041,227 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   $("next").addEventListener("click", () => newQuestion());
   newQuestion();
 
+  /* ---------- One step at a time, each with a quick check ---------- */
+  // Short Arabic summary of each step, shown with the "Arabic help" button.
+  const AR = [
+    "لا نستطيع قياس طول الشجرة بشريط القياس. لكن من السهل قياس شيئين من الأرض: بُعدك عن الشجرة (10 م)، والزاوية التي تنظر بها إلى قمتها (40°). تساعدنا sin و cos و tan على حساب الطول من هذين الرقمين.",
+    "θ (تُنطق: ثيتا) هو اسم الزاوية التي نختارها. المثلث القائم له ثلاث زوايا: الزاوية القائمة (90°) وزاويتان أخريان. نختار واحدة من الزاويتين الأخريين ونسميها θ، ولا نختار الزاوية القائمة أبدًا. نستخدم حرفًا لأن قيمة الزاوية تتغير من مسألة إلى أخرى، مثل x في الجبر.",
+    "نسمّي الأضلاع حسب مكانها من θ: <b>الوتر</b> (hypotenuse) هو أطول ضلع، ويقابل الزاوية القائمة. <b>المقابل</b> (opposite) هو الضلع الذي يقابل θ ولا يلمسها. <b>المجاور</b> (adjacent) هو الضلع الآخر الذي يلمس θ.",
+    "إذا كبّرنا المثلث وبقيت الزاوية كما هي، يبقى شكله كما هو. لذلك يبقى ناتج قسمة المقابل على الوتر ثابتًا: 3 ÷ 5 = 6 ÷ 10 = 9 ÷ 15 = 0.6. الناتج يعتمد على الزاوية فقط، وليس على حجم المثلث.",
+    "لكل زاوية ثلاثة أرقام خاصة بها: sin (جا) = المقابل ÷ الوتر، و cos (جتا) = المجاور ÷ الوتر، و tan (ظا) = المقابل ÷ المجاور. هذه الأرقام ليس لها وحدة، لأنها طول مقسوم على طول. الآلة الحاسبة تعرفها لكل زاوية، فلا نحتاج إلى رسم المثلث وقياسه.",
+    "ثلاث خطوات: اكتب ما تعرفه وما تريده، ثم اختر sin أو cos أو tan حسب الضلعين، ثم اضرب. مثال: سُلّم طوله 5 م يصنع زاوية 60° مع الأرض. الارتفاع = 5 × sin 60° = 5 × 0.87 ≈ 4.3 م.",
+    "نعود إلى الشجرة: الارتفاع هو الضلع المقابل للزاوية θ، والمسافة 10 م هي الضلع المجاور لها، إذن نستخدم tan. الارتفاع = 10 × tan 40° = 10 × 0.84 ≈ 8.4 م.",
+  ];
+
+  // Quick checks. choice: [label, why-it's-wrong] (null for the right one). tap: tap a corner or a side.
+  const QUIZ = [
+    [{ type: "choice", q: "In the tree picture, which one is hard to measure?", correct: 2,
+       options: [["How far you stand from the tree", "That one is easy. You can measure it along the ground."],
+                 ["The angle you look up", "That one is easy too. A simple tool, or an app on a phone, can measure it."],
+                 ["How tall the tree is", null]],
+       ok: "Right. The height is the hard one. The other two are easy to measure from the ground." }],
+    [{ type: "tap", fig: "corners", q: "Tap the corner that can never be θ.", correct: "C",
+       wrong: { A: "θ can be this corner. You can pick either of the two corners that are not square.",
+                B: "θ can be this corner too. You can pick either of the two corners that are not square." },
+       ok: "Right. The square corner (90°) is never θ." }],
+    [{ type: "tap", fig: "sides", at: "A", q: "θ is at the bottom corner. Tap the opposite side.", correct: "CB",
+       wrong: { AB: "That is the hypotenuse: the longest side, across from the square corner.",
+                AC: "That side touches θ, so it is the adjacent side. The opposite side doesn't touch θ." },
+       ok: "Right. The opposite side is across from θ. It doesn't touch θ." },
+     { type: "tap", fig: "sides", at: "B", q: "Now θ is at the top corner. Tap the opposite side.", correct: "AC",
+       wrong: { AB: "That is the hypotenuse. It never changes: it's always across from the square corner.",
+                CB: "That side touches θ now, so it is the adjacent side. Look for the side that doesn't touch θ." },
+       ok: "Right. When θ moves to the top, opposite and adjacent swap." }],
+    [{ type: "choice", q: "A bigger triangle has the same angle. Its hypotenuse is 20. What is opposite ÷ hypotenuse?", correct: 1,
+       options: [["1.2", "The triangle got bigger, but its shape didn't change. So the answer doesn't change either."],
+                 ["0.6", null],
+                 ["0.3", "Making the triangle bigger doesn't make the number smaller. Same angle, same shape, same answer."]],
+       ok: "Right. Same angle means same shape, so it's still 0.6. (The opposite side would be 12, and 12 ÷ 20 = 0.6.)" }],
+    [{ type: "choice", q: "Which two sides does tan use?", correct: 2,
+       options: [["opposite and hypotenuse", "That's sin. SOH: Sin = Opposite ÷ Hypotenuse."],
+                 ["adjacent and hypotenuse", "That's cos. CAH: Cos = Adjacent ÷ Hypotenuse."],
+                 ["opposite and adjacent", null]],
+       ok: "Right. TOA: Tan = Opposite ÷ Adjacent." },
+     { type: "choice", q: "Look at the table. What is sin 30°?", correct: 0,
+       options: [["0.50", null],
+                 ["0.87", "0.87 is cos 30°. Look in the sin column."],
+                 ["0.58", "0.58 is tan 30°. Look in the sin column."]],
+       ok: "Right. So in a 30° triangle, the opposite side is half the hypotenuse." },
+     { type: "choice", q: "Does sin 30° have a unit?", correct: 2,
+       options: [["Yes, centimetres", "It's a length divided by a length, so the centimetres cancel out."],
+                 ["Yes, degrees", "The angle is in degrees (30°), but sin 30° itself is just a number: 0.5."],
+                 ["No, it's just a number", null]],
+       ok: "Right. It's a length ÷ a length, so there's no unit. It describes the shape, not the size." }],
+    [{ type: "choice", q: "A 10 m ladder makes a 30° angle with the ground. How high up the wall does it reach? (sin 30° = 0.5)", correct: 3,
+       options: [["20 m", "You divided. The height is part of the ladder, so multiply: 10 × 0.5 = 5 m."],
+                 ["0.5 m", "0.5 is the ratio. Multiply it by the ladder: 10 × 0.5 = 5 m."],
+                 ["8.7 m", "That's 10 × cos 30°, the distance along the ground. The height is opposite θ, so use sin."],
+                 ["5 m", null]],
+       ok: "Right. height = 10 × sin 30° = 10 × 0.5 = 5 m." }],
+    [{ type: "choice", q: "You stand 20 m from a tower and look up at 45° to the top. tan 45° = 1. How tall is the tower?", correct: 1,
+       options: [["1 m", "1 is the ratio. Multiply it by the 20 m: 20 × 1 = 20 m."],
+                 ["20 m", null],
+                 ["45 m", "45 is the angle, not a length. Use tan 45° = 1: 20 × 1 = 20 m."]],
+       ok: "Right. At 45° the height is the same as the distance: 20 × 1 = 20 m." }],
+  ];
+
+  const stepEls = [...document.querySelectorAll(".steps > li")];
+  const LAST = stepEls.length - 1;
+  const lesson = { mode: "one", cur: 0, reached: 0, finished: false };
+  try { Object.assign(lesson, JSON.parse(localStorage.getItem("trig-l1-steps") || "{}")); } catch (_) {}
+  lesson.cur = Math.min(Math.max(0, lesson.cur | 0), LAST);
+  const saveLesson = () => { try { localStorage.setItem("trig-l1-steps", JSON.stringify(lesson)); } catch (_) {} };
+  const solved = stepEls.map(() => new Set());
+  const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tapFigure(spec, onTap) {
+    const svg = el("svg", { viewBox: "0 0 260 185", class: "tapfig", role: "group",
+      "aria-label": spec.fig === "corners" ? "Triangle: tap one of its three corners" : "Triangle: tap one of its three sides" });
+    const P = { A: { x: 30, y: 150 }, C: { x: 210, y: 150 }, B: { x: 210, y: 40 } };
+    el("polygon", { points: "30,150 210,150 210,40", fill: "var(--hyp)", "fill-opacity": 0.05 }, svg);
+    const targets = {};
+    const sides = { AC: [P.A, P.C, "bottom side"], CB: [P.C, P.B, "upright side"], AB: [P.A, P.B, "sloping side"] };
+    for (const id in sides) {
+      const [p, q, name] = sides[id];
+      const tappable = spec.fig === "sides";
+      const g = el("g", tappable ? { class: "tap", tabindex: 0, role: "button", "aria-label": name } : {}, svg);
+      if (tappable) {
+        // Invisible 28px-wide band around the side, so it is easy to tap with a finger.
+        const d = norm(sub(q, p)), n = { x: -d.y * 14, y: d.x * 14 }, e = { x: d.x * 8, y: d.y * 8 };
+        const pts = [[p.x - e.x + n.x, p.y - e.y + n.y], [q.x + e.x + n.x, q.y + e.y + n.y], [q.x + e.x - n.x, q.y + e.y - n.y], [p.x - e.x - n.x, p.y - e.y - n.y]];
+        el("polygon", { points: pts.map((c) => c.join(",")).join(" "), class: "hit" }, g);
+      }
+      el("line", { x1: p.x, y1: p.y, x2: q.x, y2: q.y, class: "vis", "stroke-width": 3, "stroke-linecap": "round" }, g);
+      if (tappable) targets[id] = g;
+    }
+    el("path", { d: rightMark(P.C, P.A, P.B, 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    if (spec.fig === "sides") {
+      const V = P[spec.at], P1 = spec.at === "A" ? P.C : P.A, P2 = spec.at === "A" ? P.B : P.C;
+      el("path", { d: arcPath(V, P1, P2, 24), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+      if (spec.at === "A") el("text", { x: 74, y: 143, fill: "var(--angle)", "font-size": 16, "font-weight": 700 }, svg, "θ");
+      else el("text", { x: 193, y: 72, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": 16, "font-weight": 700 }, svg, "θ");
+    } else {
+      const names = { A: "bottom left corner", B: "top corner", C: "square corner" };
+      for (const id of ["A", "B", "C"]) {
+        const g = el("g", { class: "tap", tabindex: 0, role: "button", "aria-label": names[id] }, svg);
+        el("circle", { cx: P[id].x, cy: P[id].y, r: 20, class: "hit corner" }, g);
+        el("circle", { cx: P[id].x, cy: P[id].y, r: 4, fill: "var(--ink)" }, g);
+        targets[id] = g;
+      }
+    }
+    for (const id in targets) {
+      const g = targets[id];
+      const fire = () => onTap(id, g);
+      g.addEventListener("click", fire);
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(); } });
+    }
+    return svg;
+  }
+
+  function renderChecks(i) {
+    const qs = QUIZ[i];
+    const box = document.createElement("div");
+    box.className = "checkq span";
+    box.innerHTML = `<div class="checkq-head"><span class="badge">Quick check</span><span class="checkq-sub">${qs.length > 1 ? `Answer all ${qs.length} questions` : "Answer it"} to unlock the next step.</span></div>`;
+    qs.forEach((q, qi) => {
+      const item = document.createElement("div");
+      item.className = "checkq-item";
+      const qp = document.createElement("p");
+      qp.className = "checkq-q";
+      qp.innerHTML = (qs.length > 1 ? `<span class="qn">${qi + 1}.</span> ` : "") + q.q;
+      item.append(qp);
+      const fb = document.createElement("p");
+      fb.className = "checkq-fb";
+      fb.setAttribute("aria-live", "polite");
+      const good = () => { solved[i].add(qi); fb.className = "checkq-fb good"; fb.textContent = q.ok; updateNav(); };
+      const bad = (why) => { fb.className = "checkq-fb bad"; fb.textContent = "Not quite. " + why + " Try again."; };
+      if (q.type === "choice") {
+        const opts = document.createElement("div");
+        opts.className = "checkq-opts";
+        q.options.forEach(([label, why], oi) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = label;
+          b.addEventListener("click", () => {
+            if (solved[i].has(qi)) return;
+            if (oi === q.correct) { b.classList.add("right"); opts.querySelectorAll("button").forEach((x) => { x.disabled = true; }); good(); }
+            else { b.classList.add("wrong"); b.disabled = true; bad(why); }
+          });
+          opts.append(b);
+        });
+        item.append(opts);
+      } else {
+        item.append(tapFigure(q, (id, g) => {
+          if (solved[i].has(qi)) return;
+          if (id === q.correct) { g.classList.add("right"); good(); }
+          else { g.classList.add("wrong"); bad(q.wrong[id]); }
+        }));
+      }
+      item.append(fb);
+      box.append(item);
+    });
+    stepEls[i].append(box);
+  }
+
+  stepEls.forEach((li, i) => {
+    const ar = document.createElement("div");
+    ar.className = "ar-box";
+    ar.lang = "ar";
+    ar.dir = "rtl";
+    ar.innerHTML = `<span class="ar-label">بالعربي</span>${AR[i]}`;
+    li.append(ar);
+    renderChecks(i);
+  });
+
+  const stepDone = (i) => solved[i].size === QUIZ[i].length || i < lesson.reached || lesson.finished;
+  function updateNav() {
+    const one = lesson.mode === "one";
+    stepEls.forEach((li, i) => { li.hidden = one && i !== lesson.cur; });
+    $("afterSteps").hidden = one && !lesson.finished;
+    $("stepbtns").hidden = !one;
+    $("dots").hidden = !one;
+    $("stepCount").textContent = one ? `Step ${lesson.cur + 1} of ${stepEls.length}` : `All ${stepEls.length} steps`;
+    $("modeBtn").textContent = one ? "Show all steps" : "Show one step at a time";
+    $("prevBtn").disabled = lesson.cur === 0;
+    const done = stepDone(lesson.cur);
+    $("nextBtn").disabled = !done;
+    $("nextBtn").textContent = lesson.cur === LAST ? "Finish: try it yourself →" : "Next step →";
+    $("nextHint").textContent = done ? "" : "Answer the quick check to go on.";
+    const open = (i) => i <= Math.max(lesson.reached, lesson.cur) || lesson.finished;
+    $("dots").innerHTML = stepEls.map((_, i) =>
+      `<button type="button" class="dot${i === lesson.cur ? " cur" : stepDone(i) && open(i) ? " done" : ""}" data-i="${i}"${open(i) ? "" : " disabled"} aria-label="Step ${i + 1}"${i === lesson.cur ? ' aria-current="step"' : ""}>${i + 1}</button>`).join("");
+  }
+  function go(i) {
+    lesson.cur = i;
+    lesson.reached = Math.max(lesson.reached, i);
+    saveLesson();
+    updateNav();
+    $("stepnav").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+  }
+  $("dots").addEventListener("click", (e) => { const b = e.target.closest(".dot"); if (b && !b.disabled) go(+b.dataset.i); });
+  $("prevBtn").addEventListener("click", () => go(lesson.cur - 1));
+  $("nextBtn").addEventListener("click", () => {
+    if (lesson.cur < LAST) { go(lesson.cur + 1); return; }
+    lesson.finished = true;
+    lesson.reached = LAST;
+    saveLesson();
+    updateNav();
+    $("afterSteps").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+  });
+  $("modeBtn").addEventListener("click", () => { lesson.mode = lesson.mode === "one" ? "all" : "one"; saveLesson(); updateNav(); });
+  updateNav();
+
+  /* ---------- Arabic help ---------- */
+  let arOn = false;
+  try { arOn = localStorage.getItem("trig-ar") === "1"; } catch (_) {}
+  function applyAr() { document.body.classList.toggle("ar-on", arOn); $("arBtn").setAttribute("aria-pressed", String(arOn)); }
+  $("arBtn").addEventListener("click", () => {
+    arOn = !arOn;
+    try { localStorage.setItem("trig-ar", arOn ? "1" : "0"); } catch (_) {}
+    applyAr();
+  });
+  applyAr();
+
   /* ---------- Theme switch ---------- */
   const root = document.documentElement;
   function applyTheme(mode) {
@@ -987,6 +1286,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   // Used by tests/check-layout.js to draw every triangle shape the page can show.
   window.__layoutTest = {
     svgs: ["lab", "mini"],
+    prepare() { lesson.mode = "all"; lesson.finished = true; arOn = true; applyAr(); updateNav(); },
     cases() {
       const out = [];
       for (const view of ["A", "B"]) for (let th = 10; th <= 80; th += 1) for (const big of [false, true])
