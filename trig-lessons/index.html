@@ -246,7 +246,10 @@ ul.checks.num { list-style: none; padding-left: 0; }
 .readrow svg { width: 100%; max-width: 300px; height: auto; display: block; justify-self: center; }
 .readrow figcaption { text-align: left; color: var(--ink); }
 .trigtable tr.hl th, .trigtable tr.hl td { background: var(--paper); font-weight: 700; }
-@media (max-width: 760px) { .useful { grid-template-columns: minmax(0, 1fr); } }
+.boxes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }
+.boxes .example { align-content: start; }
+.big-line { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; }
+@media (max-width: 760px) { .useful, .boxes { grid-template-columns: minmax(0, 1fr); } }
 
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
@@ -485,6 +488,28 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           </figure>
         </div>
         <p>Today you don't need the table. Your calculator has all of it inside. Type <code>sin 30</code> and it shows <code>0.5</code>.</p>
+        <div class="boxes">
+          <div class="example">
+            <div class="eyebrow">Good question</div>
+            <h3>Do sin, cos and tan have a unit?</h3>
+            <p>No. Each one is a length divided by a length, so the units cancel out: <span class="num">5 cm ÷ 10 cm = 0.5</span>. That's 0.5, not 0.5 cm.</p>
+            <p>You get the same 0.5 in cm, metres or inches. So they describe the <b>shape</b> of the triangle, not its size.</p>
+            <p>tan is like the steepness on a road sign. tan 10° ≈ 0.18 means you go 0.18 m up for every 1 m along the ground.</p>
+          </div>
+          <div class="example">
+            <div class="eyebrow">The whole idea</div>
+            <h3>Ratio × the side you know</h3>
+            <p class="big-line">side you want = side you know × ratio</p>
+            <p>The angle gives you the ratio (sin, cos or tan). The side you know sets the size.</p>
+            <p>Ladder: <span class="num">height = 5 m × sin 60° = 5 m × 0.87 ≈ 4.3 m</span></p>
+            <ul class="checks">
+              <li>Know the <b class="hyp">hypotenuse</b>, want the <b class="opp">opposite</b>: × sin</li>
+              <li>Know the <b class="hyp">hypotenuse</b>, want the <b class="adj">adjacent</b>: × cos</li>
+              <li>Know the <b class="adj">adjacent</b>, want the <b class="opp">opposite</b>: × tan</li>
+            </ul>
+            <p class="tip">If the side you want is the hypotenuse, you divide instead. That's Level 2.</p>
+          </div>
+        </div>
       </div>
     </li>
 
