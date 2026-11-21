@@ -227,6 +227,15 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); pad
 .nextlevel:hover { border-color: var(--ink); }
 .nextlevel:focus-visible, .golink:focus-visible, a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
 
+.tablewrap { overflow-x: auto; }
+.trigtable { border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 18rem; }
+.trigtable th, .trigtable td { padding: 6px 16px; text-align: right; border-bottom: 1px solid var(--line); }
+.trigtable thead th { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+.trigtable tbody th { font-family: var(--mono); color: var(--angle); text-align: left; }
+.trigtable td { font-family: var(--mono); font-weight: 500; }
+.span > h3 { margin-top: 6px; }
+ul.checks.num { list-style: none; padding-left: 0; }
+
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
 svg .num { font-family: var(--mono); font-weight: 700; }
@@ -256,17 +265,22 @@ svg .num { font-family: var(--mono); font-weight: 700; }
       </div>
     </div>
     <h1>What are sin, cos and tan?</h1>
-    <p class="lede">Start with the five short steps below. They explain why these three words exist, what they mean, and how to work out an answer with them. After that, the triangle lab lets you try it yourself.</p>
+    <p class="lede">Read the 7 short steps below, one at a time. Then play with the triangle and try the questions.</p>
   </header>
 
   <ol class="steps">
     <li class="panel step">
       <div class="stepnum" aria-hidden="true">1</div>
       <div class="stepbody">
-        <div class="eyebrow">Why</div>
-        <h2>Some things are too hard to measure</h2>
-        <p>Say you want to know how tall a tree is. You can't climb it with a tape measure. You can't stretch a tape across a river, or up the side of a tall building, either.</p>
-        <p>But two things are easy to measure from the ground: <b>how far away you are</b>, and <b>the angle you tilt your head to see the top</b>. Trigonometry turns those two easy numbers into the hard one.</p>
+        <div class="eyebrow">The problem</div>
+        <h2>Some things are hard to measure</h2>
+        <p>How tall is this tree? You can't climb it with a tape measure.</p>
+        <p>But two things are easy to measure from the ground:</p>
+        <ul class="checks">
+          <li><b>How far you stand from the tree.</b> Here it is 10 m.</li>
+          <li><b>The angle you look up</b> to see the top. Here it is 40°.</li>
+        </ul>
+        <p>sin, cos and tan help you get the height from those two easy numbers. Let's see how.</p>
       </div>
       <figure>
         <svg viewBox="0 0 260 188" role="img" aria-label="A person 10 metres from a tree, looking up at the top at 40 degrees. The height is unknown.">
@@ -281,18 +295,79 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           <text x="125" y="176" text-anchor="middle" class="t-adj num" font-size="13">10 m</text>
           <text x="238" y="100" text-anchor="middle" class="t-opp num" font-size="22">?</text>
         </svg>
-        <figcaption>Easy: the distance and the angle. Hard: the height.</figcaption>
+        <figcaption>Easy to measure: 10 m and 40°. Hard: the height.</figcaption>
       </figure>
     </li>
 
     <li class="panel step">
       <div class="stepnum" aria-hidden="true">2</div>
       <div class="stepbody">
-        <div class="eyebrow">The big idea</div>
-        <h2>Same angle means same shape</h2>
-        <p>A <b>right triangle</b> is a triangle with one square corner (90°), like the corner of a page. If you draw a bigger right triangle with the same angle at the bottom, you get the same shape, only zoomed in.</p>
-        <p>Because the shape is the same, the sides keep the same <b>proportions</b>. In the picture, the tall side is always 0.6 times the long sloping side, whether the triangle is small or big.</p>
-        <p>So every angle comes with its own fixed set of numbers. Those numbers are sin, cos and tan.</p>
+        <div class="eyebrow">Meet θ</div>
+        <h2>θ is the name of the angle we choose</h2>
+        <p>The tree, the ground and your line of sight make a <b>right triangle</b>. That is a triangle with one square corner, like the corner of a page. The square corner is always 90°.</p>
+        <p>A right triangle has 3 corners. One is the square corner. We pick <b>one of the other two</b> to work with.</p>
+        <p>We call the angle we picked <b class="ang">θ</b>. It's a Greek letter, said "THAY-ta". It's just a name, like calling a number x in algebra. We use a letter because the angle is different in every problem.</p>
+        <p>In the tree picture, <b class="ang">θ</b> is the 40° angle where you stand.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 185" role="img" aria-label="A right triangle. The bottom left corner is marked theta, the angle we pick. The bottom right corner is the square corner, 90 degrees. The top corner is the other corner.">
+          <polygon points="30,140 170,140 170,40" class="f-hyp-soft"/>
+          <line x1="30" y1="140" x2="170" y2="140" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <line x1="170" y1="140" x2="170" y2="40" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <line x1="30" y1="140" x2="170" y2="40" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <path d="M156,140 L156,126 L170,126" class="s-muted" stroke-width="1.5" fill="none"/>
+          <path d="M62,140 A32,32 0 0 0 56,121" class="s-angle" stroke-width="4" fill="none"/>
+          <text x="70" y="134" class="t-angle" font-size="17" font-weight="700">θ</text>
+          <text x="12" y="166" class="t-angle" font-size="13" font-weight="700">θ = the angle we pick</text>
+          <text x="180" y="132" class="t-ink" font-size="13"><tspan x="180" dy="0">square</tspan><tspan x="180" dy="15">corner 90°</tspan></text>
+          <text x="180" y="40" class="t-ink" font-size="13"><tspan x="180" dy="0">the other</tspan><tspan x="180" dy="15">corner</tspan></text>
+        </svg>
+        <figcaption>Never pick the square corner. Pick one of the other two.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">The sides</div>
+        <h2>Name the sides from θ</h2>
+        <p>Stand at <b class="ang">θ</b> and look at the triangle. Each side gets a name:</p>
+        <dl class="defs">
+          <div><dt class="hyp">Hypotenuse</dt><dd>The longest side. It is across from the square corner.</dd></div>
+          <div><dt class="opp">Opposite</dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
+          <div><dt class="adj">Adjacent</dt><dd>The other side that touches θ. "Adjacent" means "next to".</dd></div>
+        </dl>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
+          <polygon points="30,150 210,150 210,40" class="f-hyp-soft"/>
+          <line x1="30" y1="150" x2="210" y2="150" class="s-adj" stroke-width="4" stroke-linecap="round"/>
+          <line x1="210" y1="150" x2="210" y2="40" class="s-opp" stroke-width="4" stroke-linecap="round"/>
+          <line x1="30" y1="150" x2="210" y2="40" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
+          <path d="M196,150 L196,136 L210,136" class="s-muted" stroke-width="1.5" fill="none"/>
+          <path d="M60,150 A30,30 0 0 0 55.6,134.4" class="s-angle" stroke-width="3" fill="none"/>
+          <text x="74" y="143" class="t-angle" font-size="16" font-weight="700">θ</text>
+          <text x="120" y="172" text-anchor="middle" class="t-adj" font-size="14" font-weight="700">adjacent</text>
+          <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
+          <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
+        </svg>
+        <figcaption>If you pick the top corner as θ, opposite and adjacent swap.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big discovery</div>
+        <h2>Same angle, same shape</h2>
+        <p>Look at the picture. All three triangles have the same angle θ. The big ones are just the small one made bigger.</p>
+        <p>Now divide the <b class="opp">opposite</b> by the <b class="hyp">hypotenuse</b> in each one:</p>
+        <ul class="checks num">
+          <li><span class="opp">3</span> ÷ <span class="hyp">5</span> = 0.6</li>
+          <li><span class="opp">6</span> ÷ <span class="hyp">10</span> = 0.6</li>
+          <li><span class="opp">9</span> ÷ <span class="hyp">15</span> = 0.6</li>
+        </ul>
+        <p>Always 0.6. The size changes, but the answer stays the same. It only depends on the angle.</p>
       </div>
       <figure>
         <svg viewBox="0 0 260 185" role="img" aria-label="Three right triangles with the same angle, sizes 3-4-5, 6-8-10 and 9-12-15.">
@@ -310,65 +385,61 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           <text x="102" y="88" text-anchor="end" class="t-hyp num" font-size="12">15</text>
           <path d="M45,165 A25,25 0 0 0 40,150" class="s-angle" stroke-width="3" fill="none"/>
         </svg>
-        <figcaption><span class="num"><span class="opp">3</span> ÷ <span class="hyp">5</span> = <span class="opp">6</span> ÷ <span class="hyp">10</span> = <span class="opp">9</span> ÷ <span class="hyp">15</span> = 0.6</span></figcaption>
+        <figcaption>Small, medium, big: same angle (about 37°), same 0.6.</figcaption>
       </figure>
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">3</div>
-      <div class="stepbody">
-        <div class="eyebrow">The names</div>
-        <h2>First name the sides, then sin, cos and tan</h2>
-        <p>Pick the angle you care about. Mathematicians call it <b class="ang">θ</b> (the Greek letter "theta"). Each side gets a name from where it sits compared with θ:</p>
-        <dl class="defs">
-          <div><dt class="hyp">Hypotenuse</dt><dd>The longest side. It is across from the square corner.</dd></div>
-          <div><dt class="opp">Opposite</dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
-          <div><dt class="adj">Adjacent</dt><dd>The side next to θ that isn't the hypotenuse. "Adjacent" means "next to".</dd></div>
-        </dl>
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">So what are sin, cos and tan?</div>
+        <h2>Three numbers that belong to each angle</h2>
+        <p>That 0.6 has a name. It is the <b>sin</b> of 37°. We write <span class="num">sin 37° = 0.6</span>.</p>
+        <p>Every angle has its own three numbers: its <b>sin</b>, its <b>cos</b> and its <b>tan</b>. Each one is one side divided by another side:</p>
       </div>
-      <figure>
-        <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
-          <polygon points="30,150 210,150 210,40" class="f-hyp-soft"/>
-          <line x1="30" y1="150" x2="210" y2="150" class="s-adj" stroke-width="4" stroke-linecap="round"/>
-          <line x1="210" y1="150" x2="210" y2="40" class="s-opp" stroke-width="4" stroke-linecap="round"/>
-          <line x1="30" y1="150" x2="210" y2="40" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
-          <path d="M196,150 L196,136 L210,136" class="s-muted" stroke-width="1.5" fill="none"/>
-          <path d="M60,150 A30,30 0 0 0 55.6,134.4" class="s-angle" stroke-width="3" fill="none"/>
-          <text x="74" y="143" class="t-angle" font-size="16" font-weight="700">θ</text>
-          <text x="120" y="172" text-anchor="middle" class="t-adj" font-size="14" font-weight="700">adjacent</text>
-          <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
-          <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
-        </svg>
-        <figcaption>If you move θ to the top corner, opposite and adjacent swap.</figcaption>
-      </figure>
       <div class="span">
-        <p>sin, cos and tan are names for three of the fixed proportions from step 2:</p>
         <div class="trio">
-          <div class="card"><div class="mn">SOH</div><h3>sin = <span class="opp">opposite</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How tall the triangle is compared with its longest side.</p></div>
-          <div class="card"><div class="mn">CAH</div><h3>cos = <span class="adj">adjacent</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How wide it is compared with its longest side.</p></div>
-          <div class="card"><div class="mn">TOA</div><h3>tan = <span class="opp">opposite</span> ÷ <span class="adj">adjacent</span></h3><p>How steep it is. This is the slope.</p></div>
+          <div class="card"><div class="mn">SOH</div><h3>sin = <span class="opp">opposite</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How tall, compared with the longest side.</p></div>
+          <div class="card"><div class="mn">CAH</div><h3>cos = <span class="adj">adjacent</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How wide, compared with the longest side.</p></div>
+          <div class="card"><div class="mn">TOA</div><h3>tan = <span class="opp">opposite</span> ÷ <span class="adj">adjacent</span></h3><p>How steep it is.</p></div>
         </div>
-        <p class="tip">Say "soh-cah-toa" out loud to remember it. You never have to work these numbers out yourself: a calculator already knows them for every angle. Type <code>sin 30</code> and it answers <code>0.5</code>.</p>
+        <p class="tip">Say "soh-cah-toa" out loud. It helps you remember which sides go with which.</p>
+        <h3>Why are they useful?</h3>
+        <p>They save you from measuring. Long ago, people drew triangles for every angle, measured the sides very carefully, and wrote the answers in big tables. Here is a small part of one:</p>
+        <div class="tablewrap">
+          <table class="trigtable">
+            <thead><tr><th scope="col">Angle</th><th scope="col">sin</th><th scope="col">cos</th><th scope="col">tan</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">10°</th><td>0.17</td><td>0.98</td><td>0.18</td></tr>
+              <tr><th scope="row">30°</th><td>0.50</td><td>0.87</td><td>0.58</td></tr>
+              <tr><th scope="row">45°</th><td>0.71</td><td>0.71</td><td>1.00</td></tr>
+              <tr><th scope="row">60°</th><td>0.87</td><td>0.50</td><td>1.73</td></tr>
+              <tr><th scope="row">80°</th><td>0.98</td><td>0.17</td><td>5.67</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Read the 30° row like this: in <b>any</b> right triangle with a 30° angle, the opposite side is 0.50 (half) of the hypotenuse.</p>
+        <p>Today you don't need the table. Your calculator has all of it inside. Type <code>sin 30</code> and it shows <code>0.5</code>.</p>
       </div>
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepnum" aria-hidden="true">6</div>
       <div class="stepbody">
-        <div class="eyebrow">How to calculate</div>
-        <h2>A three-step recipe</h2>
+        <div class="eyebrow">How to use them</div>
+        <h2>Three steps</h2>
         <ol class="recipe">
-          <li><b>Write down what you know and what you want.</b> Usually that's one angle, one side you know, and one side you want.</li>
-          <li><b>Pick the one that uses those two sides.</b> Check SOH CAH TOA to see which of sin, cos or tan uses both.</li>
-          <li><b>Put in the numbers and solve.</b> Get the sin, cos or tan of the angle from the calculator, then multiply or divide.</li>
+          <li><b>Write what you know and what you want.</b> Usually that's one angle, one side you know, and one side you want.</li>
+          <li><b>Pick sin, cos or tan.</b> Choose the one that uses both of your sides (check SOH CAH TOA).</li>
+          <li><b>Put in the numbers.</b> Get the value from the calculator, then multiply.</li>
         </ol>
         <div class="example">
           <div class="eyebrow">Example</div>
-          <p><b>A 5 m ladder leans against a wall. It makes a 60° angle with the ground. How high up the wall does it reach?</b></p>
+          <p><b>A 5 m ladder leans on a wall. It makes a 60° angle with the ground. How high up the wall does it reach?</b></p>
           <ol class="recipe compact">
-            <li>Know: the angle is 60°, the ladder is the <b class="hyp">hypotenuse</b> = 5 m. Want: the height, which is <b class="opp">opposite</b> the angle.</li>
-            <li><b class="opp">Opposite</b> and <b class="hyp">hypotenuse</b> means <b>SOH</b>, so use <b>sin</b>.</li>
-            <li><span class="num">sin 60° = height ÷ 5</span>, so <span class="num">height = 5 × sin 60° = 5 × 0.87 ≈ 4.3 m</span>.</li>
+            <li>Know: θ = 60°, and the ladder is the <b class="hyp">hypotenuse</b> = 5 m. Want: the height. That is the <b class="opp">opposite</b> side.</li>
+            <li><b class="opp">Opposite</b> and <b class="hyp">hypotenuse</b> go together in <b>SOH</b>. So use <b>sin</b>.</li>
+            <li>sin 60° = 0.87 (from the table or a calculator). So the height is <span class="num">5 × 0.87 ≈ 4.3 m</span>.</li>
           </ol>
         </div>
       </div>
@@ -389,27 +460,30 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepnum" aria-hidden="true">7</div>
       <div class="stepbody span-body">
-        <div class="eyebrow">Where it's used</div>
-        <h2>Who uses this in real life</h2>
-        <p>Back to the tree from step 1: you stand 10 m away and look up at 40°. The height is <b class="opp">opposite</b>, the 10 m is <b class="adj">adjacent</b>, so use <b>tan</b>: <span class="num">height = 10 × tan 40° ≈ 10 × 0.84 ≈ 8.4 m</span>. No climbing needed.</p>
+        <div class="eyebrow">Back to the tree</div>
+        <h2>Now we can solve step 1</h2>
+        <p>You stand 10 m from the tree and look up at θ = 40°.</p>
+        <ul class="checks">
+          <li>The height is <b class="opp">opposite</b> θ. The 10 m on the ground is <b class="adj">adjacent</b> to θ.</li>
+          <li>Opposite and adjacent go together in <b>TOA</b>. So use <b>tan</b>.</li>
+          <li>tan 40° = 0.84. So the height is <span class="num">10 × 0.84 ≈ 8.4 m</span>.</li>
+        </ul>
+        <p>No climbing needed. People use the same idea every day:</p>
         <ul class="uses">
-          <li><h3>Builders</h3><p>Work out how steep a roof or a wheelchair ramp is, and how long the boards must be.</p></li>
-          <li><h3>Video games</h3><p>When a character runs at an angle, cos tells the game how far to move across and sin how far to move up.</p></li>
-          <li><h3>Maps and GPS</h3><p>Surveyors and phones find positions and distances from angles to known points.</p></li>
-          <li><h3>Pilots and sailors</h3><p>Work out the real direction to steer when wind or current pushes them sideways.</p></li>
-          <li><h3>Engineers</h3><p>Split the pull on a bridge cable into the part that holds it up and the part that pulls sideways.</p></li>
-          <li><h3>Astronomers</h3><p>Measured the distance to the Moon and to nearby stars using angles, long before rockets.</p></li>
+          <li><h3>Builders</h3><p>How steep a roof or ramp is, and how long the boards must be.</p></li>
+          <li><h3>Video games</h3><p>How far a character moves across and up when it runs at an angle.</p></li>
+          <li><h3>Maps and GPS</h3><p>Finding where things are from angles to places you know.</p></li>
         </ul>
       </div>
     </li>
   </ol>
 
   <div>
-    <div class="eyebrow">Step 6</div>
+    <div class="eyebrow">Step 8</div>
     <h2>Now try it yourself</h2>
-    <p class="lede" style="margin-top:8px">Drag the corner of the triangle and watch sin, cos and tan change. Try switching which corner θ is at, and changing the size.</p>
+    <p class="lede" style="margin-top:8px">Drag the corner of the triangle and watch sin, cos and tan change. Then try making it bigger or smaller with the size slider: the numbers stay the same.</p>
   </div>
 
   <section class="panel lab" aria-label="Interactive triangle">
@@ -422,7 +496,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
       <div class="ratios" id="ratios"></div>
       <div class="controls">
         <div class="row">
-          <span class="label">Look from</span>
+          <span class="label">θ is the</span>
           <div class="seg" role="radiogroup" aria-label="Which angle is θ">
             <input type="radio" name="view" id="viewA" value="A" checked><label for="viewA">bottom corner</label>
             <input type="radio" name="view" id="viewB" value="B"><label for="viewB">top corner</label>
@@ -448,7 +522,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     <div>
       <div class="eyebrow">Practice</div>
       <h2 id="practiceTitle">Check yourself</h2>
-      <p class="lede" style="margin-top:8px">First find θ. Then work out which side is opposite it and which is next to it. The triangle may be flipped.</p>
+      <p class="lede" style="margin-top:8px">First find θ (the marked angle). Then find the side across from it (opposite) and the other side that touches it (adjacent). Careful: some triangles are flipped.</p>
     </div>
     <div class="panel practice">
       <div class="fig"><svg id="mini" viewBox="0 0 260 190" role="img" aria-label="Practice triangle"></svg><div class="legend" id="legend" hidden></div></div>
@@ -640,7 +714,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
 
     $("note").innerHTML = st.view === "A"
       ? "Move the <b>size</b> slider. The sides get longer, but sin, cos and tan stay the same. They only depend on the angle."
-      : "From the top corner, <b class=\"opp\">opposite</b> and <b class=\"adj\">adjacent</b> have swapped. The <b class=\"hyp\">hypotenuse</b> never changes. That is why you always find θ first.";
+      : "Now θ is the top corner, so <b class=\"opp\">opposite</b> and <b class=\"adj\">adjacent</b> have swapped. The <b class=\"hyp\">hypotenuse</b> stays the same. That's why you always find θ first.";
   }
 
   let focusHandle = false;
