@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
 <style>
 /* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
 :root {
@@ -227,6 +227,86 @@ code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); pad
 .nextlevel:hover { border-color: var(--ink); }
 .nextlevel:focus-visible, .golink:focus-visible, a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
 
+.tablewrap { overflow-x: auto; }
+.trigtable { border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 18rem; }
+.trigtable th, .trigtable td { padding: 6px 16px; text-align: right; border-bottom: 1px solid var(--line); }
+.trigtable thead th { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-weight: 700; }
+.trigtable tbody th { font-family: var(--mono); color: var(--angle); text-align: left; }
+.trigtable td { font-family: var(--mono); font-weight: 500; }
+.span > h3 { margin-top: 6px; }
+ul.checks.num { list-style: none; padding-left: 0; }
+
+.ratio-card svg { width: 100%; max-width: 200px; height: auto; display: block; justify-self: center; }
+.ratio-card .eq { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 1.05rem; }
+.ratio-card .eq b { font-family: var(--mono); }
+.ratio-card .frac { font-weight: 700; font-size: 0.95rem; }
+.ratio-card .frac span:first-child { border-bottom-color: var(--ink); }
+.useful { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+.readrow { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.readrow svg { width: 100%; max-width: 300px; height: auto; display: block; justify-self: center; }
+.readrow figcaption { text-align: left; color: var(--ink); }
+.trigtable tr.hl th, .trigtable tr.hl td { background: var(--paper); font-weight: 700; }
+.boxes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }
+.boxes .example { align-content: start; }
+.big-line { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; }
+@media (max-width: 760px) { .useful, .boxes { grid-template-columns: minmax(0, 1fr); } }
+
+/* One step at a time, quick checks, Arabic help */
+.topright { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.artoggle { font-size: 0.85rem; padding: 4px 12px; }
+.artoggle[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.stepnav { display: grid; gap: 10px; }
+.stepnav-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepnav-top .eyebrow { margin: 0; }
+.linkbtn { border: 0; background: none; padding: 4px 0; color: var(--hyp); font-weight: 700; text-decoration: underline; }
+.linkbtn:hover { border: 0; opacity: 0.85; }
+.dots { display: flex; gap: 8px; flex-wrap: wrap; }
+.dot { width: 36px; height: 36px; padding: 0; border-radius: 50%; font-family: var(--mono); font-weight: 700; display: grid; place-items: center; }
+.dot.done { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.dot.cur { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.dot:disabled { opacity: 0.4; cursor: not-allowed; }
+.stepbtns { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepbtns button { padding: 10px 18px; font-size: 1rem; }
+.stepbtns button:disabled { opacity: 0.45; cursor: not-allowed; }
+.nexthint { color: var(--muted); font-size: 0.9rem; flex: 1 1 10rem; text-align: center; }
+.after { display: grid; gap: 40px; }
+.checkq { border-top: 2px dashed var(--line); padding-top: 16px; display: grid; gap: 18px; min-width: 0; }
+.checkq-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.badge { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--surface); border-radius: 999px; padding: 3px 10px; }
+.checkq-sub { color: var(--muted); font-size: 0.9rem; }
+.checkq-item { display: grid; gap: 10px; min-width: 0; }
+.checkq-q { font-weight: 700; font-size: 1.05rem; }
+.checkq-q .qn { font-family: var(--mono); color: var(--muted); }
+.checkq-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkq-opts button { border-radius: 10px; padding: 10px 16px; font-size: 1rem; text-align: left; }
+.checkq-opts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.checkq-opts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.checkq-opts button:disabled { cursor: default; }
+.checkq-opts button:disabled:not(.right):not(.wrong) { opacity: 0.5; }
+.checkq-fb { min-height: 1.5em; }
+.checkq-fb.good { color: var(--good); font-weight: 700; }
+.checkq-fb.bad { color: var(--bad); }
+.tapfig { width: 100%; max-width: 320px; height: auto; display: block; }
+.tapfig .vis { stroke: var(--ink); }
+.tapfig .hit { fill: var(--hyp); fill-opacity: 0; stroke: none; }
+.tapfig .hit.corner { fill: var(--hyp); fill-opacity: 0.08; stroke: var(--muted); stroke-opacity: 1; stroke-width: 1.5; stroke-dasharray: 3 3; }
+.tap { cursor: pointer; outline: none; }
+.tap:hover .hit, .tap:focus-visible .hit { fill-opacity: 0.16; }
+.tap:hover .hit.corner, .tap:focus-visible .hit.corner { fill-opacity: 0.22; stroke: var(--hyp); }
+.tap.wrong .vis { stroke: var(--bad); }
+.tap.wrong .hit.corner { fill: var(--bad); fill-opacity: 0.18; stroke: var(--bad); }
+.tap.right .vis { stroke: var(--opp); stroke-width: 5; }
+.tap.right .hit.corner { fill: var(--good); fill-opacity: 0.25; stroke: var(--good); }
+.ar, .step .ar-box { display: none; font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif; }
+.step .ar-box { grid-column: 2 / -1; }
+.ar-on .ar { display: revert; }
+.ar-on .step .ar-box { display: block; }
+@media (max-width: 480px) { .step .ar-box { grid-column: 1; } }
+dt .ar { font-weight: 400; color: var(--muted); margin-inline-start: 4px; }
+.ratio-card p.ar { color: var(--muted); }
+.ar-box { background: var(--paper); border-radius: 10px; padding: 14px 16px; line-height: 1.9; font-size: 1.05rem; }
+.ar-label { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
 svg .num { font-family: var(--mono); font-weight: 700; }
@@ -249,24 +329,40 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   <header>
     <div class="topbar">
       <div class="eyebrow">Trigonometry · Level 1 of 6</div>
-      <div class="seg theme" role="radiogroup" aria-label="Colour theme">
-        <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
-        <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
-        <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
       </div>
     </div>
     <h1>What are sin, cos and tan?</h1>
-    <p class="lede">Start with the five short steps below. They explain why these three words exist, what they mean, and how to work out an answer with them. After that, the triangle lab lets you try it yourself.</p>
+    <p class="lede">Go through the 7 short steps one at a time. Each step ends with a quick question. After that, play with the triangle and try the practice.</p>
   </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
 
   <ol class="steps">
     <li class="panel step">
       <div class="stepnum" aria-hidden="true">1</div>
       <div class="stepbody">
-        <div class="eyebrow">Why</div>
-        <h2>Some things are too hard to measure</h2>
-        <p>Say you want to know how tall a tree is. You can't climb it with a tape measure. You can't stretch a tape across a river, or up the side of a tall building, either.</p>
-        <p>But two things are easy to measure from the ground: <b>how far away you are</b>, and <b>the angle you tilt your head to see the top</b>. Trigonometry turns those two easy numbers into the hard one.</p>
+        <div class="eyebrow">The problem</div>
+        <h2>Some things are hard to measure</h2>
+        <p>How tall is this tree? You can't climb it with a tape measure.</p>
+        <p>But two things are easy to measure from the ground:</p>
+        <ul class="checks">
+          <li><b>How far you stand from the tree.</b> Here it is 10 m.</li>
+          <li><b>The angle you look up</b> to see the top. Here it is 40°.</li>
+        </ul>
+        <p>sin, cos and tan help you get the height from those two easy numbers. Let's see how.</p>
       </div>
       <figure>
         <svg viewBox="0 0 260 188" role="img" aria-label="A person 10 metres from a tree, looking up at the top at 40 degrees. The height is unknown.">
@@ -281,18 +377,79 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           <text x="125" y="176" text-anchor="middle" class="t-adj num" font-size="13">10 m</text>
           <text x="238" y="100" text-anchor="middle" class="t-opp num" font-size="22">?</text>
         </svg>
-        <figcaption>Easy: the distance and the angle. Hard: the height.</figcaption>
+        <figcaption>Easy to measure: 10 m and 40°. Hard: the height.</figcaption>
       </figure>
     </li>
 
     <li class="panel step">
       <div class="stepnum" aria-hidden="true">2</div>
       <div class="stepbody">
-        <div class="eyebrow">The big idea</div>
-        <h2>Same angle means same shape</h2>
-        <p>A <b>right triangle</b> is a triangle with one square corner (90°), like the corner of a page. If you draw a bigger right triangle with the same angle at the bottom, you get the same shape, only zoomed in.</p>
-        <p>Because the shape is the same, the sides keep the same <b>proportions</b>. In the picture, the tall side is always 0.6 times the long sloping side, whether the triangle is small or big.</p>
-        <p>So every angle comes with its own fixed set of numbers. Those numbers are sin, cos and tan.</p>
+        <div class="eyebrow">Meet θ</div>
+        <h2>θ is the name of the angle we choose</h2>
+        <p>The tree, the ground and your line of sight make a <b>right triangle</b>. That is a triangle with one square corner, like the corner of a page. The square corner is always 90°.</p>
+        <p>A right triangle has 3 corners. One is the square corner. We pick <b>one of the other two</b> to work with.</p>
+        <p>We call the angle we picked <b class="ang">θ</b>. It's a Greek letter, said "THAY-ta". It's just a name, like calling a number x in algebra. We use a letter because the angle is different in every problem.</p>
+        <p>In the tree picture, <b class="ang">θ</b> is the 40° angle where you stand.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 185" role="img" aria-label="A right triangle. The bottom left corner is marked theta, the angle we pick. The bottom right corner is the square corner, 90 degrees. The top corner is the other corner.">
+          <polygon points="30,140 170,140 170,40" class="f-hyp-soft"/>
+          <line x1="30" y1="140" x2="170" y2="140" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <line x1="170" y1="140" x2="170" y2="40" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <line x1="30" y1="140" x2="170" y2="40" class="s-ink" stroke-width="3" stroke-linecap="round"/>
+          <path d="M156,140 L156,126 L170,126" class="s-muted" stroke-width="1.5" fill="none"/>
+          <path d="M62,140 A32,32 0 0 0 56,121" class="s-angle" stroke-width="4" fill="none"/>
+          <text x="70" y="134" class="t-angle" font-size="17" font-weight="700">θ</text>
+          <text x="12" y="166" class="t-angle" font-size="13" font-weight="700">θ = the angle we pick</text>
+          <text x="180" y="132" class="t-ink" font-size="13"><tspan x="180" dy="0">square</tspan><tspan x="180" dy="15">corner 90°</tspan></text>
+          <text x="180" y="40" class="t-ink" font-size="13"><tspan x="180" dy="0">the other</tspan><tspan x="180" dy="15">corner</tspan></text>
+        </svg>
+        <figcaption>Never pick the square corner. Pick one of the other two.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">The sides</div>
+        <h2>Name the sides from θ</h2>
+        <p>Stand at <b class="ang">θ</b> and look at the triangle. Each side gets a name:</p>
+        <dl class="defs">
+          <div><dt class="hyp">Hypotenuse <span class="ar" lang="ar">الوتر</span></dt><dd>The longest side. It is across from the square corner.</dd></div>
+          <div><dt class="opp">Opposite <span class="ar" lang="ar">المقابل</span></dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
+          <div><dt class="adj">Adjacent <span class="ar" lang="ar">المجاور</span></dt><dd>The other side that touches θ. "Adjacent" means "next to".</dd></div>
+        </dl>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
+          <polygon points="30,150 210,150 210,40" class="f-hyp-soft"/>
+          <line x1="30" y1="150" x2="210" y2="150" class="s-adj" stroke-width="4" stroke-linecap="round"/>
+          <line x1="210" y1="150" x2="210" y2="40" class="s-opp" stroke-width="4" stroke-linecap="round"/>
+          <line x1="30" y1="150" x2="210" y2="40" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
+          <path d="M196,150 L196,136 L210,136" class="s-muted" stroke-width="1.5" fill="none"/>
+          <path d="M60,150 A30,30 0 0 0 55.6,134.4" class="s-angle" stroke-width="3" fill="none"/>
+          <text x="74" y="143" class="t-angle" font-size="16" font-weight="700">θ</text>
+          <text x="120" y="172" text-anchor="middle" class="t-adj" font-size="14" font-weight="700">adjacent</text>
+          <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
+          <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
+        </svg>
+        <figcaption>If you pick the top corner as θ, opposite and adjacent swap.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big discovery</div>
+        <h2>Same angle, same shape</h2>
+        <p>Look at the picture. All three triangles have the same angle θ. The big ones are just the small one made bigger.</p>
+        <p>Now divide the <b class="opp">opposite</b> by the <b class="hyp">hypotenuse</b> in each one:</p>
+        <ul class="checks num">
+          <li><span class="opp">3</span> ÷ <span class="hyp">5</span> = 0.6</li>
+          <li><span class="opp">6</span> ÷ <span class="hyp">10</span> = 0.6</li>
+          <li><span class="opp">9</span> ÷ <span class="hyp">15</span> = 0.6</li>
+        </ul>
+        <p>Always 0.6. The size changes, but the answer stays the same. It only depends on the angle.</p>
       </div>
       <figure>
         <svg viewBox="0 0 260 185" role="img" aria-label="Three right triangles with the same angle, sizes 3-4-5, 6-8-10 and 9-12-15.">
@@ -310,65 +467,139 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           <text x="102" y="88" text-anchor="end" class="t-hyp num" font-size="12">15</text>
           <path d="M45,165 A25,25 0 0 0 40,150" class="s-angle" stroke-width="3" fill="none"/>
         </svg>
-        <figcaption><span class="num"><span class="opp">3</span> ÷ <span class="hyp">5</span> = <span class="opp">6</span> ÷ <span class="hyp">10</span> = <span class="opp">9</span> ÷ <span class="hyp">15</span> = 0.6</span></figcaption>
+        <figcaption>Small, medium, big: same angle (about 37°), same 0.6.</figcaption>
       </figure>
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">3</div>
-      <div class="stepbody">
-        <div class="eyebrow">The names</div>
-        <h2>First name the sides, then sin, cos and tan</h2>
-        <p>Pick the angle you care about. Mathematicians call it <b class="ang">θ</b> (the Greek letter "theta"). Each side gets a name from where it sits compared with θ:</p>
-        <dl class="defs">
-          <div><dt class="hyp">Hypotenuse</dt><dd>The longest side. It is across from the square corner.</dd></div>
-          <div><dt class="opp">Opposite</dt><dd>The side across from θ. It doesn't touch θ.</dd></div>
-          <div><dt class="adj">Adjacent</dt><dd>The side next to θ that isn't the hypotenuse. "Adjacent" means "next to".</dd></div>
-        </dl>
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">So what are sin, cos and tan?</div>
+        <h2>Every angle has 3 special numbers</h2>
+        <p>In step 4, the <b class="opp">opposite</b> ÷ the <b class="hyp">hypotenuse</b> was always 0.6 for that angle. That number has a name. It is called the <b>sin</b> of the angle.</p>
+        <p>You can divide two sides in three ways. Each way has a name: <b>sin</b>, <b>cos</b> and <b>tan</b>. The bold lines show which two sides each one uses.</p>
       </div>
-      <figure>
-        <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
-          <polygon points="30,150 210,150 210,40" class="f-hyp-soft"/>
-          <line x1="30" y1="150" x2="210" y2="150" class="s-adj" stroke-width="4" stroke-linecap="round"/>
-          <line x1="210" y1="150" x2="210" y2="40" class="s-opp" stroke-width="4" stroke-linecap="round"/>
-          <line x1="30" y1="150" x2="210" y2="40" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
-          <path d="M196,150 L196,136 L210,136" class="s-muted" stroke-width="1.5" fill="none"/>
-          <path d="M60,150 A30,30 0 0 0 55.6,134.4" class="s-angle" stroke-width="3" fill="none"/>
-          <text x="74" y="143" class="t-angle" font-size="16" font-weight="700">θ</text>
-          <text x="120" y="172" text-anchor="middle" class="t-adj" font-size="14" font-weight="700">adjacent</text>
-          <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
-          <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
-        </svg>
-        <figcaption>If you move θ to the top corner, opposite and adjacent swap.</figcaption>
-      </figure>
       <div class="span">
-        <p>sin, cos and tan are names for three of the fixed proportions from step 2:</p>
         <div class="trio">
-          <div class="card"><div class="mn">SOH</div><h3>sin = <span class="opp">opposite</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How tall the triangle is compared with its longest side.</p></div>
-          <div class="card"><div class="mn">CAH</div><h3>cos = <span class="adj">adjacent</span> ÷ <span class="hyp">hypotenuse</span></h3><p>How wide it is compared with its longest side.</p></div>
-          <div class="card"><div class="mn">TOA</div><h3>tan = <span class="opp">opposite</span> ÷ <span class="adj">adjacent</span></h3><p>How steep it is. This is the slope.</p></div>
+          <div class="card ratio-card">
+            <div class="mn">SOH</div>
+            <svg viewBox="0 0 160 100" role="img" aria-label="sin uses the opposite side and the hypotenuse.">
+              <line x1="40" y1="86" x2="140" y2="86" class="s-muted" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <line x1="140" y1="86" x2="140" y2="20" class="s-opp" stroke-width="5" stroke-linecap="round"/>
+              <line x1="14" y1="86" x2="140" y2="20" class="s-hyp" stroke-width="5" stroke-linecap="round"/>
+              <line x1="14" y1="86" x2="40" y2="86" class="s-muted" stroke-width="1.5"/>
+              <path d="M128,86 L128,74 L140,74" class="s-muted" stroke-width="1.5" fill="none"/>
+              <path d="M40,86 A26,26 0 0 0 37,73.9" class="s-angle" stroke-width="3" fill="none"/>
+              <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
+            </svg>
+            <div class="eq"><b>sin θ</b> = <span class="frac"><span class="opp">opposite</span><span class="hyp">hypotenuse</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">جا θ (sin) = المقابل ÷ الوتر</p>
+            <p>Example: sin 30° = 0.5. So the opposite side is half as long as the hypotenuse.</p>
+          </div>
+          <div class="card ratio-card">
+            <div class="mn">CAH</div>
+            <svg viewBox="0 0 160 100" role="img" aria-label="cos uses the adjacent side and the hypotenuse.">
+              <line x1="140" y1="86" x2="140" y2="20" class="s-muted" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <line x1="14" y1="86" x2="140" y2="86" class="s-adj" stroke-width="5" stroke-linecap="round"/>
+              <line x1="14" y1="86" x2="140" y2="20" class="s-hyp" stroke-width="5" stroke-linecap="round"/>
+              <path d="M128,86 L128,74 L140,74" class="s-muted" stroke-width="1.5" fill="none"/>
+              <path d="M40,86 A26,26 0 0 0 37,73.9" class="s-angle" stroke-width="3" fill="none"/>
+              <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
+            </svg>
+            <div class="eq"><b>cos θ</b> = <span class="frac"><span class="adj">adjacent</span><span class="hyp">hypotenuse</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">جتا θ (cos) = المجاور ÷ الوتر</p>
+            <p>Example: cos 60° = 0.5. So the adjacent side is half as long as the hypotenuse.</p>
+          </div>
+          <div class="card ratio-card">
+            <div class="mn">TOA</div>
+            <svg viewBox="0 0 160 100" role="img" aria-label="tan uses the opposite side and the adjacent side.">
+              <line x1="14" y1="86" x2="140" y2="20" class="s-muted" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <line x1="14" y1="86" x2="140" y2="86" class="s-adj" stroke-width="5" stroke-linecap="round"/>
+              <line x1="140" y1="86" x2="140" y2="20" class="s-opp" stroke-width="5" stroke-linecap="round"/>
+              <path d="M128,86 L128,74 L140,74" class="s-muted" stroke-width="1.5" fill="none"/>
+              <path d="M40,86 A26,26 0 0 0 37,73.9" class="s-angle" stroke-width="3" fill="none"/>
+              <text x="50" y="81" class="t-angle" font-size="13" font-weight="700">θ</text>
+            </svg>
+            <div class="eq"><b>tan θ</b> = <span class="frac"><span class="opp">opposite</span><span class="adj">adjacent</span></span></div>
+            <p class="ar" lang="ar" dir="rtl">ظا θ (tan) = المقابل ÷ المجاور</p>
+            <p>Example: tan 45° = 1. So the opposite and adjacent sides are the same length.</p>
+          </div>
         </div>
-        <p class="tip">Say "soh-cah-toa" out loud to remember it. You never have to work these numbers out yourself: a calculator already knows them for every angle. Type <code>sin 30</code> and it answers <code>0.5</code>.</p>
+        <p class="tip">To remember which sides go with which, say "soh-cah-toa" out loud: <b>S</b>in = <b>O</b>pposite ÷ <b>H</b>ypotenuse, <b>C</b>os = <b>A</b>djacent ÷ <b>H</b>ypotenuse, <b>T</b>an = <b>O</b>pposite ÷ <b>A</b>djacent.</p>
+
+        <h3>Why are they useful?</h3>
+        <p>They save you from measuring. Long ago, people drew triangles for every angle and measured the sides very carefully. They wrote the answers in big tables, like this small one:</p>
+        <div class="useful">
+          <div class="tablewrap">
+            <table class="trigtable">
+              <thead><tr><th scope="col">Angle</th><th scope="col">sin</th><th scope="col">cos</th><th scope="col">tan</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">10°</th><td>0.17</td><td>0.98</td><td>0.18</td></tr>
+                <tr class="hl"><th scope="row">30°</th><td>0.50</td><td>0.87</td><td>0.58</td></tr>
+                <tr><th scope="row">45°</th><td>0.71</td><td>0.71</td><td>1.00</td></tr>
+                <tr><th scope="row">60°</th><td>0.87</td><td>0.50</td><td>1.73</td></tr>
+                <tr><th scope="row">80°</th><td>0.98</td><td>0.17</td><td>5.67</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="readrow">
+            <svg viewBox="0 0 220 132" role="img" aria-label="A right triangle with a 30 degree angle. The hypotenuse is 10 and the opposite side is 5.">
+              <polygon points="44,110 191.2,110 191.2,25" class="f-hyp-soft"/>
+              <line x1="44" y1="110" x2="191.2" y2="110" class="s-muted" stroke-width="2"/>
+              <line x1="191.2" y1="110" x2="191.2" y2="25" class="s-opp" stroke-width="4" stroke-linecap="round"/>
+              <line x1="44" y1="110" x2="191.2" y2="25" class="s-hyp" stroke-width="4" stroke-linecap="round"/>
+              <path d="M179.2,110 L179.2,98 L191.2,98" class="s-muted" stroke-width="1.5" fill="none"/>
+              <path d="M72,110 A28,28 0 0 0 68.2,96" class="s-angle" stroke-width="3" fill="none"/>
+              <text x="38" y="110" text-anchor="end" dominant-baseline="middle" class="t-angle" font-size="14" font-weight="700">30°</text>
+              <text x="111" y="57" text-anchor="end" class="t-hyp num" font-size="15">10</text>
+              <text x="200" y="72" class="t-opp num" font-size="15">5</text>
+            </svg>
+            <figcaption>How to read the 30° row: <span class="num">sin 30° = <span class="opp">5</span> ÷ <span class="hyp">10</span> = 0.50</span>. In <b>every</b> right triangle with a 30° angle, the opposite side is half the hypotenuse.</figcaption>
+          </figure>
+        </div>
+        <p>Today you don't need the table. Your calculator has all of it inside. Type <code>sin 30</code> and it shows <code>0.5</code>.</p>
+        <div class="boxes">
+          <div class="example">
+            <div class="eyebrow">Good question</div>
+            <h3>Do sin, cos and tan have a unit?</h3>
+            <p>No. Each one is a length divided by a length, so the units cancel out: <span class="num">5 cm ÷ 10 cm = 0.5</span>. That's 0.5, not 0.5 cm.</p>
+            <p>You get the same 0.5 in cm, metres or inches. So they describe the <b>shape</b> of the triangle, not its size.</p>
+            <p>tan is like the steepness on a road sign. tan 10° ≈ 0.18 means you go 0.18 m up for every 1 m along the ground.</p>
+          </div>
+          <div class="example">
+            <div class="eyebrow">The whole idea</div>
+            <h3>Ratio × the side you know</h3>
+            <p class="big-line">side you want = side you know × ratio</p>
+            <p>The angle gives you the ratio (sin, cos or tan). The side you know sets the size.</p>
+            <p>Ladder: <span class="num">height = 5 m × sin 60° = 5 m × 0.87 ≈ 4.3 m</span></p>
+            <ul class="checks">
+              <li>Know the <b class="hyp">hypotenuse</b>, want the <b class="opp">opposite</b>: × sin</li>
+              <li>Know the <b class="hyp">hypotenuse</b>, want the <b class="adj">adjacent</b>: × cos</li>
+              <li>Know the <b class="adj">adjacent</b>, want the <b class="opp">opposite</b>: × tan</li>
+            </ul>
+            <p class="tip">If the side you want is the hypotenuse, you divide instead. That's Level 2.</p>
+          </div>
+        </div>
       </div>
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepnum" aria-hidden="true">6</div>
       <div class="stepbody">
-        <div class="eyebrow">How to calculate</div>
-        <h2>A three-step recipe</h2>
+        <div class="eyebrow">How to use them</div>
+        <h2>Three steps</h2>
         <ol class="recipe">
-          <li><b>Write down what you know and what you want.</b> Usually that's one angle, one side you know, and one side you want.</li>
-          <li><b>Pick the one that uses those two sides.</b> Check SOH CAH TOA to see which of sin, cos or tan uses both.</li>
-          <li><b>Put in the numbers and solve.</b> Get the sin, cos or tan of the angle from the calculator, then multiply or divide.</li>
+          <li><b>Write what you know and what you want.</b> Usually that's one angle, one side you know, and one side you want.</li>
+          <li><b>Pick sin, cos or tan.</b> Choose the one that uses both of your sides (check SOH CAH TOA).</li>
+          <li><b>Put in the numbers.</b> Get the value from the calculator, then multiply.</li>
         </ol>
         <div class="example">
           <div class="eyebrow">Example</div>
-          <p><b>A 5 m ladder leans against a wall. It makes a 60° angle with the ground. How high up the wall does it reach?</b></p>
+          <p><b>A 5 m ladder leans on a wall. It makes a 60° angle with the ground. How high up the wall does it reach?</b></p>
           <ol class="recipe compact">
-            <li>Know: the angle is 60°, the ladder is the <b class="hyp">hypotenuse</b> = 5 m. Want: the height, which is <b class="opp">opposite</b> the angle.</li>
-            <li><b class="opp">Opposite</b> and <b class="hyp">hypotenuse</b> means <b>SOH</b>, so use <b>sin</b>.</li>
-            <li><span class="num">sin 60° = height ÷ 5</span>, so <span class="num">height = 5 × sin 60° = 5 × 0.87 ≈ 4.3 m</span>.</li>
+            <li>Know: θ = 60°, and the ladder is the <b class="hyp">hypotenuse</b> = 5 m. Want: the height. That is the <b class="opp">opposite</b> side.</li>
+            <li><b class="opp">Opposite</b> and <b class="hyp">hypotenuse</b> go together in <b>SOH</b>. So use <b>sin</b>.</li>
+            <li>sin 60° = 0.87 (from the table or a calculator). So the height is <span class="num">5 × 0.87 ≈ 4.3 m</span>.</li>
           </ol>
         </div>
       </div>
@@ -389,27 +620,37 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </li>
 
     <li class="panel step">
-      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepnum" aria-hidden="true">7</div>
       <div class="stepbody span-body">
-        <div class="eyebrow">Where it's used</div>
-        <h2>Who uses this in real life</h2>
-        <p>Back to the tree from step 1: you stand 10 m away and look up at 40°. The height is <b class="opp">opposite</b>, the 10 m is <b class="adj">adjacent</b>, so use <b>tan</b>: <span class="num">height = 10 × tan 40° ≈ 10 × 0.84 ≈ 8.4 m</span>. No climbing needed.</p>
+        <div class="eyebrow">Back to the tree</div>
+        <h2>Now we can solve step 1</h2>
+        <p>You stand 10 m from the tree and look up at θ = 40°.</p>
+        <ul class="checks">
+          <li>The height is <b class="opp">opposite</b> θ. The 10 m on the ground is <b class="adj">adjacent</b> to θ.</li>
+          <li>Opposite and adjacent go together in <b>TOA</b>. So use <b>tan</b>.</li>
+          <li>tan 40° = 0.84. So the height is <span class="num">10 × 0.84 ≈ 8.4 m</span>.</li>
+        </ul>
+        <p>No climbing needed. People use the same idea every day:</p>
         <ul class="uses">
-          <li><h3>Builders</h3><p>Work out how steep a roof or a wheelchair ramp is, and how long the boards must be.</p></li>
-          <li><h3>Video games</h3><p>When a character runs at an angle, cos tells the game how far to move across and sin how far to move up.</p></li>
-          <li><h3>Maps and GPS</h3><p>Surveyors and phones find positions and distances from angles to known points.</p></li>
-          <li><h3>Pilots and sailors</h3><p>Work out the real direction to steer when wind or current pushes them sideways.</p></li>
-          <li><h3>Engineers</h3><p>Split the pull on a bridge cable into the part that holds it up and the part that pulls sideways.</p></li>
-          <li><h3>Astronomers</h3><p>Measured the distance to the Moon and to nearby stars using angles, long before rockets.</p></li>
+          <li><h3>Builders</h3><p>How steep a roof or ramp is, and how long the boards must be.</p></li>
+          <li><h3>Video games</h3><p>How far a character moves across and up when it runs at an angle.</p></li>
+          <li><h3>Maps and GPS</h3><p>Finding where things are from angles to places you know.</p></li>
         </ul>
       </div>
     </li>
   </ol>
 
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
   <div>
-    <div class="eyebrow">Step 6</div>
+    <div class="eyebrow">Step 8</div>
     <h2>Now try it yourself</h2>
-    <p class="lede" style="margin-top:8px">Drag the corner of the triangle and watch sin, cos and tan change. Try switching which corner θ is at, and changing the size.</p>
+    <p class="lede" style="margin-top:8px">Drag the corner of the triangle and watch sin, cos and tan change. Then try making it bigger or smaller with the size slider: the numbers stay the same.</p>
   </div>
 
   <section class="panel lab" aria-label="Interactive triangle">
@@ -422,7 +663,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
       <div class="ratios" id="ratios"></div>
       <div class="controls">
         <div class="row">
-          <span class="label">Look from</span>
+          <span class="label">θ is the</span>
           <div class="seg" role="radiogroup" aria-label="Which angle is θ">
             <input type="radio" name="view" id="viewA" value="A" checked><label for="viewA">bottom corner</label>
             <input type="radio" name="view" id="viewB" value="B"><label for="viewB">top corner</label>
@@ -448,7 +689,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     <div>
       <div class="eyebrow">Practice</div>
       <h2 id="practiceTitle">Check yourself</h2>
-      <p class="lede" style="margin-top:8px">First find θ. Then work out which side is opposite it and which is next to it. The triangle may be flipped.</p>
+      <p class="lede" style="margin-top:8px">First find θ (the marked angle). Then find the side across from it (opposite) and the other side that touches it (adjacent). Careful: some triangles are flipped.</p>
     </div>
     <div class="panel practice">
       <div class="fig"><svg id="mini" viewBox="0 0 260 190" role="img" aria-label="Practice triangle"></svg><div class="legend" id="legend" hidden></div></div>
@@ -479,6 +720,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </ol>
     <a class="nextlevel panel" href="level-2/"><span><span class="eyebrow">Next</span><b>Level 2: Find a missing side</b></span><span aria-hidden="true">→</span></a>
   </section>
+  </div>
 </div>
 
 <script>
@@ -640,7 +882,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
 
     $("note").innerHTML = st.view === "A"
       ? "Move the <b>size</b> slider. The sides get longer, but sin, cos and tan stay the same. They only depend on the angle."
-      : "From the top corner, <b class=\"opp\">opposite</b> and <b class=\"adj\">adjacent</b> have swapped. The <b class=\"hyp\">hypotenuse</b> never changes. That is why you always find θ first.";
+      : "Now θ is the top corner, so <b class=\"opp\">opposite</b> and <b class=\"adj\">adjacent</b> have swapped. The <b class=\"hyp\">hypotenuse</b> stays the same. That's why you always find θ first.";
   }
 
   let focusHandle = false;
@@ -799,6 +1041,227 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   $("next").addEventListener("click", () => newQuestion());
   newQuestion();
 
+  /* ---------- One step at a time, each with a quick check ---------- */
+  // Short Arabic summary of each step, shown with the "Arabic help" button.
+  const AR = [
+    "لا نستطيع قياس طول الشجرة بشريط القياس. لكن من السهل قياس شيئين من الأرض: بُعدك عن الشجرة (10 م)، والزاوية التي تنظر بها إلى قمتها (40°). تساعدنا sin و cos و tan على حساب الطول من هذين الرقمين.",
+    "θ (تُنطق: ثيتا) هو اسم الزاوية التي نختارها. المثلث القائم له ثلاث زوايا: الزاوية القائمة (90°) وزاويتان أخريان. نختار واحدة من الزاويتين الأخريين ونسميها θ، ولا نختار الزاوية القائمة أبدًا. نستخدم حرفًا لأن قيمة الزاوية تتغير من مسألة إلى أخرى، مثل x في الجبر.",
+    "نسمّي الأضلاع حسب مكانها من θ: <b>الوتر</b> (hypotenuse) هو أطول ضلع، ويقابل الزاوية القائمة. <b>المقابل</b> (opposite) هو الضلع الذي يقابل θ ولا يلمسها. <b>المجاور</b> (adjacent) هو الضلع الآخر الذي يلمس θ.",
+    "إذا كبّرنا المثلث وبقيت الزاوية كما هي، يبقى شكله كما هو. لذلك يبقى ناتج قسمة المقابل على الوتر ثابتًا: 3 ÷ 5 = 6 ÷ 10 = 9 ÷ 15 = 0.6. الناتج يعتمد على الزاوية فقط، وليس على حجم المثلث.",
+    "لكل زاوية ثلاثة أرقام خاصة بها: sin (جا) = المقابل ÷ الوتر، و cos (جتا) = المجاور ÷ الوتر، و tan (ظا) = المقابل ÷ المجاور. هذه الأرقام ليس لها وحدة، لأنها طول مقسوم على طول. الآلة الحاسبة تعرفها لكل زاوية، فلا نحتاج إلى رسم المثلث وقياسه.",
+    "ثلاث خطوات: اكتب ما تعرفه وما تريده، ثم اختر sin أو cos أو tan حسب الضلعين، ثم اضرب. مثال: سُلّم طوله 5 م يصنع زاوية 60° مع الأرض. الارتفاع = 5 × sin 60° = 5 × 0.87 ≈ 4.3 م.",
+    "نعود إلى الشجرة: الارتفاع هو الضلع المقابل للزاوية θ، والمسافة 10 م هي الضلع المجاور لها، إذن نستخدم tan. الارتفاع = 10 × tan 40° = 10 × 0.84 ≈ 8.4 م.",
+  ];
+
+  // Quick checks. choice: [label, why-it's-wrong] (null for the right one). tap: tap a corner or a side.
+  const QUIZ = [
+    [{ type: "choice", q: "In the tree picture, which one is hard to measure?", correct: 2,
+       options: [["How far you stand from the tree", "That one is easy. You can measure it along the ground."],
+                 ["The angle you look up", "That one is easy too. A simple tool, or an app on a phone, can measure it."],
+                 ["How tall the tree is", null]],
+       ok: "Right. The height is the hard one. The other two are easy to measure from the ground." }],
+    [{ type: "tap", fig: "corners", q: "Tap the corner that can never be θ.", correct: "C",
+       wrong: { A: "θ can be this corner. You can pick either of the two corners that are not square.",
+                B: "θ can be this corner too. You can pick either of the two corners that are not square." },
+       ok: "Right. The square corner (90°) is never θ." }],
+    [{ type: "tap", fig: "sides", at: "A", q: "θ is at the bottom corner. Tap the opposite side.", correct: "CB",
+       wrong: { AB: "That is the hypotenuse: the longest side, across from the square corner.",
+                AC: "That side touches θ, so it is the adjacent side. The opposite side doesn't touch θ." },
+       ok: "Right. The opposite side is across from θ. It doesn't touch θ." },
+     { type: "tap", fig: "sides", at: "B", q: "Now θ is at the top corner. Tap the opposite side.", correct: "AC",
+       wrong: { AB: "That is the hypotenuse. It never changes: it's always across from the square corner.",
+                CB: "That side touches θ now, so it is the adjacent side. Look for the side that doesn't touch θ." },
+       ok: "Right. When θ moves to the top, opposite and adjacent swap." }],
+    [{ type: "choice", q: "A bigger triangle has the same angle. Its hypotenuse is 20. What is opposite ÷ hypotenuse?", correct: 1,
+       options: [["1.2", "The triangle got bigger, but its shape didn't change. So the answer doesn't change either."],
+                 ["0.6", null],
+                 ["0.3", "Making the triangle bigger doesn't make the number smaller. Same angle, same shape, same answer."]],
+       ok: "Right. Same angle means same shape, so it's still 0.6. (The opposite side would be 12, and 12 ÷ 20 = 0.6.)" }],
+    [{ type: "choice", q: "Which two sides does tan use?", correct: 2,
+       options: [["opposite and hypotenuse", "That's sin. SOH: Sin = Opposite ÷ Hypotenuse."],
+                 ["adjacent and hypotenuse", "That's cos. CAH: Cos = Adjacent ÷ Hypotenuse."],
+                 ["opposite and adjacent", null]],
+       ok: "Right. TOA: Tan = Opposite ÷ Adjacent." },
+     { type: "choice", q: "Look at the table. What is sin 30°?", correct: 0,
+       options: [["0.50", null],
+                 ["0.87", "0.87 is cos 30°. Look in the sin column."],
+                 ["0.58", "0.58 is tan 30°. Look in the sin column."]],
+       ok: "Right. So in a 30° triangle, the opposite side is half the hypotenuse." },
+     { type: "choice", q: "Does sin 30° have a unit?", correct: 2,
+       options: [["Yes, centimetres", "It's a length divided by a length, so the centimetres cancel out."],
+                 ["Yes, degrees", "The angle is in degrees (30°), but sin 30° itself is just a number: 0.5."],
+                 ["No, it's just a number", null]],
+       ok: "Right. It's a length ÷ a length, so there's no unit. It describes the shape, not the size." }],
+    [{ type: "choice", q: "A 10 m ladder makes a 30° angle with the ground. How high up the wall does it reach? (sin 30° = 0.5)", correct: 3,
+       options: [["20 m", "You divided. The height is part of the ladder, so multiply: 10 × 0.5 = 5 m."],
+                 ["0.5 m", "0.5 is the ratio. Multiply it by the ladder: 10 × 0.5 = 5 m."],
+                 ["8.7 m", "That's 10 × cos 30°, the distance along the ground. The height is opposite θ, so use sin."],
+                 ["5 m", null]],
+       ok: "Right. height = 10 × sin 30° = 10 × 0.5 = 5 m." }],
+    [{ type: "choice", q: "You stand 20 m from a tower and look up at 45° to the top. tan 45° = 1. How tall is the tower?", correct: 1,
+       options: [["1 m", "1 is the ratio. Multiply it by the 20 m: 20 × 1 = 20 m."],
+                 ["20 m", null],
+                 ["45 m", "45 is the angle, not a length. Use tan 45° = 1: 20 × 1 = 20 m."]],
+       ok: "Right. At 45° the height is the same as the distance: 20 × 1 = 20 m." }],
+  ];
+
+  const stepEls = [...document.querySelectorAll(".steps > li")];
+  const LAST = stepEls.length - 1;
+  const lesson = { mode: "one", cur: 0, reached: 0, finished: false };
+  try { Object.assign(lesson, JSON.parse(localStorage.getItem("trig-l1-steps") || "{}")); } catch (_) {}
+  lesson.cur = Math.min(Math.max(0, lesson.cur | 0), LAST);
+  const saveLesson = () => { try { localStorage.setItem("trig-l1-steps", JSON.stringify(lesson)); } catch (_) {} };
+  const solved = stepEls.map(() => new Set());
+  const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tapFigure(spec, onTap) {
+    const svg = el("svg", { viewBox: "0 0 260 185", class: "tapfig", role: "group",
+      "aria-label": spec.fig === "corners" ? "Triangle: tap one of its three corners" : "Triangle: tap one of its three sides" });
+    const P = { A: { x: 30, y: 150 }, C: { x: 210, y: 150 }, B: { x: 210, y: 40 } };
+    el("polygon", { points: "30,150 210,150 210,40", fill: "var(--hyp)", "fill-opacity": 0.05 }, svg);
+    const targets = {};
+    const sides = { AC: [P.A, P.C, "bottom side"], CB: [P.C, P.B, "upright side"], AB: [P.A, P.B, "sloping side"] };
+    for (const id in sides) {
+      const [p, q, name] = sides[id];
+      const tappable = spec.fig === "sides";
+      const g = el("g", tappable ? { class: "tap", tabindex: 0, role: "button", "aria-label": name } : {}, svg);
+      if (tappable) {
+        // Invisible 28px-wide band around the side, so it is easy to tap with a finger.
+        const d = norm(sub(q, p)), n = { x: -d.y * 14, y: d.x * 14 }, e = { x: d.x * 8, y: d.y * 8 };
+        const pts = [[p.x - e.x + n.x, p.y - e.y + n.y], [q.x + e.x + n.x, q.y + e.y + n.y], [q.x + e.x - n.x, q.y + e.y - n.y], [p.x - e.x - n.x, p.y - e.y - n.y]];
+        el("polygon", { points: pts.map((c) => c.join(",")).join(" "), class: "hit" }, g);
+      }
+      el("line", { x1: p.x, y1: p.y, x2: q.x, y2: q.y, class: "vis", "stroke-width": 3, "stroke-linecap": "round" }, g);
+      if (tappable) targets[id] = g;
+    }
+    el("path", { d: rightMark(P.C, P.A, P.B, 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    if (spec.fig === "sides") {
+      const V = P[spec.at], P1 = spec.at === "A" ? P.C : P.A, P2 = spec.at === "A" ? P.B : P.C;
+      el("path", { d: arcPath(V, P1, P2, 24), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+      if (spec.at === "A") el("text", { x: 74, y: 143, fill: "var(--angle)", "font-size": 16, "font-weight": 700 }, svg, "θ");
+      else el("text", { x: 193, y: 72, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": 16, "font-weight": 700 }, svg, "θ");
+    } else {
+      const names = { A: "bottom left corner", B: "top corner", C: "square corner" };
+      for (const id of ["A", "B", "C"]) {
+        const g = el("g", { class: "tap", tabindex: 0, role: "button", "aria-label": names[id] }, svg);
+        el("circle", { cx: P[id].x, cy: P[id].y, r: 20, class: "hit corner" }, g);
+        el("circle", { cx: P[id].x, cy: P[id].y, r: 4, fill: "var(--ink)" }, g);
+        targets[id] = g;
+      }
+    }
+    for (const id in targets) {
+      const g = targets[id];
+      const fire = () => onTap(id, g);
+      g.addEventListener("click", fire);
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fire(); } });
+    }
+    return svg;
+  }
+
+  function renderChecks(i) {
+    const qs = QUIZ[i];
+    const box = document.createElement("div");
+    box.className = "checkq span";
+    box.innerHTML = `<div class="checkq-head"><span class="badge">Quick check</span><span class="checkq-sub">${qs.length > 1 ? `Answer all ${qs.length} questions` : "Answer it"} to unlock the next step.</span></div>`;
+    qs.forEach((q, qi) => {
+      const item = document.createElement("div");
+      item.className = "checkq-item";
+      const qp = document.createElement("p");
+      qp.className = "checkq-q";
+      qp.innerHTML = (qs.length > 1 ? `<span class="qn">${qi + 1}.</span> ` : "") + q.q;
+      item.append(qp);
+      const fb = document.createElement("p");
+      fb.className = "checkq-fb";
+      fb.setAttribute("aria-live", "polite");
+      const good = () => { solved[i].add(qi); fb.className = "checkq-fb good"; fb.textContent = q.ok; updateNav(); };
+      const bad = (why) => { fb.className = "checkq-fb bad"; fb.textContent = "Not quite. " + why + " Try again."; };
+      if (q.type === "choice") {
+        const opts = document.createElement("div");
+        opts.className = "checkq-opts";
+        q.options.forEach(([label, why], oi) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = label;
+          b.addEventListener("click", () => {
+            if (solved[i].has(qi)) return;
+            if (oi === q.correct) { b.classList.add("right"); opts.querySelectorAll("button").forEach((x) => { x.disabled = true; }); good(); }
+            else { b.classList.add("wrong"); b.disabled = true; bad(why); }
+          });
+          opts.append(b);
+        });
+        item.append(opts);
+      } else {
+        item.append(tapFigure(q, (id, g) => {
+          if (solved[i].has(qi)) return;
+          if (id === q.correct) { g.classList.add("right"); good(); }
+          else { g.classList.add("wrong"); bad(q.wrong[id]); }
+        }));
+      }
+      item.append(fb);
+      box.append(item);
+    });
+    stepEls[i].append(box);
+  }
+
+  stepEls.forEach((li, i) => {
+    const ar = document.createElement("div");
+    ar.className = "ar-box";
+    ar.lang = "ar";
+    ar.dir = "rtl";
+    ar.innerHTML = `<span class="ar-label">بالعربي</span>${AR[i]}`;
+    li.append(ar);
+    renderChecks(i);
+  });
+
+  const stepDone = (i) => solved[i].size === QUIZ[i].length || i < lesson.reached || lesson.finished;
+  function updateNav() {
+    const one = lesson.mode === "one";
+    stepEls.forEach((li, i) => { li.hidden = one && i !== lesson.cur; });
+    $("afterSteps").hidden = one && !lesson.finished;
+    $("stepbtns").hidden = !one;
+    $("dots").hidden = !one;
+    $("stepCount").textContent = one ? `Step ${lesson.cur + 1} of ${stepEls.length}` : `All ${stepEls.length} steps`;
+    $("modeBtn").textContent = one ? "Show all steps" : "Show one step at a time";
+    $("prevBtn").disabled = lesson.cur === 0;
+    const done = stepDone(lesson.cur);
+    $("nextBtn").disabled = !done;
+    $("nextBtn").textContent = lesson.cur === LAST ? "Finish: try it yourself →" : "Next step →";
+    $("nextHint").textContent = done ? "" : "Answer the quick check to go on.";
+    const open = (i) => i <= Math.max(lesson.reached, lesson.cur) || lesson.finished;
+    $("dots").innerHTML = stepEls.map((_, i) =>
+      `<button type="button" class="dot${i === lesson.cur ? " cur" : stepDone(i) && open(i) ? " done" : ""}" data-i="${i}"${open(i) ? "" : " disabled"} aria-label="Step ${i + 1}"${i === lesson.cur ? ' aria-current="step"' : ""}>${i + 1}</button>`).join("");
+  }
+  function go(i) {
+    lesson.cur = i;
+    lesson.reached = Math.max(lesson.reached, i);
+    saveLesson();
+    updateNav();
+    $("stepnav").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+  }
+  $("dots").addEventListener("click", (e) => { const b = e.target.closest(".dot"); if (b && !b.disabled) go(+b.dataset.i); });
+  $("prevBtn").addEventListener("click", () => go(lesson.cur - 1));
+  $("nextBtn").addEventListener("click", () => {
+    if (lesson.cur < LAST) { go(lesson.cur + 1); return; }
+    lesson.finished = true;
+    lesson.reached = LAST;
+    saveLesson();
+    updateNav();
+    $("afterSteps").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+  });
+  $("modeBtn").addEventListener("click", () => { lesson.mode = lesson.mode === "one" ? "all" : "one"; saveLesson(); updateNav(); });
+  updateNav();
+
+  /* ---------- Arabic help ---------- */
+  let arOn = false;
+  try { arOn = localStorage.getItem("trig-ar") === "1"; } catch (_) {}
+  function applyAr() { document.body.classList.toggle("ar-on", arOn); $("arBtn").setAttribute("aria-pressed", String(arOn)); }
+  $("arBtn").addEventListener("click", () => {
+    arOn = !arOn;
+    try { localStorage.setItem("trig-ar", arOn ? "1" : "0"); } catch (_) {}
+    applyAr();
+  });
+  applyAr();
+
   /* ---------- Theme switch ---------- */
   const root = document.documentElement;
   function applyTheme(mode) {
@@ -823,6 +1286,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   // Used by tests/check-layout.js to draw every triangle shape the page can show.
   window.__layoutTest = {
     svgs: ["lab", "mini"],
+    prepare() { lesson.mode = "all"; lesson.finished = true; arOn = true; applyAr(); updateNav(); },
     cases() {
       const out = [];
       for (const view of ["A", "B"]) for (let th = 10; th <= 80; th += 1) for (const big of [false, true])
