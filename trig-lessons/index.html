@@ -680,6 +680,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
 
 <script data-include="steps.js"></script>
 <script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
 <script>
 (() => {
   const NS = "http://www.w3.org/2000/svg";
@@ -1116,20 +1117,20 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   const TABLE = { 10: [0.17, 0.98, 0.18], 30: [0.5, 0.87, 0.58], 45: [0.71, 0.71, 1], 60: [0.87, 0.5, 1.73], 80: [0.98, 0.17, 5.67] };
   const two = (x) => x.toFixed(2);
   const L1_BANK = [
-    { id: "hard", section: 0, focus: ".stepbody",
+    { id: "hard", concept: "l1-why",
       make: () => Q.mc("You want to know how tall a tree is. Which of these is hard to measure?", "The height of the tree",
         ["How far you stand from the tree", "The angle you look up to see the top"],
         "You can measure the distance along the ground and the angle from where you stand. The height is the hard part. That's what sin, cos and tan help with.") },
-    { id: "theta-what", section: 1, focus: ".stepbody",
+    { id: "theta-what", concept: "l1-theta",
       make: () => Q.mc("What is θ?", "The name of the angle we pick", ["The longest side", "An angle that is always 90°"],
         "θ (theta) is just a name for the angle we choose to work with, like calling a number x in algebra.") },
-    { id: "theta-never", section: 1, focus: "figure",
+    { id: "theta-never", concept: "l1-square-corner",
       make: () => Q.mc("In a right triangle, which corner can never be θ?", "The square corner (90°)", ["The bottom corner", "The top corner"],
         "θ is one of the two corners that are not square. The square corner is never θ.") },
-    { id: "hyp-def", section: 2, focus: ".defs",
+    { id: "hyp-def", concept: "l1-sides",
       make: () => Q.mc("Which side is the hypotenuse?", "The longest side, across from the square corner", ["The side across from θ", "The other side that touches θ"],
         "The hypotenuse is always the longest side, across from the square corner. It's the same whichever corner is θ.") },
-    { id: "opp-len", section: 2, focus: ".defs",
+    { id: "opp-len", concept: "l1-sides", also: "l1-swap",
       make: () => {
         const [a, b, c] = Q.pick(TRIPLES_Q), top = Math.random() < 0.5;
         const opp = top ? b : a;
@@ -1137,7 +1138,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           String(opp), [String(a), String(b), String(c)],
           `The opposite side is across from θ and doesn't touch it. With θ at the ${top ? "top, that's the bottom side" : "bottom, that's the upright side"}: ${opp}.`);
       } },
-    { id: "adj-len", section: 2, focus: ".defs",
+    { id: "adj-len", concept: "l1-sides", also: "l1-swap",
       make: () => {
         const [a, b, c] = Q.pick(TRIPLES_Q), top = Math.random() < 0.5;
         const adj = top ? a : b;
@@ -1145,20 +1146,20 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           String(adj), [String(a), String(b), String(c)],
           `The adjacent side touches θ but isn't the hypotenuse. With θ at the ${top ? "top, that's the upright side" : "bottom, that's the bottom side"}: ${adj}.`);
       } },
-    { id: "same-shape", section: 3, focus: ".checks",
+    { id: "same-shape", concept: "l1-same-shape",
       make: () => {
         const k = Q.between(2, 5);
         return Q.mc(`A small triangle has opposite 3 and hypotenuse 5, so opposite ÷ hypotenuse = 0.6. A bigger triangle with the same angle has hypotenuse ${5 * k}. What is its opposite ÷ hypotenuse?`,
           "0.6", [String(parseFloat((0.6 * k).toFixed(1))), two(0.6 / k)],
           `Same angle, same shape, so the answer doesn't change. Its opposite side is ${3 * k}, and ${3 * k} ÷ ${5 * k} = 0.6.`);
       } },
-    { id: "sin-def", section: 4, focus: ".trio",
+    { id: "sin-def", concept: "l1-ratios",
       make: () => Q.mc("Which one is sin θ?", "opposite ÷ hypotenuse", ["adjacent ÷ hypotenuse", "opposite ÷ adjacent"], "SOH: Sin = Opposite ÷ Hypotenuse.") },
-    { id: "cos-def", section: 4, focus: ".trio",
+    { id: "cos-def", concept: "l1-ratios",
       make: () => Q.mc("Which one is cos θ?", "adjacent ÷ hypotenuse", ["opposite ÷ hypotenuse", "opposite ÷ adjacent"], "CAH: Cos = Adjacent ÷ Hypotenuse.") },
-    { id: "tan-def", section: 4, focus: ".trio",
+    { id: "tan-def", concept: "l1-ratios",
       make: () => Q.mc("Which one is tan θ?", "opposite ÷ adjacent", ["opposite ÷ hypotenuse", "adjacent ÷ hypotenuse"], "TOA: Tan = Opposite ÷ Adjacent.") },
-    { id: "table", section: 4, focus: ".trigtable",
+    { id: "table", concept: "l1-table", also: "l1-read-row",
       make: () => {
         const fi = Q.between(0, 2), fn = ["sin", "cos", "tan"][fi];
         const ang = Q.pick(fi === 2 ? [10, 30, 45, 60, 80] : [10, 30, 60, 80]);
@@ -1166,27 +1167,27 @@ svg .num { font-family: var(--mono); font-weight: 700; }
         return Q.mc(`Use the table in step 5. What is ${fn} ${ang}°?`, val, row.map(two),
           `Find the ${ang}° row, then look in the ${fn} column: ${val}.`);
       } },
-    { id: "unit", section: 4, focus: ".boxes .example:first-child",
+    { id: "unit", concept: "l1-no-unit",
       make: () => Q.mc("Does sin 30° have a unit?", "No, it's just a number", ["Yes, centimetres", "Yes, degrees"],
         "It's a length divided by a length, so the units cancel out. The angle is in degrees, but sin 30° = 0.5 is just a number.") },
-    { id: "meaning", section: 4, focus: ".readrow",
+    { id: "meaning", concept: "l1-read-row",
       make: () => Q.mc("sin 30° = 0.5. What does that mean?", "The opposite side is half the hypotenuse",
         ["The hypotenuse is half the opposite side", "The angle is half of 60°"],
         "sin = opposite ÷ hypotenuse = 0.5, so the opposite side is half as long as the hypotenuse. That's true in every right triangle with a 30° angle.") },
-    { id: "sin-from-sides", section: 4, focus: ".trio",
+    { id: "sin-from-sides", concept: "l1-ratios",
       make: () => {
         const [a, b, c] = Q.pick(TRIPLES_Q);
         return Q.mc(`θ is at the bottom corner. Opposite = ${a}, adjacent = ${b}, hypotenuse = ${c}. What is sin θ?`,
           two(a / c), [two(b / c), two(a / b)],
           `sin = opposite ÷ hypotenuse = ${a} ÷ ${c} = ${two(a / c)}.`);
       } },
-    { id: "which-ratio", section: 5, focus: ".recipe",
+    { id: "which-ratio", concept: "l1-recipe", also: "l1-ratios",
       make: () => {
         const [know, want, fn, mn] = Q.pick([["hypotenuse", "opposite", "sin", "SOH"], ["hypotenuse", "adjacent", "cos", "CAH"], ["adjacent", "opposite", "tan", "TOA"]]);
         return Q.mc(`You know the ${know} and you want the ${want}. Which do you use?`, fn, ["sin", "cos", "tan"],
           `The ${know} and the ${want} go together in ${mn}, so use ${fn}.`);
       } },
-    { id: "ladder", section: 5, focus: ".example",
+    { id: "ladder", concept: "l1-ladder", also: "l1-ratio-times",
       make: () => {
         const L = Q.between(4, 10), ang = Q.pick([30, 60]);
         const s = TABLE[ang][0], c = TABLE[ang][1];
@@ -1194,7 +1195,7 @@ svg .num { font-family: var(--mono); font-weight: 700; }
           Q.len(L * s), [Q.len(L / s), Q.len(L * c)],
           `The ladder is the hypotenuse and the height is opposite θ, so use sin and multiply: ${L} × ${s} ≈ ${Q.len(L * s)}.`);
       } },
-    { id: "tree", section: 6, focus: ".checks",
+    { id: "tree", concept: "l1-tree",
       make: () => {
         const d = Q.between(2, 6) * 5, ang = Q.pick([30, 45, 60]);
         const t = TABLE[ang][2], s = TABLE[ang][0];
@@ -1205,8 +1206,13 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   ];
   const quiz = LessonQuiz.mount({
     root: $("quiz"), bank: L1_BANK, count: 10, storageKey: "trig-l1-quiz-best",
-    explain: (step, focus) => steps.explainAt(step, focus),
-    clear: () => steps.clearFocus(),
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-l1-quiz-best", state: quiz.serialize(), retry: k } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === 1 ? "" : ` (Level ${c.level})`}`; },
+  });
+  // Concept links: jump to the idea that explains something, in any level, and come back (concepts.js).
+  const links = LessonLinks.init({
+    level: 1, steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-l1-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
   });
 
   /* ---------- Theme switch ---------- */
@@ -1236,6 +1242,8 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     prepare() { steps.prepare(); },
     quizBank: L1_BANK,
     quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: 1,
     cases() {
       const out = [];
       for (const view of ["A", "B"]) for (let th = 10; th <= 80; th += 1) for (const big of [false, true])
