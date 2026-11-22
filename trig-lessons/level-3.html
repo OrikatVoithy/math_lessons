@@ -321,7 +321,7 @@ a { color: var(--hyp); }
     </div>
     <div class="eyebrow">Trigonometry · Level 3 of 6</div>
     <h1>Find a missing angle</h1>
-    <p class="lede">In Level 2 you knew an angle and found a side. Now you'll do the opposite: use two sides to find the angle. Go through the 7 short steps one at a time. Each step ends with a quick question.</p>
+    <p class="lede">In <a class="kb-link" data-concept="l2-turn-around" href="../level-2/#c-l2-turn-around">Level 2</a> you knew an angle and found a side. Now you'll do the opposite: use two sides to find the angle. Go through the 7 short steps one at a time. Each step ends with a quick question.</p>
   </header>
 
   <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
@@ -369,7 +369,7 @@ a { color: var(--hyp); }
         <p>Until now you went one way: <b>start with an angle, get its ratio</b>. For example, sin 30° = 0.5.</p>
         <p>Now you go backwards: <b>start with the ratio, find the angle</b>. Which angle has a sin of 0.5? The answer is 30°.</p>
         <p>It's like the contacts on a phone. Normally you look up a <b>name</b> to find the <b>number</b>. Going backwards, you see a number and ask: whose number is this?</p>
-        <p>You can even read the Level 1 table backwards: find 0.50 in the sin column, then read the angle in that row. It's 30°.</p>
+        <p>You can even read the <a class="kb-link" data-concept="l1-table" href="../#c-l1-table">Level 1 table</a> backwards: find 0.50 in the sin column, then read the angle in that row. It's 30°.</p>
       </div>
       <figure>
         <div class="flow" role="img" aria-label="Forwards: 30 degrees, sin, gives 0.5. Backwards: 0.5, sin to the minus one, gives 30 degrees.">
@@ -414,7 +414,7 @@ a { color: var(--hyp); }
           <div class="example">
             <div class="eyebrow">In and out</div>
             <h3>A ratio goes in, an angle comes out</h3>
-            <p>What goes in is a ratio: just a number, with no unit (like 0.5). What comes out is an angle, in degrees (like 30°).</p>
+            <p>What goes in is a ratio: just a number, with no unit (like 0.5; <a class="kb-link" data-concept="l1-no-unit" href="../#c-l1-no-unit">why no unit?</a>). What comes out is an angle, in degrees (like 30°).</p>
           </div>
         </div>
       </div>
@@ -425,7 +425,7 @@ a { color: var(--hyp); }
       <div class="stepbody">
         <div class="eyebrow">Why it works</div>
         <h2>Each ratio belongs to just one angle</h2>
-        <p>Remember Level 1: same angle, same shape, same ratio. So every angle has its own sin.</p>
+        <p><a class="kb-link" data-concept="l1-same-shape" href="../#c-l1-same-shape">Remember Level 1</a>: same angle, same shape, same ratio. So every angle has its own sin.</p>
         <p>Look at the graph. As the angle gets bigger, its sin gets bigger too. It never goes back down, from 0° all the way to 90°.</p>
         <p>So each sin value belongs to just <b>one</b> angle. That's why going backwards gives one clear answer.</p>
         <p>To go backwards on the graph: start at 0.5 on the left, go across to the curve, then straight down. You land on 30°.</p>
@@ -456,8 +456,8 @@ a { color: var(--hyp); }
         <div class="eyebrow">How to find an angle</div>
         <h2>Four steps</h2>
         <ol class="recipe">
-          <li><b>Name the sides</b> from the angle you want (θ).</li>
-          <li><b>Pick sin, cos or tan:</b> the one that uses the two sides you know.</li>
+          <li><b>Name the sides</b> from the angle you want (θ). <a class="kb-link" data-concept="l1-sides" href="../#c-l1-sides">How?</a></li>
+          <li><b>Pick sin, cos or tan:</b> the one that uses the two sides you know (<a class="kb-link" data-concept="l1-ratios" href="../#c-l1-ratios">SOH CAH TOA</a>).</li>
           <li><b>Divide</b> to get the ratio.</li>
           <li><b>Go backwards:</b> press SHIFT, then sin, cos or tan, then type the ratio.</li>
         </ol>
@@ -635,6 +635,7 @@ a { color: var(--hyp); }
 
 <script data-include="steps.js"></script>
 <script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
 <script>
 (() => {
   const NS = "http://www.w3.org/2000/svg";
@@ -952,6 +953,8 @@ a { color: var(--hyp); }
         if (fn === a.fn || (fn !== "tan" && a.r > 1)) continue;
         if (closeDeg(x, INV[fn](a.r))) why = `It looks like you pressed ${fn}⁻¹. You know the ${NAME[s1]} and the ${NAME[s2]}, so use ${a.fn}⁻¹ (${MNEMONIC[a.fn]}).`;
       }
+      const see = why.startsWith("That's the angle") ? "l1-sides" : why.startsWith("Your calculator") ? "l3-checks" : why ? "l1-ratios" : "l3-recipe";
+      why += ` <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`;
       fb.className = "feedback bad";
       fb.innerHTML = `Not quite. The answer is about ${fmtDeg(a.theta)}. ${why}${list}`;
     }
@@ -1007,7 +1010,7 @@ a { color: var(--hyp); }
                  ["An angle", null],
                  ["The area", "Area doesn't tell you if a ladder is safe. Its steepness does."]],
        ok: "Right. Safe or not depends on the angle, so you need to find the angle." }],
-    [{ type: "choice", q: "sin 30° = 0.5. So which angle has a sin of 0.5?", correct: 0,
+    [{ type: "choice", q: "sin 30° = 0.5. So which angle has a sin of 0.5?", correct: 0, see: "l1-table",
        options: [["30°", null],
                  ["0.5°", "0.5 is the ratio, not the angle. Go backwards: which angle gives 0.5?"],
                  ["60°", "sin 60° is 0.87. The angle with sin 0.5 is the one in the question."]],
@@ -1027,7 +1030,7 @@ a { color: var(--hyp); }
                  ["45°", "Start at 0.5 on the left, go across to the curve, then straight down. Where do you land?"],
                  ["60°", "Start at 0.5 on the left, go across to the curve, then straight down. Where do you land?"]],
        ok: "Right. Across from 0.5, then down, lands on 30°." }],
-    [{ type: "choice", q: "A 4 m ladder's foot is 1 m from the wall. Which do you use?", correct: 1,
+    [{ type: "choice", q: "A 4 m ladder's foot is 1 m from the wall. Which do you use?", correct: 1, see: "l1-sides",
        options: [["sin", "sin uses the opposite and the hypotenuse. The 1 m on the ground touches θ, so it's the adjacent."],
                  ["cos", null],
                  ["tan", "tan uses the opposite and the adjacent. Here you know the hypotenuse (the ladder)."]],
@@ -1059,7 +1062,7 @@ a { color: var(--hyp); }
   const TABLE3 = { 10: [0.17, 0.98, 0.18], 30: [0.5, 0.87, 0.58], 45: [0.71, 0.71, 1], 60: [0.87, 0.5, 1.73], 80: [0.98, 0.17, 5.67] };
   const deg1 = (x) => fmtDeg(x);
   const L3_BANK = [
-    { id: "angle-or-side", section: 0, focus: ".checks",
+    { id: "angle-or-side", concept: "l3-why", also: "l2-turn-around",
       make: () => {
         const [q, ans] = Q.pick([
           ["You want to know if a ramp is too steep for a wheelchair.", "An angle"],
@@ -1070,7 +1073,7 @@ a { color: var(--hyp); }
         return Q.mc(`${q} Are you looking for an angle or a side?`, ans, ["An angle", "A side"],
           ans === "An angle" ? "Steepness is an angle. Level 3 is how you find it from two sides." : "A height or a length is a side. That's Level 2.");
       } },
-    { id: "backwards-table", section: 1, focus: ".stepbody",
+    { id: "backwards-table", concept: "l1-table", also: "l3-backwards",
       make: () => {
         const fi = Q.between(0, 2), fn = ["sin", "cos", "tan"][fi];
         const ang = Q.pick(fi === 2 ? [10, 30, 45, 60, 80] : [10, 30, 60, 80]);
@@ -1078,83 +1081,88 @@ a { color: var(--hyp); }
         return Q.mc(`Read the Level 1 table backwards. Which angle has a ${fn} of ${val}?`, `${ang}°`, ["10°", "30°", "45°", "60°", "80°"].filter((x) => x !== `${ang}°`).slice(0, 3),
           `Find ${val} in the ${fn} column, then read the angle in that row: ${ang}°.`);
       } },
-    { id: "what-inverse", section: 2, focus: ".trio",
+    { id: "what-inverse", concept: "l3-buttons",
       make: () => {
         const fn = Q.pick(["sin", "cos", "tan"]);
         return Q.mc(`What does ${fn}⁻¹ do?`, "Takes a ratio and gives back the angle", [`Works out 1 ÷ ${fn}`, "Makes the angle negative"],
           `${fn}⁻¹ goes backwards: you put in a ratio and get the angle.`);
       } },
-    { id: "minus-one", section: 2, focus: ".inout .example:first-child",
+    { id: "minus-one", concept: "l3-minus-one",
       make: () => Q.mc("What does the little −1 in sin⁻¹ mean?", "It means backwards", ["It means 1 ÷ sin", "It means the answer is negative"],
         "The −1 is not a power. It's just a label that means backwards: from the ratio to the angle.") },
-    { id: "in-out", section: 2, focus: ".inout .example:last-child",
+    { id: "in-out", concept: "l3-in-out", also: "l1-no-unit",
       make: () => Q.mc("You type a number into cos⁻¹. What comes out?", "An angle, in degrees", ["A length, in metres", "A ratio, with no unit"],
         "A ratio goes in (just a number) and an angle comes out, in degrees.") },
-    { id: "known-inverse", section: 2, focus: ".trio",
+    { id: "known-inverse", concept: "l3-buttons", also: "l1-table",
       make: () => {
         const [q, a] = Q.pick([["sin⁻¹(0.5)", "30°"], ["cos⁻¹(0.5)", "60°"], ["tan⁻¹(1)", "45°"]]);
         return Q.mc(`What is ${q}?`, a, ["30°", "45°", "60°", "0.5°"],
           `${q} = ${a}. You can check it forwards: ${q.replace("⁻¹", "").replace(/\((.*)\)/, " " + a)} = ${q.match(/\((.*)\)/)[1]}.`);
       } },
-    { id: "graph-range", section: 3, focus: "figure",
+    { id: "graph-range", concept: "l3-graph", also: "l1-same-shape",
       make: () => {
         const s = Q.pick([0.6, 0.7, 0.8]);
         return Q.mc(`sin 30° = 0.5 and sin 60° = 0.87. If sin θ = ${s}, where is θ?`, "Between 30° and 60°", ["Less than 30°", "More than 60°"],
           `${s} is between 0.5 and 0.87. A bigger angle always has a bigger sin, so θ is between 30° and 60°.`);
       } },
-    { id: "pick-ratio", section: 4, focus: ".recipe",
+    { id: "pick-ratio", concept: "l3-recipe", also: "l1-ratios",
       make: () => {
         const pair = Q.pick(["oa", "oh", "ah"]), [a, b] = PAIRS[pair], fn = PAIR_FN[pair];
         return Q.mc(`You know the ${NAME[a]} and the ${NAME[b]}. Which backwards button do you need?`, `${fn}⁻¹`, ["sin⁻¹", "cos⁻¹", "tan⁻¹"],
           `The ${NAME[a]} and the ${NAME[b]} go together in ${MNEMONIC[fn]}, so use ${fn}⁻¹.`);
       } },
-    { id: "ratio-first", section: 4, focus: ".recipe",
+    { id: "ratio-first", concept: "l1-ratios", also: "l3-checks",
       make: () => {
         const [o, h] = Q.pick([[3, 5], [5, 13], [8, 17], [6, 10]]);
         return Q.mc(`The opposite is ${o} and the hypotenuse is ${h}. What do you type into sin⁻¹?`, `${o} ÷ ${h}`, [`${h} ÷ ${o}`, `${o} × ${h}`],
           `sin = opposite ÷ hypotenuse, so type ${o} ÷ ${h}. (The other way round would be more than 1, and give Math ERROR.)`);
       } },
-    { id: "ladder", section: 4, focus: ".pair .example:first-child",
+    { id: "ladder", concept: "l3-ladder", also: "l1-sides",
       make: () => {
         const L = Q.between(3, 8), d = parseFloat((L * Q.pick([0.2, 0.25, 0.3])).toFixed(1));
         const t = Math.acos(d / L) * DEG;
         return Q.mc(`A ${L} m ladder's foot is ${d} m from the wall. What angle does it make with the ground?`, deg1(t), [deg1(90 - t), deg1(Math.atan(d / L) * DEG)],
           `The ladder is the hypotenuse and the ${d} m is adjacent: cos θ = ${d} ÷ ${L} ≈ ${(d / L).toFixed(3)}, so θ = cos⁻¹(${(d / L).toFixed(3)}) ≈ ${deg1(t)}.`);
       } },
-    { id: "ramp", section: 4, focus: ".pair .example:last-child",
+    { id: "ramp", concept: "l3-ramp",
       make: () => {
         const h = Q.pick([0.5, 1, 1.5]), g = Q.between(6, 15);
         const t = Math.atan(h / g) * DEG;
         return Q.mc(`A ramp rises ${h} m over ${g} m along the ground. What is its angle?`, deg1(t), [deg1(90 - t), deg1(Math.asin(Math.min(1, h / g)) * DEG + 1.5)],
           `The rise is opposite and the ground is adjacent: tan θ = ${h} ÷ ${g} ≈ ${(h / g).toFixed(3)}, so θ = tan⁻¹(${(h / g).toFixed(3)}) ≈ ${deg1(t)}.`);
       } },
-    { id: "math-error", section: 5, focus: ".checks",
+    { id: "math-error", concept: "l3-checks",
       make: () => {
         const v = Q.pick([1.2, 1.4, 1.6, 2]), fn = Q.pick(["sin", "cos"]);
         return Q.mc(`You type ${fn}⁻¹(${v}) and get Math ERROR. What went wrong?`, "I divided the wrong way round", ["The calculator is broken", "The angle is more than 90°"],
           `${fn} is never more than 1, because the hypotenuse is the longest side. ${v} is more than 1, so the division was the wrong way round.`);
       } },
-    { id: "guess45", section: 5, focus: ".checks",
+    { id: "guess45", concept: "l3-checks",
       make: () => {
         const o = Q.between(2, 12), a = Q.between(2, 12);
         const ans = o < a ? "Less than 45°" : o > a ? "More than 45°" : "Exactly 45°";
         return Q.mc(`The opposite is ${o} m and the adjacent is ${a} m. Before you calculate, what's your guess for θ?`, ans, ["Less than 45°", "More than 45°", "Exactly 45°"],
           o === a ? "When the two shorter sides are equal, θ is exactly 45°." : `The opposite is ${o < a ? "shorter" : "longer"} than the adjacent, so θ is ${ans.toLowerCase()}.`);
       } },
-    { id: "swapped", section: 5, focus: ".checks",
+    { id: "swapped", concept: "l1-sides", also: "l3-checks",
       make: () => {
         const wrong = Q.between(60, 80);
         return Q.mc(`You got θ = ${wrong}°, but the opposite side is shorter than the adjacent. What happened?`, "I swapped the sides: it should be less than 45°", ["Nothing, that's fine", "The calculator is in DEG"],
           `A shorter opposite side means θ is less than 45°. ${wrong}° is the angle at the other corner, so the sides were swapped. The right answer would be ${90 - wrong}°.`);
       } },
-    { id: "real-life", section: 6, focus: ".uses",
+    { id: "real-life", concept: "l3-real",
       make: () => Q.mc("Which of these needs you to find an angle?", "Checking a wheelchair ramp isn't too steep", ["Working out how high a ladder reaches", "Measuring how long a shadow is"],
         "Steepness is an angle. Ramp designers find it from the rise and the length: 1 m up for every 12 m gives about 4.8°.") },
   ];
   const quiz = LessonQuiz.mount({
     root: $("quiz"), bank: L3_BANK, count: 10, storageKey: "trig-l3-quiz-best",
-    explain: (step, focus) => steps.explainAt(step, focus),
-    clear: () => steps.clearFocus(),
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-l3-quiz-best", state: quiz.serialize(), retry: k } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === 3 ? "" : ` (Level ${c.level})`}`; },
+  });
+  // Concept links: jump to the idea that explains something, in any level, and come back (concepts.js).
+  const links = LessonLinks.init({
+    level: 3, steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-l3-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
   });
 
   /* ---------- Theme switch (same as Level 1) ---------- */
@@ -1184,6 +1192,8 @@ a { color: var(--hyp); }
     prepare() { steps.prepare(); },
     quizBank: L3_BANK,
     quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: 3,
     cases() {
       const out = [];
       for (const pair of ["oa", "oh", "ah"]) for (const v1 of [1, 5, 19.5]) for (const v2 of [1, 5, 20]) for (const shown of [0, 5]) {

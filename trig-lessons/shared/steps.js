@@ -9,7 +9,7 @@
  *   #afterSteps                               shown once the last step is done (lab, practice, quiz)
  *   #arBtn                                    Arabic help button
  *
- * LessonSteps.mount({ storageKey, quiz, ar, renderTap }) returns { explainAt, clearFocus, prepare }.
+ * LessonSteps.mount({ storageKey, quiz, ar, renderTap }) returns { explainAt, clearFocus, current, goTo, prepare }.
  *   quiz[i]: questions for step i. Each is
  *     { type: "choice", q, options: [[label, whyWrong|null], ...], correct, ok } or
  *     { type: "tap", q, correct, wrong: { id: whyWrong }, ok, ...anything renderTap needs }.
@@ -45,7 +45,19 @@
         fb.className = "checkq-fb";
         fb.setAttribute("aria-live", "polite");
         const good = () => { solved[i].add(qi); fb.className = "checkq-fb good"; fb.textContent = q.ok; updateNav(); };
-        const bad = (why) => { fb.className = "checkq-fb bad"; fb.textContent = "Not quite. " + why + " Try again."; };
+        const bad = (why) => {
+          fb.className = "checkq-fb bad";
+          fb.textContent = "Not quite. " + why + " Try again.";
+          // q.see: an idea from the concept map (maybe in an earlier level) that explains this question.
+          if (q.see) {
+            const a = document.createElement("a");
+            a.className = "kb-link";
+            a.dataset.concept = q.see;
+            a.href = "#";
+            a.textContent = "Show me where this is explained →";
+            fb.append(" ", a);
+          }
+        };
         if (q.type === "tap") {
           item.append(cfg.renderTap(q, (id, g) => {
             if (solved[i].has(qi)) return;
@@ -138,7 +150,8 @@
     function clearFocus() { document.querySelectorAll(".lesson-focus").forEach((e) => e.classList.remove("lesson-focus")); }
     function explainAt(step, selector) {
       clearFocus();
-      if (lesson.mode === "one") go(step, false);
+      // Show that step without changing the place he has saved in this level.
+      if (lesson.mode === "one") { lesson.cur = step; updateNav(); }
       const li = stepEls[step];
       const target = (selector && li.querySelector(selector)) || li;
       target.classList.add("lesson-focus");
@@ -147,7 +160,10 @@
     // Used by tests/check-layout.js: show every step, the lab, practice and Arabic help.
     function prepare() { lesson.mode = "all"; lesson.finished = true; setAr(true); updateNav(); }
 
-    return { explainAt, clearFocus, prepare };
+    const current = () => lesson.cur;
+    function goTo(i) { lesson.cur = Math.min(Math.max(0, i | 0), LAST); updateNav(); }
+
+    return { explainAt, clearFocus, current, goTo, prepare };
   }
   window.LessonSteps = { mount };
 })();

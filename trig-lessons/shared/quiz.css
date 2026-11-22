@@ -42,18 +42,6 @@
 .qz-item.is-fixed .qz-tag { color: var(--good); }
 .qz-yours b { color: var(--bad); }
 .qz-right b { color: var(--good); }
-.qz-bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
-  background: var(--surface); border-top: 2px solid var(--angle);
-  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.12);
-  padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px));
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-body.qz-bar-open { padding-bottom: 140px; }
-.qz-bar-text { color: var(--muted); font-size: 0.95rem; }
-.qz-bar button { padding: 10px 18px; font-size: 1rem; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 560px) {
   .qz-opts { grid-template-columns: minmax(0, 1fr); }

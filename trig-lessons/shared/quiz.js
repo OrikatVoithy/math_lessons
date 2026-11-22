@@ -1,14 +1,17 @@
 /*
  * End-of-level quiz, shared by every lesson page; build.sh folds this file into each page.
  *
- * LessonQuiz.mount({ root, bank, count, storageKey, explain, clear })
- *   bank: [{ id, section, focus, make }]
- *     section: index of the lesson step that explains the question
- *     focus:   CSS selector, inside that step, of the part to highlight
+ * LessonQuiz.mount({ root, bank, count, storageKey, explain, alsoLabel })
+ *   bank: [{ id, concept, also, make }]
+ *     concept: the idea in the concept map (concepts.js) that explains the question; it can be
+ *              in any level
+ *     also:    optional second idea, shown as an "Also see" button
  *     make():  returns a fresh version of the question (new numbers each time):
  *              { q, options: [...], correct: index, why }
- *   explain(section, focus): the page opens that step and highlights the part
- *   clear(): the page removes the highlight
+ *   explain(question, index, also): the page opens the idea (on this page or another one)
+ *   alsoLabel(question): text for the "Also see" button
+ * Returns { key, retry, serialize, restore } so the page can bring him back to his quiz after
+ * reading an explanation on another page.
  *
  * Flow: 10 random questions. Each answer turns green or red at once, with the right answer
  * and why. At the end: the score, then every mistake with a button that jumps to its
@@ -34,22 +37,7 @@
     let best = null;
     try { const v = localStorage.getItem(cfg.storageKey); if (v !== null) best = +v; } catch (_) {}
     let run = null;
-    let returning = null;
     let current = null; // the question on screen (tests read its right answer)
-
-    const bar = document.createElement("div");
-    bar.className = "qz-bar";
-    bar.hidden = true;
-    bar.innerHTML = '<span class="qz-bar-text">Read the highlighted part. When it makes sense, go back and try again.</span><button type="button" class="primary qz-back">I understand: back to the question</button>';
-    document.body.append(bar);
-    bar.querySelector(".qz-back").addEventListener("click", () => {
-      bar.hidden = true;
-      document.body.classList.remove("qz-bar-open");
-      if (cfg.clear) cfg.clear();
-      const k = returning;
-      returning = null;
-      if (k != null) retry(k);
-    });
 
     const score = () => run.items.filter((it) => it.ok).length;
     const state = (it) => (it.pick == null ? "" : it.ok ? "ok" : it.fixed ? "fixed" : "bad");
@@ -124,21 +112,18 @@
           <p class="qz-yours">You chose: <b>${it.inst.options[it.pick]}</b></p>
           <p class="qz-right">Right answer: <b>${it.inst.options[it.inst.correct]}</b></p>
           <p>${it.inst.why}</p>
-          ${it.fixed ? "" : `<div class="qz-actions"><button type="button" class="primary" data-explain="${k}">Show me where this is explained</button><button type="button" data-retry="${k}">Try it again now</button></div>`}
+          ${it.fixed ? "" : `<div class="qz-actions"><button type="button" class="primary" data-explain="${k}">Show me where this is explained</button><button type="button" data-retry="${k}">Try it again now</button>${it.g.also && cfg.alsoLabel ? `<button type="button" class="qz-also" data-also="${k}">${cfg.alsoLabel(it.g)}</button>` : ""}</div>`}
         </li>`).join("")}</ol>` : ""}
         <div class="qz-nav"><button type="button" class="qz-again">Start a new quiz</button></div></div>`;
       root.querySelectorAll("[data-explain]").forEach((b) => b.addEventListener("click", () => explain(+b.dataset.explain)));
+      root.querySelectorAll("[data-also]").forEach((b) => b.addEventListener("click", () => explain(+b.dataset.also, true)));
       root.querySelectorAll("[data-retry]").forEach((b) => b.addEventListener("click", () => retry(+b.dataset.retry)));
       root.querySelector(".qz-again").addEventListener("click", begin);
       if (!first) root.scrollIntoView({ behavior: smooth(), block: "start" });
     }
 
-    function explain(k) {
-      returning = k;
-      bar.hidden = false;
-      document.body.classList.add("qz-bar-open"); // room at the bottom so the bar never covers the page
-      const g = run.items[k].g;
-      cfg.explain(g.section, g.focus);
+    function explain(k, also = false) {
+      cfg.explain(run.items[k].g, k, also);
     }
 
     function retry(k) {
@@ -164,8 +149,22 @@
     }
 
     start();
-    // Used by tests/check-quiz.js: the index of the right option for the question on screen.
-    return { key: () => (current ? current.correct : null) };
+    // Save and restore a quiz in progress, so he can read an explanation on another page and come back.
+    const serialize = () => ({ items: run.items.map((it) => ({ id: it.g.id, inst: it.inst, pick: it.pick, ok: it.ok, fixed: it.fixed })) });
+    function restore(state) {
+      const items = state.items.map((x) => ({ g: cfg.bank.find((g) => g.id === x.id), inst: x.inst, pick: x.pick, ok: x.ok, fixed: x.fixed }));
+      if (items.some((it) => !it.g)) { start(); return false; }
+      run = { items };
+      return true;
+    }
+
+    return {
+      key: () => (current ? current.correct : null), // used by tests/check-quiz.js
+      retry: (k) => retry(k),
+      serialize,
+      restore,
+      showResults: () => results(false), // used by tests/check-quiz.js
+    };
   }
 
   window.LessonQuiz = { mount, mc, pick, between, shuffle, len };

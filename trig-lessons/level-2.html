@@ -296,7 +296,7 @@ a { color: var(--hyp); }
     </div>
     <div class="eyebrow">Trigonometry · Level 2 of 6</div>
     <h1>Find a missing side</h1>
-    <p class="lede">In Level 1 you learned what sin, cos and tan are. Now you'll use them to find a side you can't measure. Go through the 5 short steps one at a time. Each step ends with a quick question.</p>
+    <p class="lede">In <a class="kb-link" data-concept="l1-ratios" href="../#c-l1-ratios">Level 1</a> you learned what sin, cos and tan are. Now you'll use them to find a side you can't measure. Go through the 5 short steps one at a time. Each step ends with a quick question.</p>
   </header>
 
   <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
@@ -320,6 +320,7 @@ a { color: var(--hyp); }
           <li><b>CAH</b>: cos θ = <b class="adj">adjacent</b> ÷ <b class="hyp">hypotenuse</b> <span class="ar" lang="ar">(جتا = المجاور ÷ الوتر)</span></li>
           <li><b>TOA</b>: tan θ = <b class="opp">opposite</b> ÷ <b class="adj">adjacent</b> <span class="ar" lang="ar">(ظا = المقابل ÷ المجاور)</span></li>
         </ul>
+        <p>Need a reminder? <a class="kb-link" data-concept="l1-ratios" href="../#c-l1-ratios">See SOH CAH TOA in Level 1</a>.</p>
       </div>
       <figure>
         <svg viewBox="0 0 260 185" role="img" aria-label="Right triangle with angle theta at the bottom left. The side across from theta is opposite, the bottom side is adjacent, the sloping side is the hypotenuse.">
@@ -334,7 +335,7 @@ a { color: var(--hyp); }
           <text x="202" y="118" text-anchor="end" class="t-opp" font-size="14" font-weight="700">opposite</text>
           <text x="104" y="84" text-anchor="middle" class="t-hyp" font-size="14" font-weight="700" transform="rotate(-31 104 84)">hypotenuse</text>
         </svg>
-        <figcaption>Not sure about this? <a href="../">Go back to Level 1</a>.</figcaption>
+        <figcaption>Not sure about this? <a class="kb-link" data-concept="l1-sides" href="../#c-l1-sides">See it in Level 1</a>.</figcaption>
       </figure>
     </li>
 
@@ -584,6 +585,7 @@ a { color: var(--hyp); }
 
 <script data-include="steps.js"></script>
 <script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
 <script>
 (() => {
   const NS = "http://www.w3.org/2000/svg";
@@ -881,6 +883,8 @@ a { color: var(--hyp); }
             : `It looks like you used ${fn}. You know the ${NAME[p.known]} and want the ${NAME[p.want]}, so use ${s.fn} (${MNEMONIC[s.fn]}).`;
         }
       }
+      const see = why.startsWith("You picked") ? "l2-turn-around" : why ? "l1-ratios" : "l2-recipe";
+      why += ` <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`;
       fb.className = "feedback bad";
       fb.innerHTML = `Not quite. The answer is about ${fmt1(s.exact)} m. ${why}${steps}`;
     }
@@ -930,7 +934,7 @@ a { color: var(--hyp); }
     "هل الإجابة منطقية؟ الوتر هو دائمًا أطول ضلع. إذا كانت الزاوية أقل من 45° فالمقابل أقصر من المجاور، وإذا كانت أكبر من 45° فالمقابل أطول. وتأكد أن الآلة الحاسبة على وضع الدرجات (DEG): sin 30 يجب أن يعطي 0.5.",
   ];
   const QUIZ = [
-    [{ type: "choice", q: "θ is marked. You know the hypotenuse and want the opposite. Which do you use?", correct: 0,
+    [{ type: "choice", q: "θ is marked. You know the hypotenuse and want the opposite. Which do you use?", correct: 0, see: "l1-ratios",
        options: [["sin", null],
                  ["cos", "cos uses the adjacent and the hypotenuse. Here you need the opposite."],
                  ["tan", "tan uses the opposite and the adjacent. Here you know the hypotenuse."]],
@@ -976,28 +980,28 @@ a { color: var(--hyp); }
   const VAL = { sin: { 30: 0.5, 45: 0.71, 60: 0.87 }, cos: { 30: 0.87, 45: 0.71, 60: 0.5 }, tan: { 30: 0.58, 45: 1, 60: 1.73 } };
   const SIDE = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
   const L2_BANK = [
-    { id: "pick-ratio", section: 0, focus: ".checks",
+    { id: "pick-ratio", concept: "l1-ratios", also: "l2-recap",
       make: () => {
         const [know, want] = Q.pick([["hyp", "opp"], ["opp", "hyp"], ["hyp", "adj"], ["adj", "hyp"], ["adj", "opp"], ["opp", "adj"]]);
         const fn = pickFn(know, want);
         return Q.mc(`θ is marked. You know the ${SIDE[know]} and want the ${SIDE[want]}. Which do you use?`, fn, ["sin", "cos", "tan"],
           `The ${SIDE[know]} and the ${SIDE[want]} go together in ${MNEMONIC[fn]}, so use ${fn}.`);
       } },
-    { id: "top-multiply", section: 1, focus: ".pair",
+    { id: "top-multiply", concept: "l2-multiply",
       make: () => {
         const fn = Q.pick(["sin", "cos", "tan"]), ang = Q.pick([30, 45, 60]), k = Q.between(2, 12);
         return Q.mc(`${fn} ${ang}° = ? ÷ ${k}. How do you find the ?`, `? = ${k} × ${fn} ${ang}°`,
           [`? = ${k} ÷ ${fn} ${ang}°`, `? = ${fn} ${ang}° ÷ ${k}`],
           "The ? is on top of the fraction, so multiply.");
       } },
-    { id: "bottom-divide", section: 1, focus: ".pair",
+    { id: "bottom-divide", concept: "l2-divide",
       make: () => {
         const fn = Q.pick(["sin", "cos", "tan"]), ang = Q.pick([30, 45, 60]), k = Q.between(2, 12);
         return Q.mc(`${fn} ${ang}° = ${k} ÷ ?. How do you find the ?`, `? = ${k} ÷ ${fn} ${ang}°`,
           [`? = ${k} × ${fn} ${ang}°`, `? = ${fn} ${ang}° ÷ ${k}`],
           "The ? is on the bottom of the fraction, so divide.");
       } },
-    { id: "cover", section: 2, focus: ".cover",
+    { id: "cover", concept: "l2-cover",
       make: () => {
         const [name, top, a, b] = Q.pick([["SOH", "O", "S", "H"], ["CAH", "A", "C", "H"], ["TOA", "O", "T", "A"]]);
         const cover = Q.pick([top, a, b]);
@@ -1007,46 +1011,46 @@ a { color: var(--hyp); }
         return Q.mc(`In the ${name} cover-up triangle, you cover ${cover}. What is ${cover}?`, right, wrongs,
           cover === top ? `Cover ${top} and ${a} and ${b} are side by side, so multiply: ${right}.` : `Cover ${cover} and ${top} is above the other letter, so divide: ${right}.`);
       } },
-    { id: "kite", section: 3, focus: ".pair",
+    { id: "kite", concept: "l2-turn-around", also: "l1-ratios",
       make: () => {
         const L = Q.between(3, 12) * 5, ang = Q.pick([30, 60]), s = VAL.sin[ang], c = VAL.cos[ang];
         return Q.mc(`A kite string is ${L} m long and makes ${ang}° with the ground. How high is the kite? (sin ${ang}° = ${s})`,
           Q.len(L * s), [Q.len(L / s), Q.len(L * c)],
           `The string is the hypotenuse and the height is opposite: sin ${ang}° = ? ÷ ${L}. The ? is on top, so multiply: ${L} × ${s} ≈ ${Q.len(L * s)}.`);
       } },
-    { id: "shadow", section: 3, focus: ".pair .example:first-child",
+    { id: "shadow", concept: "l2-shadow",
       make: () => {
         const d = Q.between(2, 8) * 2, ang = Q.pick([30, 45, 60]), t = VAL.tan[ang], s = VAL.sin[ang];
         return Q.mc(`A tree's shadow is ${d} m long and the sun is ${ang}° above the ground. How tall is the tree? (tan ${ang}° = ${t})`,
           Q.len(d * t), [Q.len(d / t), Q.len(d * s), `${ang} m`],
           `The height is opposite and the shadow is adjacent: tan ${ang}° = ? ÷ ${d}. The ? is on top, so multiply: ${d} × ${t} ≈ ${Q.len(d * t)}.`);
       } },
-    { id: "ladder-length", section: 3, focus: ".pair .example:last-child",
+    { id: "ladder-length", concept: "l2-ladder-length", also: "l2-divide",
       make: () => {
         const d = Q.between(1, 4), ang = Q.pick([45, 60]), c = VAL.cos[ang];
         return Q.mc(`The foot of a ladder is ${d} m from a wall and the ladder makes ${ang}° with the ground. How long is the ladder? (cos ${ang}° = ${c})`,
           Q.len(d / c), [Q.len(d * c), Q.len(d + c)],
           `The ladder is the hypotenuse and the ${d} m is adjacent: cos ${ang}° = ${d} ÷ ?. The ? is on the bottom, so divide: ${d} ÷ ${c} ≈ ${Q.len(d / c)}.`);
       } },
-    { id: "ramp", section: 1, focus: ".pair .card:last-child",
+    { id: "ramp", concept: "l2-divide",
       make: () => {
         const h = Q.between(1, 3), ang = Q.pick([30, 45]), s = VAL.sin[ang], c = VAL.cos[ang];
         return Q.mc(`A ramp rises ${h} m at ${ang}°. How long is the ramp? (sin ${ang}° = ${s})`,
           Q.len(h / s), [Q.len(h * s), Q.len(h / c === h / s ? h * c : h / c)],
           `The rise is opposite and the ramp is the hypotenuse: sin ${ang}° = ${h} ÷ ?. The ? is on the bottom, so divide: ${h} ÷ ${s} ≈ ${Q.len(h / s)}.`);
       } },
-    { id: "recipe-first", section: 3, focus: ".recipe",
+    { id: "recipe-first", concept: "l2-recipe", also: "l1-sides",
       make: () => Q.mc("What is the first thing to do when you look for a missing side?", "Name the sides from θ",
         ["Multiply the two numbers", "Press sin on the calculator"],
         "Always start by naming the sides from θ. Then you know which ratio to use.") },
-    { id: "hyp-longest", section: 4, focus: ".checks",
+    { id: "hyp-longest", concept: "l2-checks",
       make: () => {
         const small = Q.between(2, 5), big = small + Q.between(2, 4);
         return Q.mc(`You worked out the hypotenuse is ${small} m, but the opposite side is ${big} m. What does that tell you?`,
           "Something went wrong: probably multiplied instead of divided", ["Nothing, that's fine", "The angle must be 90°"],
           "The hypotenuse is always the longest side, so it can't be shorter than the opposite. Check whether the ? was on the bottom, so you should divide.");
       } },
-    { id: "rule45", section: 4, focus: ".checks",
+    { id: "rule45", concept: "l2-checks",
       make: () => {
         let t = Q.between(10, 80);
         if (t === 45) t = 50;
@@ -1054,15 +1058,20 @@ a { color: var(--hyp); }
           ["The opposite", "The adjacent", "They are the same"],
           t < 45 ? "Under 45°, the opposite is shorter than the adjacent." : "Over 45°, the opposite is longer than the adjacent.");
       } },
-    { id: "degrees", section: 4, focus: ".checks",
+    { id: "degrees", concept: "l2-checks",
       make: () => Q.mc("You type sin 30 and the calculator shows -0.988. What's wrong?", "It isn't in degrees mode (DEG)",
         ["sin 30 really is -0.988", "You should have typed cos 30"],
         "sin 30° is 0.5. A strange answer like -0.988 means the calculator is using a different angle unit. Switch it to DEG.") },
   ];
   const quiz = LessonQuiz.mount({
     root: $("quiz"), bank: L2_BANK, count: 10, storageKey: "trig-l2-quiz-best",
-    explain: (step, focus) => steps.explainAt(step, focus),
-    clear: () => steps.clearFocus(),
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-l2-quiz-best", state: quiz.serialize(), retry: k } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === 2 ? "" : ` (Level ${c.level})`}`; },
+  });
+  // Concept links: jump to the idea that explains something, in any level, and come back (concepts.js).
+  const links = LessonLinks.init({
+    level: 2, steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-l2-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
   });
 
   /* ---------- Theme switch (same as Level 1) ---------- */
@@ -1092,6 +1101,8 @@ a { color: var(--hyp); }
     prepare() { steps.prepare(); },
     quizBank: L2_BANK,
     quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: 2,
     cases() {
       const out = [];
       for (let th = 15; th <= 75; th += 2) for (const known of ["opp", "adj", "hyp"]) for (const want of ["opp", "adj", "hyp"]) {
