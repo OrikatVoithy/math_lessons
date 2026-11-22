@@ -1,0 +1,62 @@
+/* Shared by every lesson page: one step at a time, quick checks, Arabic help, and the highlight used when the quiz links back to an explanation. Uses the colour tokens each page defines. */
+/* One step at a time, quick checks, Arabic help */
+.topright { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.artoggle { font-size: 0.85rem; padding: 4px 12px; }
+.artoggle[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.stepnav { display: grid; gap: 10px; }
+.stepnav-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepnav-top .eyebrow { margin: 0; }
+.linkbtn { border: 0; background: none; padding: 4px 0; color: var(--hyp); font-weight: 700; text-decoration: underline; }
+.linkbtn:hover { border: 0; opacity: 0.85; }
+.dots { display: flex; gap: 8px; flex-wrap: wrap; }
+.dot { width: 36px; height: 36px; padding: 0; border-radius: 50%; font-family: var(--mono); font-weight: 700; display: grid; place-items: center; }
+.dot.done { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.dot.cur { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.dot:disabled { opacity: 0.4; cursor: not-allowed; }
+.stepbtns { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepbtns button { padding: 10px 18px; font-size: 1rem; }
+.stepbtns button:disabled { opacity: 0.45; cursor: not-allowed; }
+.nexthint { color: var(--muted); font-size: 0.9rem; flex: 1 1 10rem; text-align: center; }
+.after { display: grid; gap: 40px; }
+.checkq { border-top: 2px dashed var(--line); padding-top: 16px; display: grid; gap: 18px; min-width: 0; }
+.checkq-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.badge { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--surface); border-radius: 999px; padding: 3px 10px; }
+.checkq-sub { color: var(--muted); font-size: 0.9rem; }
+.checkq-item { display: grid; gap: 10px; min-width: 0; }
+.checkq-q { font-weight: 700; font-size: 1.05rem; }
+.checkq-q .qn { font-family: var(--mono); color: var(--muted); }
+.checkq-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkq-opts button { border-radius: 10px; padding: 10px 16px; font-size: 1rem; text-align: left; }
+.checkq-opts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.checkq-opts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.checkq-opts button:disabled { cursor: default; }
+.checkq-opts button:disabled:not(.right):not(.wrong) { opacity: 0.5; }
+.checkq-fb { min-height: 1.5em; }
+.checkq-fb.good { color: var(--good); font-weight: 700; }
+.checkq-fb.bad { color: var(--bad); }
+.tapfig { width: 100%; max-width: 320px; height: auto; display: block; }
+.tapfig .vis { stroke: var(--ink); }
+.tapfig .hit { fill: var(--hyp); fill-opacity: 0; stroke: none; }
+.tapfig .hit.corner { fill: var(--hyp); fill-opacity: 0.08; stroke: var(--muted); stroke-opacity: 1; stroke-width: 1.5; stroke-dasharray: 3 3; }
+.tap { cursor: pointer; outline: none; }
+.tap:hover .hit, .tap:focus-visible .hit { fill-opacity: 0.16; }
+.tap:hover .hit.corner, .tap:focus-visible .hit.corner { fill-opacity: 0.22; stroke: var(--hyp); }
+.tap.wrong .vis { stroke: var(--bad); }
+.tap.wrong .hit.corner { fill: var(--bad); fill-opacity: 0.18; stroke: var(--bad); }
+.tap.right .vis { stroke: var(--opp); stroke-width: 5; }
+.tap.right .hit.corner { fill: var(--good); fill-opacity: 0.25; stroke: var(--good); }
+.ar, .step .ar-box { display: none; font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif; }
+.step .ar-box { grid-column: 2 / -1; }
+.ar-on .ar { display: revert; }
+.ar-on .step .ar-box { display: block; }
+@media (max-width: 480px) { .step .ar-box { grid-column: 1; } }
+dt .ar { font-weight: 400; color: var(--muted); margin-inline-start: 4px; }
+.ratio-card p.ar { color: var(--muted); }
+.ar-box { background: var(--paper); border-radius: 10px; padding: 14px 16px; line-height: 1.9; font-size: 1.05rem; }
+.ar-label { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+
+.lesson-focus { outline: 3px solid var(--angle); outline-offset: 6px; border-radius: 10px; scroll-margin: 90px; }
+@media (prefers-reduced-motion: no-preference) {
+  .lesson-focus { animation: lesson-pulse 1.2s ease-in-out 3; }
+  @keyframes lesson-pulse { 50% { outline-offset: 10px; } }
+}

@@ -251,62 +251,6 @@ ul.checks.num { list-style: none; padding-left: 0; }
 .big-line { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; }
 @media (max-width: 760px) { .useful, .boxes { grid-template-columns: minmax(0, 1fr); } }
 
-/* One step at a time, quick checks, Arabic help */
-.topright { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.artoggle { font-size: 0.85rem; padding: 4px 12px; }
-.artoggle[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-.stepnav { display: grid; gap: 10px; }
-.stepnav-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.stepnav-top .eyebrow { margin: 0; }
-.linkbtn { border: 0; background: none; padding: 4px 0; color: var(--hyp); font-weight: 700; text-decoration: underline; }
-.linkbtn:hover { border: 0; opacity: 0.85; }
-.dots { display: flex; gap: 8px; flex-wrap: wrap; }
-.dot { width: 36px; height: 36px; padding: 0; border-radius: 50%; font-family: var(--mono); font-weight: 700; display: grid; place-items: center; }
-.dot.done { background: var(--good-bg); border-color: var(--good); color: var(--good); }
-.dot.cur { background: var(--ink); border-color: var(--ink); color: var(--surface); }
-.dot:disabled { opacity: 0.4; cursor: not-allowed; }
-.stepbtns { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.stepbtns button { padding: 10px 18px; font-size: 1rem; }
-.stepbtns button:disabled { opacity: 0.45; cursor: not-allowed; }
-.nexthint { color: var(--muted); font-size: 0.9rem; flex: 1 1 10rem; text-align: center; }
-.after { display: grid; gap: 40px; }
-.checkq { border-top: 2px dashed var(--line); padding-top: 16px; display: grid; gap: 18px; min-width: 0; }
-.checkq-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.badge { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--surface); border-radius: 999px; padding: 3px 10px; }
-.checkq-sub { color: var(--muted); font-size: 0.9rem; }
-.checkq-item { display: grid; gap: 10px; min-width: 0; }
-.checkq-q { font-weight: 700; font-size: 1.05rem; }
-.checkq-q .qn { font-family: var(--mono); color: var(--muted); }
-.checkq-opts { display: flex; flex-wrap: wrap; gap: 8px; }
-.checkq-opts button { border-radius: 10px; padding: 10px 16px; font-size: 1rem; text-align: left; }
-.checkq-opts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
-.checkq-opts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
-.checkq-opts button:disabled { cursor: default; }
-.checkq-opts button:disabled:not(.right):not(.wrong) { opacity: 0.5; }
-.checkq-fb { min-height: 1.5em; }
-.checkq-fb.good { color: var(--good); font-weight: 700; }
-.checkq-fb.bad { color: var(--bad); }
-.tapfig { width: 100%; max-width: 320px; height: auto; display: block; }
-.tapfig .vis { stroke: var(--ink); }
-.tapfig .hit { fill: var(--hyp); fill-opacity: 0; stroke: none; }
-.tapfig .hit.corner { fill: var(--hyp); fill-opacity: 0.08; stroke: var(--muted); stroke-opacity: 1; stroke-width: 1.5; stroke-dasharray: 3 3; }
-.tap { cursor: pointer; outline: none; }
-.tap:hover .hit, .tap:focus-visible .hit { fill-opacity: 0.16; }
-.tap:hover .hit.corner, .tap:focus-visible .hit.corner { fill-opacity: 0.22; stroke: var(--hyp); }
-.tap.wrong .vis { stroke: var(--bad); }
-.tap.wrong .hit.corner { fill: var(--bad); fill-opacity: 0.18; stroke: var(--bad); }
-.tap.right .vis { stroke: var(--opp); stroke-width: 5; }
-.tap.right .hit.corner { fill: var(--good); fill-opacity: 0.25; stroke: var(--good); }
-.ar, .step .ar-box { display: none; font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif; }
-.step .ar-box { grid-column: 2 / -1; }
-.ar-on .ar { display: revert; }
-.ar-on .step .ar-box { display: block; }
-@media (max-width: 480px) { .step .ar-box { grid-column: 1; } }
-dt .ar { font-weight: 400; color: var(--muted); margin-inline-start: 4px; }
-.ratio-card p.ar { color: var(--muted); }
-.ar-box { background: var(--paper); border-radius: 10px; padding: 14px 16px; line-height: 1.9; font-size: 1.05rem; }
-.ar-label { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
-
 svg text { font-family: var(--body); }
 .handle { cursor: grab; }
 svg .num { font-family: var(--mono); font-weight: 700; }
@@ -324,6 +268,8 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   .opt, button { transition: background-color .15s, border-color .15s; }
 }
 </style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
 
 <div class="wrap">
   <header>
@@ -705,6 +651,15 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     </div>
   </section>
 
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Level quiz</div>
+      <h2 id="quizTitle">10 questions on Level 1</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
   <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
     <div>
       <div class="eyebrow">The path</div>
@@ -723,6 +678,8 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   </div>
 </div>
 
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
 <script>
 (() => {
   const NS = "http://www.w3.org/2000/svg";
@@ -1105,15 +1062,6 @@ svg .num { font-family: var(--mono); font-weight: 700; }
        ok: "Right. At 45° the height is the same as the distance: 20 × 1 = 20 m." }],
   ];
 
-  const stepEls = [...document.querySelectorAll(".steps > li")];
-  const LAST = stepEls.length - 1;
-  const lesson = { mode: "one", cur: 0, reached: 0, finished: false };
-  try { Object.assign(lesson, JSON.parse(localStorage.getItem("trig-l1-steps") || "{}")); } catch (_) {}
-  lesson.cur = Math.min(Math.max(0, lesson.cur | 0), LAST);
-  const saveLesson = () => { try { localStorage.setItem("trig-l1-steps", JSON.stringify(lesson)); } catch (_) {} };
-  const solved = stepEls.map(() => new Set());
-  const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   function tapFigure(spec, onTap) {
     const svg = el("svg", { viewBox: "0 0 260 185", class: "tapfig", role: "group",
       "aria-label": spec.fig === "corners" ? "Triangle: tap one of its three corners" : "Triangle: tap one of its three sides" });
@@ -1158,109 +1106,108 @@ svg .num { font-family: var(--mono); font-weight: 700; }
     return svg;
   }
 
-  function renderChecks(i) {
-    const qs = QUIZ[i];
-    const box = document.createElement("div");
-    box.className = "checkq span";
-    box.innerHTML = `<div class="checkq-head"><span class="badge">Quick check</span><span class="checkq-sub">${qs.length > 1 ? `Answer all ${qs.length} questions` : "Answer it"} to unlock the next step.</span></div>`;
-    qs.forEach((q, qi) => {
-      const item = document.createElement("div");
-      item.className = "checkq-item";
-      const qp = document.createElement("p");
-      qp.className = "checkq-q";
-      qp.innerHTML = (qs.length > 1 ? `<span class="qn">${qi + 1}.</span> ` : "") + q.q;
-      item.append(qp);
-      const fb = document.createElement("p");
-      fb.className = "checkq-fb";
-      fb.setAttribute("aria-live", "polite");
-      const good = () => { solved[i].add(qi); fb.className = "checkq-fb good"; fb.textContent = q.ok; updateNav(); };
-      const bad = (why) => { fb.className = "checkq-fb bad"; fb.textContent = "Not quite. " + why + " Try again."; };
-      if (q.type === "choice") {
-        const opts = document.createElement("div");
-        opts.className = "checkq-opts";
-        q.options.forEach(([label, why], oi) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.textContent = label;
-          b.addEventListener("click", () => {
-            if (solved[i].has(qi)) return;
-            if (oi === q.correct) { b.classList.add("right"); opts.querySelectorAll("button").forEach((x) => { x.disabled = true; }); good(); }
-            else { b.classList.add("wrong"); b.disabled = true; bad(why); }
-          });
-          opts.append(b);
-        });
-        item.append(opts);
-      } else {
-        item.append(tapFigure(q, (id, g) => {
-          if (solved[i].has(qi)) return;
-          if (id === q.correct) { g.classList.add("right"); good(); }
-          else { g.classList.add("wrong"); bad(q.wrong[id]); }
-        }));
-      }
-      item.append(fb);
-      box.append(item);
-    });
-    stepEls[i].append(box);
-  }
+  const steps = LessonSteps.mount({ storageKey: "trig-l1-steps", quiz: QUIZ, ar: AR, renderTap: tapFigure });
 
-  stepEls.forEach((li, i) => {
-    const ar = document.createElement("div");
-    ar.className = "ar-box";
-    ar.lang = "ar";
-    ar.dir = "rtl";
-    ar.innerHTML = `<span class="ar-label">بالعربي</span>${AR[i]}`;
-    li.append(ar);
-    renderChecks(i);
+  /* ---------- Level quiz ---------- */
+  // Each question: the step that explains it (0 = step 1), the part to highlight there, and make()
+  // which builds a fresh version with new numbers.
+  const Q = LessonQuiz;
+  const TRIPLES_Q = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17]];
+  const TABLE = { 10: [0.17, 0.98, 0.18], 30: [0.5, 0.87, 0.58], 45: [0.71, 0.71, 1], 60: [0.87, 0.5, 1.73], 80: [0.98, 0.17, 5.67] };
+  const two = (x) => x.toFixed(2);
+  const L1_BANK = [
+    { id: "hard", section: 0, focus: ".stepbody",
+      make: () => Q.mc("You want to know how tall a tree is. Which of these is hard to measure?", "The height of the tree",
+        ["How far you stand from the tree", "The angle you look up to see the top"],
+        "You can measure the distance along the ground and the angle from where you stand. The height is the hard part. That's what sin, cos and tan help with.") },
+    { id: "theta-what", section: 1, focus: ".stepbody",
+      make: () => Q.mc("What is θ?", "The name of the angle we pick", ["The longest side", "An angle that is always 90°"],
+        "θ (theta) is just a name for the angle we choose to work with, like calling a number x in algebra.") },
+    { id: "theta-never", section: 1, focus: "figure",
+      make: () => Q.mc("In a right triangle, which corner can never be θ?", "The square corner (90°)", ["The bottom corner", "The top corner"],
+        "θ is one of the two corners that are not square. The square corner is never θ.") },
+    { id: "hyp-def", section: 2, focus: ".defs",
+      make: () => Q.mc("Which side is the hypotenuse?", "The longest side, across from the square corner", ["The side across from θ", "The other side that touches θ"],
+        "The hypotenuse is always the longest side, across from the square corner. It's the same whichever corner is θ.") },
+    { id: "opp-len", section: 2, focus: ".defs",
+      make: () => {
+        const [a, b, c] = Q.pick(TRIPLES_Q), top = Math.random() < 0.5;
+        const opp = top ? b : a;
+        return Q.mc(`θ is at the ${top ? "top" : "bottom"} corner of a right triangle. The bottom side is ${b}, the upright side is ${a} and the sloping side is ${c}. How long is the opposite side?`,
+          String(opp), [String(a), String(b), String(c)],
+          `The opposite side is across from θ and doesn't touch it. With θ at the ${top ? "top, that's the bottom side" : "bottom, that's the upright side"}: ${opp}.`);
+      } },
+    { id: "adj-len", section: 2, focus: ".defs",
+      make: () => {
+        const [a, b, c] = Q.pick(TRIPLES_Q), top = Math.random() < 0.5;
+        const adj = top ? a : b;
+        return Q.mc(`θ is at the ${top ? "top" : "bottom"} corner of a right triangle. The bottom side is ${b}, the upright side is ${a} and the sloping side is ${c}. How long is the adjacent side?`,
+          String(adj), [String(a), String(b), String(c)],
+          `The adjacent side touches θ but isn't the hypotenuse. With θ at the ${top ? "top, that's the upright side" : "bottom, that's the bottom side"}: ${adj}.`);
+      } },
+    { id: "same-shape", section: 3, focus: ".checks",
+      make: () => {
+        const k = Q.between(2, 5);
+        return Q.mc(`A small triangle has opposite 3 and hypotenuse 5, so opposite ÷ hypotenuse = 0.6. A bigger triangle with the same angle has hypotenuse ${5 * k}. What is its opposite ÷ hypotenuse?`,
+          "0.6", [String(parseFloat((0.6 * k).toFixed(1))), two(0.6 / k)],
+          `Same angle, same shape, so the answer doesn't change. Its opposite side is ${3 * k}, and ${3 * k} ÷ ${5 * k} = 0.6.`);
+      } },
+    { id: "sin-def", section: 4, focus: ".trio",
+      make: () => Q.mc("Which one is sin θ?", "opposite ÷ hypotenuse", ["adjacent ÷ hypotenuse", "opposite ÷ adjacent"], "SOH: Sin = Opposite ÷ Hypotenuse.") },
+    { id: "cos-def", section: 4, focus: ".trio",
+      make: () => Q.mc("Which one is cos θ?", "adjacent ÷ hypotenuse", ["opposite ÷ hypotenuse", "opposite ÷ adjacent"], "CAH: Cos = Adjacent ÷ Hypotenuse.") },
+    { id: "tan-def", section: 4, focus: ".trio",
+      make: () => Q.mc("Which one is tan θ?", "opposite ÷ adjacent", ["opposite ÷ hypotenuse", "adjacent ÷ hypotenuse"], "TOA: Tan = Opposite ÷ Adjacent.") },
+    { id: "table", section: 4, focus: ".trigtable",
+      make: () => {
+        const fi = Q.between(0, 2), fn = ["sin", "cos", "tan"][fi];
+        const ang = Q.pick(fi === 2 ? [10, 30, 45, 60, 80] : [10, 30, 60, 80]);
+        const row = TABLE[ang], val = two(row[fi]);
+        return Q.mc(`Use the table in step 5. What is ${fn} ${ang}°?`, val, row.map(two),
+          `Find the ${ang}° row, then look in the ${fn} column: ${val}.`);
+      } },
+    { id: "unit", section: 4, focus: ".boxes .example:first-child",
+      make: () => Q.mc("Does sin 30° have a unit?", "No, it's just a number", ["Yes, centimetres", "Yes, degrees"],
+        "It's a length divided by a length, so the units cancel out. The angle is in degrees, but sin 30° = 0.5 is just a number.") },
+    { id: "meaning", section: 4, focus: ".readrow",
+      make: () => Q.mc("sin 30° = 0.5. What does that mean?", "The opposite side is half the hypotenuse",
+        ["The hypotenuse is half the opposite side", "The angle is half of 60°"],
+        "sin = opposite ÷ hypotenuse = 0.5, so the opposite side is half as long as the hypotenuse. That's true in every right triangle with a 30° angle.") },
+    { id: "sin-from-sides", section: 4, focus: ".trio",
+      make: () => {
+        const [a, b, c] = Q.pick(TRIPLES_Q);
+        return Q.mc(`θ is at the bottom corner. Opposite = ${a}, adjacent = ${b}, hypotenuse = ${c}. What is sin θ?`,
+          two(a / c), [two(b / c), two(a / b)],
+          `sin = opposite ÷ hypotenuse = ${a} ÷ ${c} = ${two(a / c)}.`);
+      } },
+    { id: "which-ratio", section: 5, focus: ".recipe",
+      make: () => {
+        const [know, want, fn, mn] = Q.pick([["hypotenuse", "opposite", "sin", "SOH"], ["hypotenuse", "adjacent", "cos", "CAH"], ["adjacent", "opposite", "tan", "TOA"]]);
+        return Q.mc(`You know the ${know} and you want the ${want}. Which do you use?`, fn, ["sin", "cos", "tan"],
+          `The ${know} and the ${want} go together in ${mn}, so use ${fn}.`);
+      } },
+    { id: "ladder", section: 5, focus: ".example",
+      make: () => {
+        const L = Q.between(4, 10), ang = Q.pick([30, 60]);
+        const s = TABLE[ang][0], c = TABLE[ang][1];
+        return Q.mc(`A ${L} m ladder leans on a wall at ${ang}° to the ground. How high up the wall does it reach? (sin ${ang}° = ${s})`,
+          Q.len(L * s), [Q.len(L / s), Q.len(L * c)],
+          `The ladder is the hypotenuse and the height is opposite θ, so use sin and multiply: ${L} × ${s} ≈ ${Q.len(L * s)}.`);
+      } },
+    { id: "tree", section: 6, focus: ".checks",
+      make: () => {
+        const d = Q.between(2, 6) * 5, ang = Q.pick([30, 45, 60]);
+        const t = TABLE[ang][2], s = TABLE[ang][0];
+        return Q.mc(`You stand ${d} m from a tree and look up at ${ang}° to the top. tan ${ang}° = ${t}. How tall is the tree?`,
+          Q.len(d * t), [Q.len(d / t), Q.len(d * s), `${ang} m`],
+          `The height is opposite θ and the ${d} m on the ground is adjacent, so use tan and multiply: ${d} × ${t} ≈ ${Q.len(d * t)}.`);
+      } },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: L1_BANK, count: 10, storageKey: "trig-l1-quiz-best",
+    explain: (step, focus) => steps.explainAt(step, focus),
+    clear: () => steps.clearFocus(),
   });
-
-  const stepDone = (i) => solved[i].size === QUIZ[i].length || i < lesson.reached || lesson.finished;
-  function updateNav() {
-    const one = lesson.mode === "one";
-    stepEls.forEach((li, i) => { li.hidden = one && i !== lesson.cur; });
-    $("afterSteps").hidden = one && !lesson.finished;
-    $("stepbtns").hidden = !one;
-    $("dots").hidden = !one;
-    $("stepCount").textContent = one ? `Step ${lesson.cur + 1} of ${stepEls.length}` : `All ${stepEls.length} steps`;
-    $("modeBtn").textContent = one ? "Show all steps" : "Show one step at a time";
-    $("prevBtn").disabled = lesson.cur === 0;
-    const done = stepDone(lesson.cur);
-    $("nextBtn").disabled = !done;
-    $("nextBtn").textContent = lesson.cur === LAST ? "Finish: try it yourself →" : "Next step →";
-    $("nextHint").textContent = done ? "" : "Answer the quick check to go on.";
-    const open = (i) => i <= Math.max(lesson.reached, lesson.cur) || lesson.finished;
-    $("dots").innerHTML = stepEls.map((_, i) =>
-      `<button type="button" class="dot${i === lesson.cur ? " cur" : stepDone(i) && open(i) ? " done" : ""}" data-i="${i}"${open(i) ? "" : " disabled"} aria-label="Step ${i + 1}"${i === lesson.cur ? ' aria-current="step"' : ""}>${i + 1}</button>`).join("");
-  }
-  function go(i) {
-    lesson.cur = i;
-    lesson.reached = Math.max(lesson.reached, i);
-    saveLesson();
-    updateNav();
-    $("stepnav").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
-  }
-  $("dots").addEventListener("click", (e) => { const b = e.target.closest(".dot"); if (b && !b.disabled) go(+b.dataset.i); });
-  $("prevBtn").addEventListener("click", () => go(lesson.cur - 1));
-  $("nextBtn").addEventListener("click", () => {
-    if (lesson.cur < LAST) { go(lesson.cur + 1); return; }
-    lesson.finished = true;
-    lesson.reached = LAST;
-    saveLesson();
-    updateNav();
-    $("afterSteps").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
-  });
-  $("modeBtn").addEventListener("click", () => { lesson.mode = lesson.mode === "one" ? "all" : "one"; saveLesson(); updateNav(); });
-  updateNav();
-
-  /* ---------- Arabic help ---------- */
-  let arOn = false;
-  try { arOn = localStorage.getItem("trig-ar") === "1"; } catch (_) {}
-  function applyAr() { document.body.classList.toggle("ar-on", arOn); $("arBtn").setAttribute("aria-pressed", String(arOn)); }
-  $("arBtn").addEventListener("click", () => {
-    arOn = !arOn;
-    try { localStorage.setItem("trig-ar", arOn ? "1" : "0"); } catch (_) {}
-    applyAr();
-  });
-  applyAr();
 
   /* ---------- Theme switch ---------- */
   const root = document.documentElement;
@@ -1286,7 +1233,9 @@ svg .num { font-family: var(--mono); font-weight: 700; }
   // Used by tests/check-layout.js to draw every triangle shape the page can show.
   window.__layoutTest = {
     svgs: ["lab", "mini"],
-    prepare() { lesson.mode = "all"; lesson.finished = true; arOn = true; applyAr(); updateNav(); },
+    prepare() { steps.prepare(); },
+    quizBank: L1_BANK,
+    quizKey: () => quiz.key(),
     cases() {
       const out = [];
       for (const view of ["A", "B"]) for (let th = 10; th <= 80; th += 1) for (const big of [false, true])
