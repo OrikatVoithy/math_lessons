@@ -15,7 +15,7 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", 3: "level-3/" };
+  const PATHS = { 1: "", 2: "level-2/", 3: "level-3/", 4: "level-4/" };
   const MAP = {
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
@@ -54,6 +54,21 @@
     "l3-ramp": [3, 4, ".pair .example:last-child", "the wheelchair ramp example"],
     "l3-checks": [3, 5, ".checks", "checking an angle makes sense"],
     "l3-real": [3, 6, ".uses", "who finds angles in real life"],
+    // Level 4: Special angles
+    "l4-why": [4, 0, ".checks", "why 30°, 45° and 60° are special"],
+    "l4-square": [4, 1, "figure", "45° from cutting a square"],
+    "l4-pythagoras": [4, 1, ".pythag", "Pythagoras' rule"],
+    "l4-45-values": [4, 1, ".values45", "sin, cos and tan of 45°"],
+    "l4-equilateral": [4, 2, "figure", "30° and 60° from cutting an equilateral triangle"],
+    "l4-30-60-values": [4, 2, ".values3060", "sin, cos and tan of 30° and 60°"],
+    "l4-swap": [4, 3, ".stepbody", "why sin 30° is the same as cos 60°"],
+    "l4-pattern": [4, 3, ".pattern", "the pattern in the special values"],
+    "l4-exact": [4, 4, ".stepbody", "why exact values beat rounded ones"],
+    "l4-recipe": [4, 5, ".recipe", "solving without a calculator"],
+    "l4-ladder": [4, 5, ".pair .example:first-child", "finding a side with a special angle"],
+    "l4-backwards": [4, 5, ".pair .example:last-child", "finding a special angle backwards"],
+    "l4-real": [4, 6, ".uses", "where special angles appear in real life"],
+    "l4-estimate": [4, 6, ".estimate", "estimating other angles from the special ones"],
   };
   const CONCEPTS = {};
   for (const id in MAP) { const [level, step, focus, title] = MAP[id]; CONCEPTS[id] = { id, level, step, focus, title }; }
