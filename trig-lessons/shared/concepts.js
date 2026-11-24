@@ -15,7 +15,7 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", 3: "level-3/", 4: "level-4/" };
+  const PATHS = { 1: "", 2: "level-2/", 3: "level-3/", 4: "level-4/", 5: "level-5/" };
   const MAP = {
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
@@ -69,6 +69,18 @@
     "l4-backwards": [4, 5, ".pair .example:last-child", "finding a special angle backwards"],
     "l4-real": [4, 6, ".uses", "where special angles appear in real life"],
     "l4-estimate": [4, 6, ".estimate", "estimating other angles from the special ones"],
+    // Level 5: Heights and distances
+    "l5-why": [5, 0, ".checks", "measuring things you can't reach"],
+    "l5-elevation": [5, 1, ".stepbody", "the angle of elevation"],
+    "l5-depression": [5, 2, ".stepbody", "the angle of depression"],
+    "l5-equal-angles": [5, 2, "figure", "why the angle of depression equals the angle of elevation"],
+    "l5-eye": [5, 3, ".stepbody", "adding your eye height"],
+    "l5-draw": [5, 4, ".recipe", "drawing and solving a heights problem"],
+    "l5-lighthouse": [5, 4, ".lighthouse", "the lighthouse example"],
+    "l5-two": [5, 5, ".stepbody", "using two triangles"],
+    "l5-flag": [5, 5, "figure", "the flagpole picture"],
+    "l5-real": [5, 6, ".uses", "who measures heights and distances"],
+    "l5-checks": [5, 6, ".sense5", "checking a height or distance makes sense"],
   };
   const CONCEPTS = {};
   for (const id in MAP) { const [level, step, focus, title] = MAP[id]; CONCEPTS[id] = { id, level, step, focus, title }; }
