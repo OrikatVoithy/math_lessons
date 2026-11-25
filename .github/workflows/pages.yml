@@ -17,11 +17,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # Two jobs, as GitHub recommends: the upload must be fully registered before the deploy
+  # looks for it. With both in one job, the deploy sometimes ran a second too early and
+  # failed with 'No artifacts named "github-pages" were found'.
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - name: Build pages
@@ -30,5 +30,13 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: trig-lessons/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
