@@ -1,0 +1,1103 @@
+<title>Trigonometry Exam Practice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+
+<style>
+/* Exam page */
+.ex-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ex-card { padding: 22px; display: grid; gap: 14px; align-content: start; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip label { font-size: 0.9rem; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; background: var(--surface); }
+.chip label small { color: var(--muted); font-family: var(--mono); font-size: 0.75rem; margin-left: 4px; }
+.chip input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip input:checked + label small { color: var(--surface); opacity: 0.75; }
+.chip input:focus-visible + label { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.ex-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ex-row .label { font-size: 0.85rem; color: var(--muted); min-width: 6rem; }
+.history { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-family: var(--mono); font-size: 0.9rem; }
+.history li { display: grid; grid-template-columns: 6.5rem 1fr 4.5rem; gap: 10px; align-items: center; }
+.bar { height: 10px; border-radius: 5px; background: var(--paper); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--good); }
+.qcard { padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.qhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.qhead .eyebrow { margin: 0; }
+.topic-tag { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--muted); }
+.qbody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 18px; align-items: start; }
+.qbody.nofig { grid-template-columns: minmax(0, 1fr); }
+.qfig svg { width: 100%; height: auto; display: block; }
+.qtext2 { font-size: 1.12rem; }
+.ans-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ans-row input { font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 8rem; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.ans-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.mcq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mcq button { border-radius: 12px; padding: 12px 14px; text-align: left; font-size: 1rem; min-height: 3rem; }
+.mcq button.chosen { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.mcq button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.mcq button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.selfnote { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
+.solution { background: var(--paper); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; }
+.solution ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 6px; }
+.verdict { font-weight: 700; }
+.verdict.good { color: var(--good); }
+.verdict.bad { color: var(--bad); }
+.ex-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.timer { font-family: var(--mono); font-weight: 700; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.timer.low { color: var(--bad); }
+.palette { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.palette button { width: 34px; height: 34px; padding: 0; border-radius: 8px; font-family: var(--mono); font-weight: 700; font-size: 0.85rem; }
+.palette button.done { background: var(--paper); border-color: var(--ink); }
+.palette button.cur { outline: 2px solid var(--hyp); outline-offset: 2px; }
+.palette button.ok { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.palette button.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.palette button.self { background: var(--surface); border-style: dashed; }
+.ex-nav { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ex-nav button, .ex-card button.primary { padding: 10px 18px; font-size: 1rem; }
+.confirm { background: var(--bad-bg); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px; }
+.result-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.big-score { font-family: var(--display); font-weight: 800; font-size: 3.2rem; line-height: 1; }
+.big-score small { font-size: 1.3rem; color: var(--muted); }
+.topic-bars { display: grid; gap: 8px; }
+.topic-bars div { display: grid; grid-template-columns: minmax(0, 12rem) 1fr 3.5rem; gap: 10px; align-items: center; font-size: 0.9rem; }
+.review { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.review > li { border-left: 4px solid var(--line); background: var(--paper); border-radius: 0 12px 12px 0; padding: 14px 16px; display: grid; gap: 10px; }
+.review > li.ok { border-left-color: var(--good); }
+.review > li.bad { border-left-color: var(--bad); }
+.review > li.self { border-left-color: var(--angle); }
+.review .qbody { gap: 12px; }
+.your { font-family: var(--mono); }
+.your b.bad { color: var(--bad); }
+.your b.good { color: var(--good); }
+.selfmark { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.selfmark button.on { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+@media (max-width: 760px) {
+  .ex-cards, .qbody { grid-template-columns: minmax(0, 1fr); }
+  .mcq { grid-template-columns: minmax(0, 1fr); }
+  .topic-bars div { grid-template-columns: minmax(0, 1fr) 6rem 3rem; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../">← Back to the lessons</a>
+      <div class="topright">
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Trigonometry · Practice and exam</div>
+    <h1>Question bank and exam</h1>
+    <p class="lede">Questions from every level, asked the way your school book asks them. Practise one topic at a time, or take a timed exam and see how you'd do.</p>
+  </header>
+
+  <main id="app" aria-live="polite"></main>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Drawing helpers (same as Level 2) ---------- */
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) {
+      const v = String(attrs[k]);
+      if ((k === "fill" || k === "stroke") && v.startsWith("var(")) n.style.setProperty(k, v);
+      else n.setAttribute(k, v);
+    }
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+  const norm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  function arcPath(c, p1, p2, r) {
+    const u1 = norm(sub(p1, c)), u2 = norm(sub(p2, c));
+    const s = { x: c.x + r * u1.x, y: c.y + r * u1.y }, e = { x: c.x + r * u2.x, y: c.y + r * u2.y };
+    const sweep = (u1.x * u2.y - u1.y * u2.x) > 0 ? 1 : 0;
+    return `M${s.x},${s.y} A${r},${r} 0 0 ${sweep} ${e.x},${e.y}`;
+  }
+  function rightMark(C, P, Q, s) {
+    const u = norm(sub(P, C)), v = norm(sub(Q, C));
+    const a = { x: C.x + s * u.x, y: C.y + s * u.y };
+    const b = { x: a.x + s * v.x, y: a.y + s * v.y };
+    const c = { x: C.x + s * v.x, y: C.y + s * v.y };
+    return `M${a.x},${a.y} L${b.x},${b.y} L${c.x},${c.y}`;
+  }
+  function sideLabel(P, Q, cen, off) {
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    const d = norm(sub(Q, P));
+    let n = { x: -d.y, y: d.x };
+    if ((m.x - cen.x) * n.x + (m.y - cen.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+    return {
+      x: m.x + off * n.x, y: m.y + off * n.y, n,
+      anchor: n.x > 0.35 ? "start" : n.x < -0.35 ? "end" : "middle",
+      baseline: n.y > 0.35 ? "hanging" : n.y < -0.35 ? "auto" : "middle",
+    };
+  }
+
+  const COL = { opp: "var(--opp)", adj: "var(--adj)", hyp: "var(--hyp)" };
+  const NAME = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
+  const RATIO = { sin: ["opp", "hyp"], cos: ["adj", "hyp"], tan: ["opp", "adj"] };
+  const MNEMONIC = { sin: "SOH", cos: "CAH", tan: "TOA" };
+  const trig = (fn, deg) => Math[fn](deg * Math.PI / 180);
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const fmtLen = (x) => String(parseFloat(x.toFixed(2)));
+  const fmt1 = (x) => x.toFixed(1);
+
+  function pickFn(a, b) {
+    for (const fn in RATIO) { const [n, d] = RATIO[fn]; if ((n === a && d === b) || (n === b && d === a)) return fn; }
+  }
+  // Solve for the wanted side. "shown" uses the 3-decimal value a student would read off a calculator.
+  function solve(theta, known, k, want) {
+    const fn = pickFn(known, want);
+    const [n, d] = RATIO[fn];
+    const v = r3(trig(fn, theta));
+    const top = n === want;
+    return { fn, n, d, v, top, exact: top ? k * trig(fn, theta) : k / trig(fn, theta), shown: top ? k * v : k / v };
+  }
+
+  /*
+   * Right triangle with θ at A (bottom left) and the square corner at C (bottom right).
+   * opts.area: box the triangle is fitted into. opts.labels: text per side. opts.twoLine: name + value labels.
+   */
+  function drawTriangle(svg, opts) {
+    svg.replaceChildren();
+    const { area } = opts;
+    const drawn = Math.min(opts.maxDraw ?? 90, Math.max(opts.minDraw ?? 0, opts.theta));
+    const t = drawn * Math.PI / 180;
+    const W = area.x1 - area.x0, H = area.yBase - area.yTop;
+    const s = Math.min(W / Math.cos(t), H / Math.sin(t));
+    const w = s * Math.cos(t), h = s * Math.sin(t);
+    const left = area.x0 + (W - w) / 2, base = area.yBase - (H - h) / 2;
+    const A = { x: left, y: base }, C = { x: left + w, y: base }, B = { x: left + w, y: base - h };
+    const cen = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+    const sides = [[A, C, "adj"], [C, B, "opp"], [A, B, "hyp"]];
+    const colour = (role) => (opts.colorRoles ? COL[role] : "var(--ink)");
+
+    if (opts.colorRoles) el("polygon", { points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`, fill: "var(--hyp)", "fill-opacity": "0.06" }, svg);
+    for (const [P, Q, role] of sides) {
+      const highlight = opts.emphasis && opts.emphasis.includes(role);
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: colour(role), "stroke-width": opts.colorRoles ? (highlight ? 5 : 3) : 2.5, "stroke-linecap": "round",
+        ...(opts.colorRoles && !highlight ? { "stroke-opacity": 0.45 } : {}) }, svg);
+    }
+    el("path", { d: rightMark(C, A, B, opts.small ? 10 : 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+
+    // Angle mark and its label: inside the corner when there is room, otherwise to the left along the ground.
+    const room = Math.min(dist(A, C), dist(A, B));
+    const arcR = Math.min(opts.small ? 20 : 28, 0.6 * room);
+    el("path", { d: arcPath(A, C, B, arcR), fill: "none", stroke: "var(--angle)", "stroke-width": opts.small ? 2.5 : 3 }, svg);
+    const rIn = arcR + (opts.small ? 20 : 26);
+    const inside = drawn >= 48 && room > rIn * 1.6 && String(opts.angleText).length <= 3;
+    const fs = opts.small ? 14 : 16;
+    if (inside) {
+      const b = norm({ x: norm(sub(C, A)).x + norm(sub(B, A)).x, y: norm(sub(C, A)).y + norm(sub(B, A)).y });
+      el("text", { x: A.x + rIn * b.x, y: A.y + rIn * b.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    } else {
+      el("text", { x: A.x - 8, y: A.y, "text-anchor": "end", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    }
+
+    for (const [P, Q, role] of sides) {
+      const lab = opts.labels[role];
+      if (!lab) continue;
+      const fill = lab.colour ? COL[role] : colour(role);
+      if (!opts.twoLine && role !== "hyp") {
+        const pos = sideLabel(P, Q, cen, 8);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab.value);
+      } else if (!opts.twoLine) {
+        // Hypotenuse number written along the slope, so a long number can't clip the line.
+        const pos = sideLabel(P, Q, cen, 6);
+        const ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 15 }, svg, lab.value);
+      } else if (role === "hyp") {
+        const pos = sideLabel(P, Q, cen, 10);
+        let ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        const t2 = el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", {}, t2, NAME[role] + (lab.value ? " " : ""));
+        if (lab.value) el("tspan", { class: "num", "font-size": 14 }, t2, lab.value);
+      } else {
+        const pos = sideLabel(P, Q, cen, 10);
+        const lines = lab.value ? 2 : 1;
+        const blockH = lines * 17;
+        const top = pos.baseline === "hanging" ? pos.y : pos.baseline === "auto" ? pos.y - blockH : pos.y - blockH / 2;
+        const t2 = el("text", { "text-anchor": pos.anchor, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", { x: pos.x, y: top + 13 }, t2, NAME[role]);
+        if (lab.value) el("tspan", { x: pos.x, y: top + 30, class: "num", "font-size": 14 }, t2, lab.value);
+      }
+    }
+    return { clamped: drawn !== opts.theta };
+  }
+
+  /* ---------- Exact fractions ---------- */
+  const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+  function frac(n, d) {
+    // n/d from whole numbers (or halves), simplified, as text.
+    if (!Number.isInteger(n) || !Number.isInteger(d)) { n *= 2; d *= 2; }
+    const g = gcd(n, d);
+    n /= g; d /= g;
+    return d === 1 ? String(n) : `${n}/${d}`;
+  }
+  // Read an answer: a fraction (3/5), a whole number, or a decimal.
+  function readNumber(raw) {
+    const t = raw.trim().replace(/,/g, ".").replace(/\s+/g, "").replace("÷", "/");
+    const m = t.match(/^(-?\d*\.?\d+)(?:\/(\d*\.?\d+))?$/);
+    if (!m) return null;
+    const value = m[2] !== undefined ? +m[1] / +m[2] : +m[1];
+    return Number.isFinite(value) ? { value, isFraction: m[2] !== undefined, text: t } : null;
+  }
+
+  /* ---------- A right triangle with lettered corners (same as Book skills) ---------- */
+  function drawLettered(svg, o) {
+    svg.replaceChildren();
+    const s = Math.min(230 / o.b, 170 / o.a);
+    const w = o.b * s, h = o.a * s;
+    const left = 85 + (230 - w) / 2, base = 222 - (170 - h) / 2;
+    const fx = (x) => (o.flip ? 400 - x : x);
+    const P = { R: { x: fx(left + w), y: base }, H: { x: fx(left), y: base }, V: { x: fx(left + w), y: base - h } };
+    const cen = { x: (P.R.x + P.H.x + P.V.x) / 3, y: (P.R.y + P.H.y + P.V.y) / 3 };
+    const L = o.letters;
+    const roleOf = (key) => {
+      if (!o.roles) return null;
+      const from = o.roles === L.H ? "H" : "V";
+      if (key === "HV") return "hyp";
+      if (key === "RV") return from === "H" ? "opp" : "adj";
+      return from === "H" ? "adj" : "opp";
+    };
+    const sides = [["RH", P.R, P.H], ["RV", P.R, P.V], ["HV", P.H, P.V]];
+    if (o.roles) el("polygon", { points: `${P.R.x},${P.R.y} ${P.H.x},${P.H.y} ${P.V.x},${P.V.y}`, fill: "var(--hyp)", "fill-opacity": 0.06 }, svg);
+    for (const [key, A, B] of sides) {
+      const role = roleOf(key);
+      el("line", { x1: A.x, y1: A.y, x2: B.x, y2: B.y, stroke: role ? COL[role] : "var(--ink)", "stroke-width": role ? 4 : 2.5, "stroke-linecap": "round" }, svg);
+    }
+    el("path", { d: rightMark(P.R, P.H, P.V, 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    if (o.arcAt) {
+      const k = o.arcAt === L.H ? "H" : "V";
+      const others = k === "H" ? [P.R, P.V] : [P.H, P.R];
+      const room = Math.min(Math.hypot(others[0].x - P[k].x, others[0].y - P[k].y), Math.hypot(others[1].x - P[k].x, others[1].y - P[k].y));
+      el("path", { d: arcPath(P[k], others[0], others[1], Math.min(26, 0.4 * room)), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    }
+    // Corner letters, pushed out from the middle of the triangle
+    for (const k of ["R", "H", "V"]) {
+      const d = norm(sub(P[k], cen));
+      el("text", { x: P[k].x + 18 * d.x, y: P[k].y + 18 * d.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--ink)", "font-size": 17, "font-weight": 700 }, svg, L[k]);
+    }
+    // Side labels outside each side; the sloping one follows the slope
+    for (const [key, A, B] of sides) {
+      const lab = o.sides && o.sides[key];
+      if (!lab) continue;
+      const role = roleOf(key);
+      const fill = role ? COL[role] : "var(--ink)";
+      if (key === "HV") {
+        const pos = sideLabel(A, B, cen, 8);
+        let ang = Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num", fill, "font-size": 15, transform: `rotate(${ang} ${pos.x} ${pos.y})` }, svg, lab);
+      } else {
+        // The flat side's label sits below it; the upright side's label beside it (clear of the corner letters).
+        const pos = sideLabel(A, B, cen, key === "RH" ? 10 : 12);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab);
+      }
+    }
+  }
+  /* ---------- Book-style triangles ---------- */
+  const TRIPLES_B = [[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [6, 8, 10], [9, 12, 15]];
+  const LETTERS = ["ABC", "XYZ", "LMN", "DEF", "PQR"];
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const pickOne = (a) => a[rnd(a.length)];
+  // A random triangle: legs a (upright) and b (flat), hypotenuse c, with letters and which two sides are given.
+  function makeTri(force = {}) {
+    let [a, b, c] = force.triple || pickOne(TRIPLES_B);
+    if (force.swap ?? Math.random() < 0.5) [a, b] = [b, a];
+    const ls = (force.letters || pickOne(LETTERS)).split("");
+    const order = force.order || [0, 1, 2].sort(() => Math.random() - 0.5);
+    const letters = { R: ls[order[0]], H: ls[order[1]], V: ls[order[2]] };
+    const given = force.given || pickOne(["legs", "flat+hyp", "upright+hyp"]);
+    return { a, b, c, letters, flip: force.flip ?? Math.random() < 0.5, given };
+  }
+  const side = (t, k) => ({ RH: t.b, RV: t.a, HV: t.c }[k]);
+  // Letters in alphabetical order, as the book writes them: side PQ, triangle △LMN.
+  const abc = (...ls) => ls.sort().join("");
+  const sideName = (t, k) => ({ RH: abc(t.letters.R, t.letters.H), RV: abc(t.letters.R, t.letters.V), HV: abc(t.letters.H, t.letters.V) }[k]);
+  const triName = (t) => "△" + abc(t.letters.R, t.letters.H, t.letters.V);
+  const givenKeys = (t) => ({ legs: ["RH", "RV"], "flat+hyp": ["RH", "HV"], "upright+hyp": ["RV", "HV"] }[t.given]);
+  // From the angle at letter X: which side key is opposite, adjacent, hypotenuse.
+  const rolesFrom = (t, X) => (X === t.letters.H ? { opp: "RV", adj: "RH", hyp: "HV" } : { opp: "RH", adj: "RV", hyp: "HV" });
+  const ratioOf = (t, X, fn) => { const r = rolesFrom(t, X); const [n, d] = RATIO[fn]; return { n: side(t, r[n]), d: side(t, r[d]), nk: r[n], dk: r[d] }; };
+
+  /* ---------- Small helpers ---------- */
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const uniq = (a) => a.filter((x, i) => a.indexOf(x) === i);
+  const RAD = Math.PI / 180;
+  const tanD = (d) => Math.tan(d * RAD);
+  const m1 = (x) => String(parseFloat(x.toFixed(1)));
+  function mcq(base, right, wrongs) {
+    const options = shuffle(uniq([right, ...wrongs.filter((w) => w !== right)]));
+    return { ...base, kind: "mcq", options, correct: options.indexOf(right), exact: right };
+  }
+
+  /* ---------- A triangle with a height drawn inside ---------- */
+  // AD ⊥ BC. labels: { AD, BD, DC, AB, AC } text (or ""), arc: "BAD" | "DAC" | "B" | "C" | null
+  function drawHeight(svg, o) {
+    svg.replaceChildren();
+    const s = Math.min(250 / (o.bd + o.dc), 140 / o.ad);
+    const D = { x: 75 + o.bd * s + (250 - (o.bd + o.dc) * s) / 2, y: 228 };
+    const B = { x: D.x - o.bd * s, y: 228 }, C = { x: D.x + o.dc * s, y: 228 }, A = { x: D.x, y: 228 - o.ad * s };
+    const line = (P, Q, stroke, w) => el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke, "stroke-width": w, "stroke-linecap": "round" }, svg);
+    line(A, B, "var(--ink)", 2.5); line(B, C, "var(--ink)", 2.5); line(C, A, "var(--ink)", 2.5);
+    line(A, D, "var(--opp)", 3);
+    el("path", { d: rightMark(D, C, A, 11), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    if (o.arc) {
+      const [V, P1, P2] = { BAD: [A, B, D], DAC: [A, D, C], B: [B, C, A], C: [C, A, B] }[o.arc];
+      el("path", { d: arcPath(V, P1, P2, 24), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    }
+    const t = (x, y, s2, fill, anchor = "middle", base = "middle", num = true) =>
+      el("text", { x, y, "text-anchor": anchor, "dominant-baseline": base, fill, "font-size": num ? 15 : 17, "font-weight": 700, class: num ? "num" : "" }, svg, s2);
+    t(A.x, A.y - 16, "A", "var(--ink)", "middle", "middle", false);
+    t(B.x - 14, B.y + 8, "B", "var(--ink)", "middle", "middle", false);
+    t(C.x + 14, C.y + 8, "C", "var(--ink)", "middle", "middle", false);
+    t(D.x, D.y + 22, "D", "var(--ink)", "middle", "middle", false);
+    const L = o.labels || {};
+    if (L.BD) t((B.x + D.x) / 2, 238, L.BD, "var(--ink)", "middle", "hanging");
+    if (L.DC) t((D.x + C.x) / 2, 238, L.DC, "var(--ink)", "middle", "hanging");
+    // AD's label goes on the side with more room
+    if (L.AD) { const leftRoom = o.bd >= o.dc; t(D.x + (leftRoom ? -8 : 8), (A.y + D.y) / 2 + 20, L.AD, "var(--opp)", leftRoom ? "end" : "start"); }
+    const outside = (P, Q, s2) => { const pos = sideLabel(P, Q, { x: D.x, y: (A.y + D.y) / 2 }, 10); el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill: "var(--ink)", "font-size": 15, "font-weight": 700 }, svg, s2); };
+    if (L.AB) outside(A, B, L.AB);
+    if (L.AC) outside(A, C, L.AC);
+  }
+
+  /* ---------- The question bank: one generator per topic ---------- */
+  // Every question: { topic, concept, kind: "mcq" | "frac" | "num" | "deg" | "self", q, fig, options, correct,
+  //                   answer (number), exact (text), unit, tol, solution: [html, ...] }
+  const TOPICS = [
+    { id: "basics", name: "SOH CAH TOA basics", level: 1 },
+    { id: "names", name: "Letters and sides", level: "bk" },
+    { id: "pyth", name: "Ratios from two sides", level: "bk" },
+    { id: "oneratio", name: "From one ratio to the others", level: "bk" },
+    { id: "side", name: "Finding a side", level: 2 },
+    { id: "both", name: "Both angles and the rules", level: "bk" },
+    { id: "proof", name: "Proofs", level: "bk" },
+    { id: "special", name: "Special angles", level: 4 },
+    { id: "angle", name: "Finding an angle", level: 3 },
+    { id: "heights", name: "Heights and distances", level: 5 },
+    { id: "figures", name: "Figures with a height", level: "bk" },
+  ];
+  const triFig = (t, sides, arcAt) => ({ type: "tri", t: { a: t.a, b: t.b, c: t.c, letters: t.letters, flip: t.flip }, sides, arcAt });
+  const frQ = (base, n, d, solution) => ({ ...base, kind: "frac", answer: n / d, exact: frac(n, d), solution });
+  const G = {
+    basics() {
+      const t = makeTri(), L = t.letters, X = pickOne([L.H, L.V]), fn = pickOne(["sin", "cos", "tan"]);
+      const r = ratioOf(t, X, fn);
+      return mcq({ topic: "basics", concept: "l1-ratios", q: `In ${triName(t)}, m(∠${L.R}) = 90°. The fraction ${sideName(t, r.nk)}/${sideName(t, r.dk)} is the … of ∠${X}.`, fig: triFig(t, {}, X),
+        solution: [`From ∠${X}: ${sideName(t, r.nk)} is the ${NAME[RATIO[fn][0]]} and ${sideName(t, r.dk)} is the ${NAME[RATIO[fn][1]]}.`, `${NAME[RATIO[fn][0]]} ÷ ${NAME[RATIO[fn][1]]} is ${fn} (${MNEMONIC[fn]}).`] },
+        fn, ["sin", "cos", "tan"]);
+    },
+    names() {
+      const t = makeTri(), L = t.letters, X = pickOne([L.H, L.V]), r = rolesFrom(t, X), ask = pickOne(["opp", "adj", "hyp"]);
+      return mcq({ topic: "names", concept: "bk-opposite", q: `In ${triName(t)}, m(∠${L.R}) = 90°. Which side is ${ask === "hyp" ? "the hypotenuse" : `${ask === "opp" ? "opposite" : "adjacent to"} ∠${X}`}?`, fig: triFig(t, {}, ask === "hyp" ? null : X),
+        solution: [ask === "hyp" ? `The hypotenuse is opposite the right angle at ${L.R}: ${sideName(t, "HV")}.` : ask === "opp" ? `The opposite side uses the other two letters: ${sideName(t, r.opp)}.` : `The adjacent side touches ${X} and isn't the hypotenuse: ${sideName(t, r.adj)}.`] },
+        sideName(t, r[ask]), [sideName(t, "RH"), sideName(t, "RV"), sideName(t, "HV")]);
+    },
+    pyth() {
+      const t = makeTri(), L = t.letters, X = pickOne([L.H, L.V]), fn = pickOne(["sin", "cos", "tan"]);
+      const [g1, g2] = givenKeys(t), q1 = ratioOf(t, X, fn);
+      const missing = ["RH", "RV", "HV"].find((k) => k !== g1 && k !== g2);
+      return frQ({ topic: "pyth", concept: "bk-pythagoras", q: `In ${triName(t)}, m(∠${L.R}) = 90°, ${sideName(t, g1)} = ${side(t, g1)} cm and ${sideName(t, g2)} = ${side(t, g2)} cm. Find ${fn} ${X}.`,
+        fig: triFig(t, { [g1]: `${side(t, g1)} cm`, [g2]: `${side(t, g2)} cm`, [missing]: "?" }, X) }, q1.n, q1.d,
+        [`Pythagoras: ${sideName(t, missing)} = ${side(t, missing)} cm.`, `From ∠${X}: ${fn} ${X} = ${sideName(t, q1.nk)}/${sideName(t, q1.dk)} = ${q1.n}/${q1.d} = <b>${frac(q1.n, q1.d)}</b>.`]);
+    },
+    oneratio() {
+      if (Math.random() < 0.3) {
+        const [given, want, ans, wrongs, steps] = pickOne([
+          ["sin θ = 1/3", "cos θ", "2√2/3", ["2/3", "√8", "3/(2√2)"], ["Opposite 1, hypotenuse 3.", "Adjacent = √(3² − 1²) = √8 = 2√2.", "cos θ = 2√2/3."]],
+          ["cos θ = 2/3", "sin θ", "√5/3", ["1/3", "√5", "3/√5"], ["Adjacent 2, hypotenuse 3.", "Opposite = √(3² − 2²) = √5.", "sin θ = √5/3."]],
+          ["tan θ = 1/2", "sin θ", "1/√5", ["1/2", "2/√5", "√5"], ["Opposite 1, adjacent 2.", "Hypotenuse = √(1² + 2²) = √5.", "sin θ = 1/√5."]],
+          ["sin θ = 2/3", "tan θ", "2/√5", ["2/3", "√5/2", "√5/3"], ["Opposite 2, hypotenuse 3.", "Adjacent = √(3² − 2²) = √5.", "tan θ = 2/√5."]],
+        ]);
+        return mcq({ topic: "oneratio", concept: "bk-from-ratio", q: `If ${given} (θ is an acute angle), find ${want}.`, solution: ["Draw a triangle that fits the ratio.", ...steps] }, ans, wrongs);
+      }
+      const t = makeTri(), X = t.letters.H, given = pickOne(["sin", "cos", "tan"]), want = pickOne(["sin", "cos", "tan"].filter((f) => f !== given));
+      const g = ratioOf(t, X, given), w = ratioOf(t, X, want);
+      return frQ({ topic: "oneratio", concept: "bk-from-ratio", q: `If ${given} θ = ${frac(g.n, g.d)} (θ is an acute angle), find ${want} θ.` }, w.n, w.d,
+        [`Draw a triangle that fits: ${given} θ = ${frac(g.n, g.d)}.`, `Pythagoras gives the third side, so the sides are ${t.a / gcd(gcd(t.a, t.b), t.c)}, ${t.b / gcd(gcd(t.a, t.b), t.c)} and ${t.c / gcd(gcd(t.a, t.b), t.c)}.`, `${want} θ = <b>${frac(w.n, w.d)}</b>.`]);
+    },
+    side() {
+      const t = makeTri(), L = t.letters, X = pickOne([L.H, L.V]), fn = pickOne(["sin", "cos", "tan"]), q1 = ratioOf(t, X, fn);
+      const knowTop = Math.random() < 0.5, kKey = knowTop ? q1.nk : q1.dk, wKey = knowTop ? q1.dk : q1.nk;
+      return { topic: "side", concept: "l2-turn-around", kind: "num", unit: "cm", tol: 0.01, answer: side(t, wKey), exact: `${side(t, wKey)} cm`,
+        q: `In ${triName(t)}, m(∠${L.R}) = 90°, ${fn} ${X} = ${frac(q1.n, q1.d)} and ${sideName(t, kKey)} = ${side(t, kKey)} cm. Find the length of ${sideName(t, wKey)}.`,
+        fig: triFig(t, { [kKey]: `${side(t, kKey)} cm`, [wKey]: "?" }, X),
+        solution: [`${fn} ${X} = ${sideName(t, q1.nk)}/${sideName(t, q1.dk)}, so ${frac(q1.n, q1.d)} = ${knowTop ? `${side(t, kKey)}/${sideName(t, wKey)}` : `${sideName(t, wKey)}/${side(t, kKey)}`}.`,
+          knowTop ? `${sideName(t, wKey)} is on the bottom, so divide: ${side(t, kKey)} ÷ ${frac(q1.n, q1.d)} = <b>${side(t, wKey)} cm</b>.` : `${sideName(t, wKey)} is on top, so multiply: ${side(t, kKey)} × ${frac(q1.n, q1.d)} = <b>${side(t, wKey)} cm</b>.`] };
+    },
+    both() {
+      const t = makeTri(), L = t.letters, A = L.H, C = L.V, tri = triName(t);
+      const kind = pickOne(["comp", "tan", "sum", "zero"]);
+      const sA = ratioOf(t, A, "sin"), cA = ratioOf(t, A, "cos"), tA = ratioOf(t, A, "tan");
+      if (kind === "comp") return frQ({ topic: "both", concept: "bk-both-angles", q: `In ${tri}, m(∠${L.R}) = 90° and sin ${A} = ${frac(sA.n, sA.d)}. Find cos ${C}.` }, sA.n, sA.d, [`What's opposite ${A} is next to ${C}, so cos ${C} = sin ${A} = <b>${frac(sA.n, sA.d)}</b>.`]);
+      if (kind === "tan") return frQ({ topic: "both", concept: "bk-both-angles", q: `In ${tri}, m(∠${L.R}) = 90° and tan ${A} = ${frac(tA.n, tA.d)}. Find tan ${C}.` }, tA.d, tA.n, [`tan ${C} is tan ${A} upside down (tan ${A} × tan ${C} = 1), so tan ${C} = <b>${frac(tA.d, tA.n)}</b>.`]);
+      if (kind === "sum") return frQ({ topic: "both", concept: "bk-both-angles", q: `In ${tri}, m(∠${L.R}) = 90°, sin ${A} = ${frac(sA.n, sA.d)} and cos ${A} = ${frac(cA.n, cA.d)}. Find the value of sin²${A} + cos²${A}.` }, 1, 1, [`(${frac(sA.n, sA.d)})² + (${frac(cA.n, cA.d)})² = ${sA.n * sA.n}/${sA.d * sA.d} + ${cA.n * cA.n}/${cA.d * cA.d}`, "= <b>1</b>. It's always 1: Pythagoras divided by the hypotenuse squared."]);
+      return frQ({ topic: "both", concept: "bk-both-angles", q: `In ${tri}, m(∠${L.R}) = 90°, sin ${A} = ${frac(sA.n, sA.d)} and cos ${A} = ${frac(cA.n, cA.d)}. Find the value of cos ${A} cos ${C} − sin ${A} sin ${C}.` }, 0, 1,
+        [`cos ${C} = sin ${A} and sin ${C} = cos ${A}.`, `So it's cos ${A} sin ${A} − sin ${A} cos ${A} = <b>0</b>.`]);
+    },
+    proof() {
+      const [claim, steps] = pickOne([
+        ["tan A × tan C = 1", ["tan A = BC/AB (opposite ÷ adjacent, from A)", "tan C = AB/BC (opposite ÷ adjacent, from C)", "tan A × tan C = (BC/AB) × (AB/BC) = 1 ✓"]],
+        ["sin A = cos C", ["sin A = BC/AC (opposite ÷ hypotenuse, from A)", "cos C = BC/AC (adjacent ÷ hypotenuse, from C)", "Both equal BC/AC, so sin A = cos C ✓"]],
+        ["sin²A + sin²C = 1", ["sin A = BC/AC and sin C = AB/AC", "sin²A + sin²C = (BC² + AB²)/AC²", "By Pythagoras, AB² + BC² = AC², so this is AC²/AC² = 1 ✓"]],
+        ["cos A cos C − sin A sin C = 0", ["cos A = AB/AC, cos C = BC/AC, sin A = BC/AC, sin C = AB/AC", "cos A cos C = (AB × BC)/AC² and sin A sin C = (BC × AB)/AC²", "They're equal, so the difference is 0 ✓"]],
+        ["sin A ÷ cos A = tan A", ["sin A = BC/AC and cos A = AB/AC", "sin A ÷ cos A = (BC/AC) ÷ (AB/AC) = BC/AB", "BC/AB is opposite ÷ adjacent from A, which is tan A ✓"]],
+      ]);
+      return { topic: "proof", concept: "bk-proof", kind: "self", q: `In △ABC, m(∠B) = 90°. Prove that ${claim}.`, exact: "see the model proof", solution: steps,
+        fig: { type: "tri", t: { a: 3, b: 4, c: 5, letters: { R: "B", H: "A", V: "C" }, flip: false }, sides: {}, arcAt: null } };
+    },
+    special() {
+      if (Math.random() < 0.35) {
+        const fn = pickOne(["sin", "cos", "tan"]), a = pickOne([30, 45, 60]);
+        const EX = { sin: { 30: "1/2", 45: "1/√2", 60: "√3/2" }, cos: { 30: "√3/2", 45: "1/√2", 60: "1/2" }, tan: { 30: "1/√3", 45: "1", 60: "√3" } };
+        return mcq({ topic: "special", concept: a === 45 ? "l4-45-values" : "l4-30-60-values", q: `What is the exact value of ${fn} ${a}°?`,
+          solution: [a === 45 ? "Half a square: sides 1, 1, √2." : "Half an equilateral triangle: sides 1, √3, 2.", `${fn} ${a}° = <b>${EX[fn][a]}</b>.`] }, EX[fn][a], ["1/2", "√3/2", "1/√2", "√3", "1/√3"]);
+      }
+      const [expr, n, d, how] = pickOne([
+        ["sin 30° + cos 60°", 1, 1, "1/2 + 1/2 = 1"],
+        ["sin² 45° + cos² 45°", 1, 1, "1/2 + 1/2 = 1"],
+        ["tan 45° + sin² 60°", 7, 4, "1 + 3/4 = 7/4"],
+        ["4 sin 30° cos 60°", 1, 1, "4 × 1/2 × 1/2 = 1"],
+        ["tan² 60° − 2 sin 30°", 2, 1, "3 − 2 × 1/2 = 3 − 1 = 2"],
+        ["2 sin 30° + tan 45°", 2, 1, "2 × 1/2 + 1 = 2"],
+        ["cos² 30° − sin² 30°", 1, 2, "3/4 − 1/4 = 1/2"],
+        ["sin 60° cos 30° + sin 30° cos 60°", 1, 1, "3/4 + 1/4 = 1"],
+        ["tan² 30° + tan² 45°", 4, 3, "1/3 + 1 = 4/3"],
+        ["2 cos² 45° − 1", 0, 1, "2 × 1/2 − 1 = 0"],
+        ["sin² 30° + cos² 60°", 1, 2, "1/4 + 1/4 = 1/2"],
+      ]);
+      return frQ({ topic: "special", concept: "l4-pattern", q: `Without a calculator, find the value of ${expr}.` }, n, d,
+        ["Put in the special values: sin 30° = cos 60° = 1/2, sin 45° = cos 45° = 1/√2, sin 60° = cos 30° = √3/2, tan 30° = 1/√3, tan 45° = 1, tan 60° = √3.", `${how}, so the answer is <b>${frac(n, d)}</b>.`]);
+    },
+    angle() {
+      if (Math.random() < 0.5) {
+        const [fn, val, a] = pickOne([["sin", "1/2", 30], ["cos", "1/2", 60], ["tan", "1", 45], ["sin", "√3/2", 60], ["cos", "√3/2", 30], ["tan", "√3", 60], ["tan", "1/√3", 30], ["sin", "1/√2", 45]]);
+        return { topic: "angle", concept: "l4-backwards", kind: "deg", unit: "°", tol: 0.5, answer: a, exact: `${a}°`,
+          q: `If ${fn} X = ${val} and X is an acute angle, find m(∠X).`, solution: [`Which special angle has ${fn} = ${val}?`, `${fn} ${a}° = ${val}, so m(∠X) = <b>${a}°</b>.`] };
+      }
+      const k = pickOne([2, 3, 4, 5, 6, 7]), useCos = Math.random() < 0.5;
+      // Right angle at B, AB = k (the flat side), AC = 2k, so BC = k√3: a 30°-60°-90° triangle with 60° at A.
+      const t = { a: k * Math.sqrt(3), b: k, c: 2 * k, letters: { R: "B", H: "A", V: "C" }, flip: Math.random() < 0.5 };
+      const ask = useCos ? "A" : "C", ans = useCos ? 60 : 30;
+      return { topic: "angle", concept: "l3-backwards", kind: "deg", unit: "°", tol: 0.5, answer: ans, exact: `${ans}°`,
+        q: `In △ABC, m(∠B) = 90°, AB = ${k} cm and AC = ${2 * k} cm. Find m(∠${ask}).`, fig: { type: "tri", t, sides: { RH: `${k} cm`, HV: `${2 * k} cm` }, arcAt: ask },
+        solution: useCos
+          ? [`From ∠A: AB is adjacent and AC is the hypotenuse, so cos A = ${k}/${2 * k} = 1/2.`, "cos 60° = 1/2, so m(∠A) = <b>60°</b>."]
+          : [`From ∠C: AB is opposite and AC is the hypotenuse, so sin C = ${k}/${2 * k} = 1/2.`, "sin 30° = 1/2, so m(∠C) = <b>30°</b>."] };
+    },
+    heights() {
+      if (Math.random() < 0.5) {
+        const d = pickOne([15, 20, 25, 30, 40]), a = pickOne([25, 30, 35, 40, 50]);
+        const ans = d * tanD(a) + 1.5;
+        return { topic: "heights", concept: "l5-eye", kind: "num", unit: "m", tol: Math.max(0.2, ans * 0.002), answer: ans, exact: `${m1(ans)} m`,
+          q: `You stand ${d} m from a building. Your eyes are 1.5 m above the ground, and the angle of elevation to the top is ${a}° (tan ${a}° ≈ ${tanD(a).toFixed(3)}). Find the height of the building to one decimal place.`,
+          solution: [`Height above your eyes = ${d} × tan ${a}° ≈ ${d} × ${tanD(a).toFixed(3)} ≈ ${m1(d * tanD(a))} m.`, `Add your eye height: ${m1(d * tanD(a))} + 1.5 ≈ <b>${m1(ans)} m</b>.`] };
+      }
+      const h = pickOne([30, 40, 50, 60, 80]), a = pickOne([15, 20, 25, 30, 35]);
+      const ans = h / tanD(a);
+      return { topic: "heights", concept: "l5-depression", kind: "num", unit: "m", tol: Math.max(0.2, ans * 0.002), answer: ans, exact: `${m1(ans)} m`,
+        q: `From the top of a ${h} m lighthouse, the angle of depression to a boat is ${a}° (tan ${a}° ≈ ${tanD(a).toFixed(3)}). How far is the boat from the bottom of the lighthouse, to one decimal place?`,
+        solution: [`The angle at the boat is also ${a}°, so tan ${a}° = ${h} ÷ distance.`, `distance = ${h} ÷ ${tanD(a).toFixed(3)} ≈ <b>${m1(ans)} m</b>.`] };
+    },
+    figures() {
+      const AD = pickOne([12, 8, 6]);
+      const legs = { 12: [5, 9, 16], 8: [6, 15], 6: [8, 4.5] }[AD];
+      const hyp = (x) => Math.sqrt(AD * AD + x * x);
+      const [bd, dc] = shuffle(legs.slice()).slice(0, 2);
+      const ask = pickOne(["tanBAD", "AB", "AC", "sinC"]);
+      const base = { topic: "figures", concept: "bk-figures", fig: { type: "height", ad: AD, bd, dc, labels: { AD: String(AD), BD: String(bd), DC: String(dc) }, arc: ask === "tanBAD" ? "BAD" : ask === "sinC" ? "C" : null } };
+      const lead = `In the figure, AD ⊥ BC, AD = ${AD} cm, BD = ${bd} cm and DC = ${dc} cm.`;
+      if (ask === "tanBAD") return frQ({ ...base, q: `${lead} Find tan(∠BAD).` }, bd, AD, ["In triangle ABD, from ∠BAD: BD is opposite and AD is adjacent.", `tan(∠BAD) = ${bd}/${AD} = <b>${frac(bd, AD)}</b>.`]);
+      if (ask === "sinC") return frQ({ ...base, q: `${lead} Find sin C.` }, AD, hyp(dc), [`In triangle ADC, Pythagoras: AC = √(${AD}² + ${dc}²) = ${hyp(dc)} cm.`, `From ∠C: AD is opposite, AC is the hypotenuse: sin C = ${AD}/${hyp(dc)} = <b>${frac(AD, hyp(dc))}</b>.`]);
+      const x = ask === "AB" ? bd : dc;
+      return { ...base, kind: "num", unit: "cm", tol: 0.01, answer: hyp(x), exact: `${hyp(x)} cm`, q: `${lead} Find the length of ${ask}.`,
+        solution: [`In triangle A${ask === "AB" ? "BD" : "DC"}, AD and ${ask === "AB" ? "BD" : "DC"} are the short sides.`, `Pythagoras: ${ask} = √(${AD}² + ${x}²) = √${AD * AD + x * x} = <b>${hyp(x)} cm</b>.`] };
+    },
+  };
+  const TOPIC = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
+  const make = (topic) => G[topic]();
+
+  /* ---------- Marking ---------- */
+  function mark(q, given) {
+    if (q.kind === "self") return { ok: null };
+    if (given == null || given === "") return { ok: false, blank: true };
+    if (q.kind === "mcq") return { ok: given === q.correct };
+    const r = readNumber(String(given).replace("°", "").replace(/cm|m$/g, ""));
+    if (!r) return { ok: false };
+    if (q.kind === "frac") {
+      const ok = Math.abs(r.value - q.answer) < (r.isFraction ? 1e-9 : 0.006);
+      const note = ok && !r.isFraction && q.exact.includes("/") ? `Write it as a fraction: ${q.exact}.` : ok && r.isFraction && r.text !== q.exact ? `Simplify it: ${q.exact}.` : "";
+      return { ok, note };
+    }
+    return { ok: Math.abs(r.value - q.answer) <= q.tol };
+  }
+  // A long decimal (2.3333333) is shown rounded; fractions and short answers as typed.
+  const tidy = (g) => (/^-?\d+\.\d{4,}$/.test(String(g)) ? String(parseFloat((+g).toFixed(3))) : String(g));
+  const shownAnswer = (q, given) => (given == null || given === "" ? "no answer" : q.kind === "mcq" ? q.options[given] : `${tidy(given)}${q.unit && !String(given).includes(q.unit) ? " " + q.unit : ""}`);
+
+  /* ---------- Drawing a question ---------- */
+  function figureHtml(q, id) { return q.fig ? `<div class="qfig"><svg id="${id}" viewBox="0 0 400 280" role="img" aria-label="Figure for the question"></svg></div>` : ""; }
+  function drawFig(q, id) {
+    if (!q.fig) return;
+    const svg = $(id);
+    if (!svg) return;
+    if (q.fig.type === "tri") drawLettered(svg, { ...q.fig.t, sides: q.fig.sides, arcAt: q.fig.arcAt });
+    else drawHeight(svg, q.fig);
+  }
+  function answerHtml(q, value, locked) {
+    if (q.kind === "self") return `<p class="selfnote">Write your proof on paper. ${locked ? "" : "You'll compare it with a model proof at the end."}</p>`;
+    if (q.kind === "mcq") return `<div class="mcq">${q.options.map((o, k) => `<button type="button" data-opt="${k}"${value === k ? ' class="chosen"' : ""}${locked ? " disabled" : ""}>${o}</button>`).join("")}</div>`;
+    const ph = q.kind === "frac" ? "e.g. 3/5" : q.kind === "deg" ? "e.g. 30" : "e.g. 12";
+    return `<div class="ans-row"><label class="sr" for="ansIn">Your answer</label><input id="ansIn" type="text" inputmode="text" autocomplete="off" placeholder="${ph}" value="${value == null ? "" : String(value).replace(/"/g, "")}"${locked ? " disabled" : ""}><span>${q.unit || ""}</span></div>`;
+  }
+  const solutionHtml = (q) => `<div class="solution"><b>${q.kind === "self" ? "Model proof" : "Model answer"}</b><ol>${q.solution.map((s) => `<li>${s}</li>`).join("")}</ol></div>`;
+  const conceptLink = (q) => `<a class="kb-link" data-concept="${q.concept}" href="#">Show me where this is explained (${LessonLinks.levelName(LessonLinks.CONCEPTS[q.concept].level)}) →</a>`;
+
+  /* ---------- App state ---------- */
+  const app = $("app");
+  let S = { mode: "menu", topics: TOPICS.map((t) => t.id), count: 10, minutes: 20 };
+  let timerId = null;
+  const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+  const history = () => { try { return JSON.parse(localStorage.getItem("trig-exam-history") || "[]"); } catch (_) { return []; } };
+  const saveHistory = (h) => { try { localStorage.setItem("trig-exam-history", JSON.stringify(h.slice(-10))); } catch (_) {} };
+
+  function render() {
+    clearInterval(timerId);
+    if (S.mode === "menu") return renderMenu();
+    if (S.mode === "practice") return renderPractice();
+    if (S.mode === "exam") return renderExam();
+    return renderResults();
+  }
+
+  function renderMenu() {
+    const h = history();
+    app.innerHTML = `<div class="ex-cards">
+      <section class="panel ex-card" aria-labelledby="pTitle">
+        <div class="eyebrow">Practice</div><h2 id="pTitle">Practice by topic</h2>
+        <p>Questions one at a time. You see straight away if you're right, with the model answer.</p>
+        <div class="chips">${TOPICS.map((t) => `<span class="chip"><input type="checkbox" id="tp-${t.id}" value="${t.id}"${S.topics.includes(t.id) ? " checked" : ""}><label for="tp-${t.id}">${t.name}<small>${LessonLinks.levelName(t.level)}</small></label></span>`).join("")}</div>
+        <div class="ex-row"><button type="button" id="allTopics">All</button><button type="button" id="noTopics">None</button></div>
+        <div><button type="button" class="primary" id="startPractice">Start practice</button></div>
+      </section>
+      <section class="panel ex-card" aria-labelledby="eTitle">
+        <div class="eyebrow">Exam</div><h2 id="eTitle">Take an exam</h2>
+        <p>Mixed questions from every topic. No feedback until you finish, like a real test. Then you get your score and every answer explained.</p>
+        <div class="ex-row"><span class="label">Questions</span><div class="seg" role="radiogroup" aria-label="Number of questions">
+          <input type="radio" name="count" id="c10" value="10"${S.count === 10 ? " checked" : ""}><label for="c10">10</label>
+          <input type="radio" name="count" id="c20" value="20"${S.count === 20 ? " checked" : ""}><label for="c20">20</label></div></div>
+        <div class="ex-row"><span class="label">Time</span><div class="seg" role="radiogroup" aria-label="Time limit">
+          <input type="radio" name="mins" id="m0" value="0"${S.minutes === 0 ? " checked" : ""}><label for="m0">No limit</label>
+          <input type="radio" name="mins" id="m20" value="20"${S.minutes === 20 ? " checked" : ""}><label for="m20">20 min</label>
+          <input type="radio" name="mins" id="m40" value="40"${S.minutes === 40 ? " checked" : ""}><label for="m40">40 min</label></div></div>
+        <div><button type="button" class="primary" id="startExam">Start the exam</button></div>
+        ${h.length ? `<div><div class="eyebrow">Your last exams</div><ul class="history">${h.slice().reverse().map((x) => `<li><span>${x.date}</span><span class="bar"><span style="width:${x.pct}%"></span></span><span>${x.score}/${x.total}</span></li>`).join("")}</ul></div>` : ""}
+      </section>
+    </div>`;
+    app.querySelectorAll(".chips input").forEach((c) => c.addEventListener("change", () => { S.topics = [...app.querySelectorAll(".chips input:checked")].map((x) => x.value); }));
+    $("allTopics").addEventListener("click", () => { S.topics = TOPICS.map((t) => t.id); renderMenu(); });
+    $("noTopics").addEventListener("click", () => { S.topics = []; renderMenu(); });
+    app.querySelectorAll('input[name="count"]').forEach((r) => r.addEventListener("change", () => { S.count = +r.value; }));
+    app.querySelectorAll('input[name="mins"]').forEach((r) => r.addEventListener("change", () => { S.minutes = +r.value; }));
+    $("startPractice").addEventListener("click", () => {
+      if (!S.topics.length) { S.topics = TOPICS.map((t) => t.id); }
+      S = { ...S, mode: "practice", pq: make(pickOne(S.topics)), pval: null, checked: false, right: 0, done: 0 };
+      render();
+    });
+    $("startExam").addEventListener("click", startExam);
+  }
+
+  /* ---------- Practice ---------- */
+  function renderPractice(scroll = false) {
+    const q = S.pq, res = S.checked ? mark(q, S.pval) : null;
+    app.innerHTML = `<div class="panel qcard">
+      <div class="qhead"><span class="eyebrow">Practice · ${S.right} right out of ${S.done}</span><span class="topic-tag">${TOPIC[q.topic].name} · ${LessonLinks.levelName(TOPIC[q.topic].level)}</span></div>
+      <div class="qbody${q.fig ? "" : " nofig"}"><div style="display:grid;gap:14px;min-width:0"><p class="qtext2">${q.q}</p>${answerHtml(q, S.pval, S.checked)}</div>${figureHtml(q, "qfig")}</div>
+      ${S.checked ? `${q.kind === "self" ? "" : `<p class="verdict ${res.ok ? "good" : "bad"}">${res.ok ? "Correct!" : `Not quite. The answer is ${q.exact}.`} ${res.note || ""}</p>`}${solutionHtml(q)}<p>${conceptLink(q)}</p>` : ""}
+      <div class="ex-nav"><button type="button" id="toMenu">← Menu</button>${S.checked ? '<button type="button" class="primary" id="nextQ">Next question →</button>' : `<button type="button" class="primary" id="checkQ">${q.kind === "self" ? "Show the model proof" : "Check"}</button>`}</div>
+    </div>`;
+    drawFig(q, "qfig");
+    wireAnswer(q, (v) => { S.pval = v; });
+    $("toMenu").addEventListener("click", () => { S.mode = "menu"; render(); });
+    if (S.checked) $("nextQ").addEventListener("click", () => { S = { ...S, pq: make(pickOne(S.topics)), pval: null, checked: false }; renderPractice(true); });
+    else $("checkQ").addEventListener("click", () => {
+      if (q.kind !== "self" && (S.pval == null || S.pval === "")) { return; }
+      S.checked = true;
+      if (q.kind !== "self") { S.done += 1; if (mark(q, S.pval).ok) S.right += 1; }
+      renderPractice();
+    });
+    if (scroll) app.scrollIntoView({ behavior: smooth(), block: "start" });
+  }
+  function wireAnswer(q, set) {
+    if (q.kind === "mcq") app.querySelectorAll("[data-opt]").forEach((b) => b.addEventListener("click", () => {
+      set(+b.dataset.opt);
+      app.querySelectorAll("[data-opt]").forEach((x) => x.classList.toggle("chosen", x === b));
+    }));
+    const inp = $("ansIn");
+    if (inp) {
+      inp.addEventListener("input", () => set(inp.value.trim()));
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { const go = $("checkQ") || $("exNext"); if (go) go.click(); } });
+    }
+  }
+
+  /* ---------- Exam ---------- */
+  function startExam() {
+    // Spread the questions across all topics, then mix them up.
+    const order = shuffle(TOPICS.map((t) => t.id));
+    const picks = [];
+    while (picks.length < S.count) picks.push(order[picks.length % order.length]);
+    S = { ...S, mode: "exam", qs: shuffle(picks).map(make), ans: Array(S.count).fill(null), self: Array(S.count).fill(null), i: 0, start: Date.now(), limit: S.minutes * 60, confirm: false };
+    render();
+  }
+  function timeLeft() { return S.limit ? Math.max(0, S.limit - Math.floor((Date.now() - S.start) / 1000)) : null; }
+  const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  function renderExam() {
+    const q = S.qs[S.i], left = timeLeft();
+    const answered = S.ans.filter((a) => a != null && a !== "").length;
+    app.innerHTML = `<div class="panel qcard">
+      <div class="ex-top"><span class="eyebrow" style="margin:0">Question ${S.i + 1} of ${S.qs.length} · ${answered} answered</span>${left == null ? "" : `<span class="timer${left < 120 ? " low" : ""}" id="timer">${clock(left)}</span>`}</div>
+      <ol class="palette" aria-label="Questions">${S.qs.map((x, k) => `<li><button type="button" data-go="${k}" class="${S.ans[k] != null && S.ans[k] !== "" ? "done" : ""}${k === S.i ? " cur" : ""}" aria-label="Question ${k + 1}">${k + 1}</button></li>`).join("")}</ol>
+      <div class="qhead"><span class="topic-tag">${TOPIC[q.topic].name}</span></div>
+      <div class="qbody${q.fig ? "" : " nofig"}"><div style="display:grid;gap:14px;min-width:0"><p class="qtext2">${q.q}</p>${answerHtml(q, S.ans[S.i], false)}</div>${figureHtml(q, "qfig")}</div>
+      ${S.confirm ? `<div class="confirm"><p>${S.qs.length - answered - S.qs.filter((x) => x.kind === "self").length > 0 ? `You haven't answered ${S.qs.length - answered - S.qs.filter((x) => x.kind === "self").length} question(s). ` : ""}Finish the exam and see your score?</p><div class="ex-row"><button type="button" class="primary" id="finishYes">Yes, finish</button><button type="button" id="finishNo">Keep going</button></div></div>` : ""}
+      <div class="ex-nav"><button type="button" id="exPrev"${S.i === 0 ? " disabled" : ""}>← Previous</button><button type="button" id="exFinish">Finish exam</button><button type="button" class="primary" id="exNext"${S.i === S.qs.length - 1 ? " disabled" : ""}>Next →</button></div>
+    </div>`;
+    drawFig(q, "qfig");
+    wireAnswer(q, (v) => {
+      S.ans[S.i] = v;
+      const b = app.querySelector(`[data-go="${S.i}"]`);
+      if (b) b.classList.toggle("done", v != null && v !== "");
+    });
+    app.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { S.i = +b.dataset.go; S.confirm = false; renderExam(); }));
+    $("exPrev").addEventListener("click", () => { S.i -= 1; S.confirm = false; renderExam(); });
+    $("exNext").addEventListener("click", () => { if (S.i < S.qs.length - 1) { S.i += 1; S.confirm = false; renderExam(); } });
+    $("exFinish").addEventListener("click", () => { S.confirm = true; renderExam(); });
+    if (S.confirm) { $("finishYes").addEventListener("click", finishExam); $("finishNo").addEventListener("click", () => { S.confirm = false; renderExam(); }); }
+    if (left != null) timerId = setInterval(() => {
+      const l = timeLeft();
+      const el2 = $("timer");
+      if (el2) { el2.textContent = clock(l); el2.classList.toggle("low", l < 120); }
+      if (l <= 0) finishExam();
+    }, 1000);
+  }
+  function finishExam() {
+    clearInterval(timerId);
+    S.mode = "results";
+    S.marks = S.qs.map((q, k) => mark(q, S.ans[k]));
+    S.saved = false;
+    render();
+  }
+
+  /* ---------- Results ---------- */
+  function scoreNow() {
+    let score = 0, total = 0, toMark = 0;
+    S.qs.forEach((q, k) => {
+      total += 1;
+      if (q.kind === "self") { if (S.self[k] === true) score += 1; if (S.self[k] == null) toMark += 1; }
+      else if (S.marks[k].ok) score += 1;
+    });
+    return { score, total, toMark };
+  }
+  function renderResults() {
+    const { score, total, toMark } = scoreNow();
+    if (!S.saved && toMark === 0) {
+      const h = history();
+      h.push({ date: new Date().toISOString().slice(0, 10), score, total, pct: Math.round((100 * score) / total) });
+      saveHistory(h);
+      S.saved = true;
+    }
+    const byTopic = {};
+    S.qs.forEach((q, k) => {
+      const b = (byTopic[q.topic] = byTopic[q.topic] || { right: 0, total: 0 });
+      b.total += 1;
+      if (q.kind === "self" ? S.self[k] === true : S.marks[k].ok) b.right += 1;
+    });
+    const weak = Object.keys(byTopic).filter((t) => byTopic[t].right < byTopic[t].total);
+    app.innerHTML = `<div class="panel qcard">
+      <div class="result-head"><span class="big-score">${score}<small> / ${total}</small></span>
+        <p>${toMark ? `Mark your ${toMark === 1 ? "proof" : `${toMark} proofs`} below to finish your score.` : score === total ? "Full marks! Excellent work." : `That's ${Math.round((100 * score) / total)}%. Go through the mistakes below: each one links to its explanation.`}</p></div>
+      <ol class="palette" aria-label="Your answers">${S.qs.map((q, k) => { const st = q.kind === "self" ? (S.self[k] == null ? "self" : S.self[k] ? "ok" : "bad") : S.marks[k].ok ? "ok" : "bad"; return `<li><button type="button" data-jump="${k}" class="${st}" aria-label="Question ${k + 1}">${k + 1}</button></li>`; }).join("")}</ol>
+      <div><div class="eyebrow">By topic</div><div class="topic-bars">${Object.keys(byTopic).map((t) => `<div><span>${TOPIC[t].name}</span><span class="bar"><span style="width:${(100 * byTopic[t].right) / byTopic[t].total}%"></span></span><span class="num">${byTopic[t].right}/${byTopic[t].total}</span></div>`).join("")}</div></div>
+      <div class="ex-row">${weak.length ? '<button type="button" class="primary" id="practiseWeak">Practise my weak topics</button>' : ""}<button type="button" id="newExam">New exam</button><button type="button" id="toMenu2">Menu</button></div>
+      <ol class="review">${S.qs.map((q, k) => {
+        const res = S.marks[k];
+        const cls = q.kind === "self" ? "self" : res.ok ? "ok" : "bad";
+        return `<li class="${cls}" id="rv-${k}">
+          <div class="qhead"><span class="eyebrow" style="margin:0">Question ${k + 1}</span><span class="topic-tag">${TOPIC[q.topic].name} · ${LessonLinks.levelName(TOPIC[q.topic].level)}</span></div>
+          <div class="qbody${q.fig ? "" : " nofig"}"><p class="qtext2">${q.q}</p>${figureHtml(q, `rfig${k}`)}</div>
+          ${q.kind === "self" ? `${solutionHtml(q)}<div class="selfmark"><span>Did your proof show the same steps?</span><button type="button" data-self="${k}" data-v="1"${S.self[k] === true ? ' class="on"' : ""}>Yes, I got it</button><button type="button" data-self="${k}" data-v="0"${S.self[k] === false ? ' class="on"' : ""}>Not yet</button></div>${S.self[k] === false ? `<p>${conceptLink(q)}</p>` : ""}`
+            : `<p class="your">Your answer: <b class="${res.ok ? "good" : "bad"}">${shownAnswer(q, S.ans[k])}</b>${res.ok ? "" : ` · Right answer: <b class="good">${q.exact}</b>`}${res.note ? ` · ${res.note}` : ""}</p>${res.ok ? "" : `${solutionHtml(q)}<p>${conceptLink(q)}</p>`}`}
+        </li>`;
+      }).join("")}</ol>
+    </div>`;
+    S.qs.forEach((q, k) => drawFig(q, `rfig${k}`));
+    app.querySelectorAll("[data-self]").forEach((b) => b.addEventListener("click", () => { S.self[+b.dataset.self] = b.dataset.v === "1"; const y = window.scrollY; renderResults(); window.scrollTo(0, y); }));
+    app.querySelectorAll("[data-jump]").forEach((b) => b.addEventListener("click", () => { const t = $(`rv-${b.dataset.jump}`); if (t) t.scrollIntoView({ behavior: smooth(), block: "start" }); }));
+    if (weak.length) $("practiseWeak").addEventListener("click", () => { S = { ...S, mode: "practice", topics: weak, pq: make(pickOne(weak)), pval: null, checked: false, right: 0, done: 0 }; render(); });
+    $("newExam").addEventListener("click", startExam);
+    $("toMenu2").addEventListener("click", () => { S.mode = "menu"; render(); });
+  }
+
+  // Concept links: open the explanation in its lesson, and come back to the same screen (concepts.js).
+  const stepsStub = { current: () => 0, goTo() {}, explainAt() {}, clearFocus() {} };
+  const links = LessonLinks.init({
+    level: "exam", steps: stepsStub,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "exam") { S = t.quiz.state; render(); if (t.scroll) window.scrollTo(0, t.scroll); } },
+  });
+  // Save the whole screen before following a link, so "Back" restores it.
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-concept]");
+    if (!a) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    clearInterval(timerId);
+    links.open(a.dataset.concept, { label: "read", quiz: { key: "exam", state: JSON.parse(JSON.stringify(S)) } });
+  }, true);
+  render();
+
+  /* ---------- Theme switch (same as Level 1) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-theme", mode);
+      root.dataset.themeByPage = "1";
+    } else if (root.dataset.themeByPage) {
+      root.removeAttribute("data-theme");
+      delete root.dataset.themeByPage;
+    }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  // Right answer as it would be typed (or clicked) for a question.
+  const rightAnswer = (q) => (q.kind === "mcq" ? q.correct : q.kind === "self" ? null : q.kind === "frac" ? q.exact : m1(q.answer));
+  const wrongAnswer = (q) => (q.kind === "mcq" ? (q.correct + 1) % q.options.length : q.kind === "self" ? null : String(q.answer + 1));
+  window.__layoutTest = {
+    get svgs() { return [...document.querySelectorAll("#app svg")].map((s) => s.id); },
+    prepare() {},
+    cases() {
+      const out = [];
+      for (const t of TOPICS) for (let n = 0; n < 14; n++) { const q = make(t.id); for (const checked of [false, true]) out.push({ kind: "practice", q, checked, name: `practice ${t.id} #${n} ${checked ? "checked" : ""}` }); }
+      for (let n = 0; n < 3; n++) out.push({ kind: "results", n, name: `exam results #${n}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "practice") { S = { ...S, mode: "practice", pq: c.q, pval: c.checked ? rightAnswer(c.q) : null, checked: c.checked, right: 0, done: 0 }; render(); }
+      else { S.count = 20; S.minutes = 0; startExam(); S.qs.forEach((q, k) => { S.ans[k] = k % 3 ? rightAnswer(q) : wrongAnswer(q); }); finishExam(); }
+    },
+  };
+  window.__examTest = {
+    topics: TOPICS, make, mark, rightAnswer, wrongAnswer,
+    startExam(count) { S.count = count; S.minutes = 0; startExam(); },
+    fill(wrong) { S.qs.forEach((q, k) => { S.ans[k] = wrong.includes(k) ? wrongAnswer(q) : rightAnswer(q); }); render(); },
+    finish() { finishExam(); },
+    state: () => S,
+    practice(q) { S = { ...S, mode: "practice", pq: q, pval: null, checked: false, right: 0, done: 0 }; render(); },
+  };
+})();
+</script>

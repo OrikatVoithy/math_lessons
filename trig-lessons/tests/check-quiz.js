@@ -44,6 +44,85 @@ const server = http.createServer((req, res) => {
 let origin = "";
 const url = (rel) => origin + "/" + (rel ? rel + "/" : "");
 
+// The exam page: question bank, answering through the screen, a full exam, and links back.
+async function examChecks(page, problems) {
+  // 1. Every topic, built 300 times
+  const bank = await page.evaluate(() => {
+    const E = window.__examTest, C = window.LessonLinks.CONCEPTS, out = [];
+    const kinds = {};
+    for (const t of E.topics) for (let n = 0; n < 300; n++) {
+      const q = E.make(t.id);
+      kinds[q.kind] = (kinds[q.kind] || 0) + 1;
+      const where = `${t.id}`;
+      if (!q.q || !Array.isArray(q.solution) || !q.solution.length) { out.push(`${where}: missing question or solution`); break; }
+      if (!C[q.concept]) { out.push(`${where}: unknown idea "${q.concept}"`); break; }
+      if (/NaN|undefined|Infinity/.test(JSON.stringify(q))) { out.push(`${where}: bad value in ${q.q}`); break; }
+      if (q.kind === "mcq") {
+        if (q.options.length < 2 || new Set(q.options).size !== q.options.length || !(q.correct >= 0 && q.correct < q.options.length)) { out.push(`${where}: bad options ${JSON.stringify(q.options)}`); break; }
+      } else if (q.kind !== "self") {
+        if (!E.mark(q, E.rightAnswer(q)).ok) { out.push(`${where}: right answer "${E.rightAnswer(q)}" marked wrong for: ${q.q}`); break; }
+        if (E.mark(q, E.wrongAnswer(q)).ok) { out.push(`${where}: wrong answer marked right for: ${q.q}`); break; }
+      }
+      if (q.fig && q.fig.type === "tri") { const { a, b, c } = q.fig.t; if (Math.abs(a * a + b * b - c * c) > 1e-6) { out.push(`${where}: triangle sides don't fit Pythagoras (${a}, ${b}, ${c})`); break; } }
+      if (q.fig && q.fig.type === "height" && !(q.fig.ad > 0 && q.fig.bd > 0 && q.fig.dc > 0)) { out.push(`${where}: bad height figure`); break; }
+    }
+    return { out, kinds };
+  });
+  problems.push(...bank.out.map((p) => `exam bank: ${p}`));
+
+  // 2. Answer each kind of question through the screen
+  const kindsSeen = [];
+  for (const kind of ["mcq", "frac", "num", "deg", "self"]) {
+    const ok = await page.evaluate((kind) => {
+      const E = window.__examTest;
+      for (let n = 0; n < 500; n++) for (const t of E.topics) { const q = E.make(t.id); if (q.kind === kind) { E.practice(q); return true; } }
+      return false;
+    }, kind);
+    if (!ok) { problems.push(`exam: no ${kind} question found`); continue; }
+    const q = await page.evaluate(() => window.__examTest.state().pq);
+    if (kind === "mcq") await page.locator(`#app [data-opt="${q.correct}"]`).click();
+    else if (kind !== "self") await page.fill("#ansIn", await page.evaluate(() => String(window.__examTest.rightAnswer(window.__examTest.state().pq))));
+    await page.click("#checkQ");
+    const verdict = kind === "self" ? await page.locator("#app .solution").count() : await page.locator("#app .verdict.good").count();
+    if (!verdict) problems.push(`exam practice: answering a ${kind} question through the screen didn't mark it right`);
+    kindsSeen.push(kind);
+  }
+
+  // 3. A full exam: 10 questions, two answered wrong, finish through the screen
+  await page.evaluate(() => window.__examTest.startExam(10));
+  const plan = await page.evaluate(() => {
+    const S = window.__examTest.state();
+    const wrong = S.qs.map((q, k) => (q.kind === "self" ? -1 : k)).filter((k) => k >= 0).slice(0, 2);
+    window.__examTest.fill(wrong);
+    return { wrong, self: S.qs.filter((q) => q.kind === "self").length };
+  });
+  await page.click("#exFinish");
+  await page.click("#finishYes");
+  const expectAuto = 10 - plan.self - plan.wrong.length;
+  const scoreText = async () => (await page.locator("#app .big-score").textContent()).replace(/\s+/g, " ").trim();
+  let shown = await scoreText();
+  if (!shown.startsWith(String(expectAuto))) problems.push(`exam: score "${shown}" before marking proofs, expected ${expectAuto}`);
+  for (let k = 0; k < plan.self; k++) await page.locator('#app [data-self][data-v="1"]').nth(0).click().catch(() => {});
+  // after each click the list re-renders; click any remaining unmarked "Yes" buttons
+  while (await page.locator('#app [data-self][data-v="1"]:not(.on)').count()) await page.locator('#app [data-self][data-v="1"]:not(.on)').first().click();
+  shown = await scoreText();
+  if (!shown.startsWith(String(expectAuto + plan.self))) problems.push(`exam: score "${shown}" after marking proofs, expected ${expectAuto + plan.self}`);
+  const wrongListed = await page.locator("#app .review > li.bad").count();
+  if (wrongListed !== plan.wrong.length) problems.push(`exam: ${wrongListed} wrong answers listed, expected ${plan.wrong.length}`);
+
+  // 4. "Show me where this is explained" from the results, then back to the same results
+  const link = page.locator("#app .review > li.bad a[data-concept]").first();
+  await link.click();
+  await page.waitForTimeout(1200);
+  const there = await page.evaluate(() => ({ url: location.pathname, focus: !!document.querySelector(".lesson-focus"), bar: !!document.querySelector(".kb-bar") && !document.querySelector(".kb-bar").hidden }));
+  if (!there.focus || !there.bar) problems.push(`exam link: expected the explanation highlighted with the bar, got ${JSON.stringify(there)}`);
+  await page.locator(".kb-back").click();
+  await page.waitForTimeout(1200);
+  const back = await page.evaluate(() => ({ url: location.pathname, score: document.querySelector("#app .big-score") && document.querySelector("#app .big-score").textContent.replace(/\s+/g, " ").trim() }));
+  if (!back.url.includes("/exam/") || back.score !== shown) problems.push(`exam link: expected to come back to the results (${shown}), got ${JSON.stringify(back)}`);
+  console.log(`exam: kinds ${JSON.stringify(bank.kinds)}; answered ${kindsSeen.join(", ")} through the screen; exam ${shown} (${plan.wrong.length} wrong, ${plan.self} proofs); link → ${there.url} → back to results`);
+}
+
 (async () => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   origin = `http://127.0.0.1:${server.address().port}`;
@@ -61,6 +140,7 @@ const url = (rel) => origin + "/" + (rel ? rel + "/" : "");
     const page = await fresh(name);
     await page.goto(url(path.relative(dist, path.dirname(file))));
     await page.waitForTimeout(300);
+    if (await page.evaluate(() => !!window.__examTest)) { await examChecks(page, problems); await page.context().close(); continue; }
     await page.click("#modeBtn"); // show all steps (and the lab, practice and quiz)
 
     // 1 + 2. Concept map, links, and question bank
