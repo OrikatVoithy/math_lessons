@@ -568,6 +568,7 @@ a { color: var(--hyp); }
       <li class="panel now"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><span class="pill">You are here</span></li>
       <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming next</span></li>
     </ol>
+    <a class="nextlevel panel" href="../exam/"><span><span class="eyebrow">Practice and exam</span><b>Question bank and exam: every level, the way your book asks</b></span><span aria-hidden="true">→</span></a>
   </section>
   </div>
 </div>
@@ -963,7 +964,8 @@ a { color: var(--hyp); }
       `The pole is the difference: <span class="num">${(v.d * tanD(v.a2)).toFixed(2)} − ${(v.d * tanD(v.a)).toFixed(2)} ≈ ${m1(p.answer)} m</span>.`,
     ];
   }
-  const close5 = (x, target) => Math.abs(x - target) <= Math.max(0.2, 0.01 * Math.abs(target));
+  // Room for rounding the tan value to 3 decimals, but not for a real mistake (e.g. 1 m off on a 300 m distance).
+  const close5 = (x, target) => Math.abs(x - target) <= Math.max(0.2, 0.002 * Math.abs(target));
   function checkAnswer(x) {
     const ok = close5(x, p.answer);
     const list = `<ol class="work">${workLines().map((s) => `<li>${s}</li>`).join("")}</ol>`;

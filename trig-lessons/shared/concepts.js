@@ -16,7 +16,7 @@
  */
 (function () {
   const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Level 1: What are sin, cos and tan?
