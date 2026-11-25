@@ -1,0 +1,1218 @@
+<title>Heights and Distances Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+
+<style>
+/* Level 5 additions */
+.scenefig svg, .scene svg { width: 100%; height: auto; display: block; }
+.boxnote { background: var(--paper); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+.boxnote .eyebrow { margin: 0; }
+.row.eye-row[hidden] { display: none; }
+.values5 { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../level-4/">← Level 4: Special angles</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Trigonometry · Level 5 of 6</div>
+    <h1>Heights and distances</h1>
+    <p class="lede">You know how to find sides and angles. Now use them to measure real things you can't reach: tall buildings, boats out at sea, planes in the sky. Go through the 7 short steps one at a time.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">Why learn this?</div>
+        <h2>Measure things you can't reach</h2>
+        <p>How tall is that building? How far away is that boat? You can't hold a tape measure up a skyscraper, or stretch one across the sea.</p>
+        <p>But you <b>can</b> stand somewhere safe, measure one distance, and measure one angle. Trigonometry does the rest.</p>
+        <ul class="checks">
+          <li><b>Mount Everest</b> was first measured this way, in the 1850s. Surveyors measured angles to the top from over 100 km away, and worked out its height.</li>
+          <li><b>Sailors</b> work out how far they are from a lighthouse, because its height is printed on their map.</li>
+          <li><b>Pilots</b> use the angle down to the runway to know how far away it is.</li>
+        </ul>
+      </div>
+      <figure class="scenefig">
+        <svg id="figWhy" viewBox="0 0 400 280" role="img" aria-label="A person looking up at the top of a building."></svg>
+        <figcaption>One distance and one angle are enough to find the height.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">Looking up</div>
+        <h2>The angle of elevation</h2>
+        <p>When you look <b>up</b> at something, the <b>angle of elevation</b> is the angle between:</p>
+        <ul class="checks">
+          <li>a <b>flat (horizontal) line</b> straight ahead from your eyes, and</li>
+          <li>your <b>line of sight</b> up to the top.</li>
+        </ul>
+        <p>It's always measured <b>up from the horizontal</b>, never from the wall or from straight up.</p>
+        <p>This makes a right triangle: the horizontal line along the bottom, the building up the side, and your line of sight as the hypotenuse.</p>
+        <p class="tip">You can measure it with a simple tool called a clinometer, or with a free angle-measuring app on a phone.</p>
+      </div>
+      <figure class="scenefig">
+        <svg id="figUp" viewBox="0 0 400 280" role="img" aria-label="The angle of elevation is between the horizontal line from the eyes and the line of sight up to the top of the building."></svg>
+        <figcaption>The angle of elevation starts at the flat dashed line.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">Looking down</div>
+        <h2>The angle of depression</h2>
+        <p>When you look <b>down</b> from somewhere high, like the top of a cliff, the <b>angle of depression</b> is the angle between the flat line straight ahead and your line of sight <b>down</b>.</p>
+        <p>Here's a useful fact: the angle of depression from the cliff is the <b>same</b> as the angle of elevation from the boat looking up.</p>
+        <p>Why? The flat line at the top of the cliff and the sea are <b>parallel</b>. Your line of sight crosses both of them at the same slant, so it makes the same angle with each. Look for the Z shape in the picture.</p>
+        <p>So you can always use the angle at the bottom, inside the right triangle.</p>
+      </div>
+      <figure class="scenefig">
+        <svg id="figDown" viewBox="0 0 400 280" role="img" aria-label="A cliff with a boat at sea. The angle of depression at the top of the cliff equals the angle of elevation at the boat."></svg>
+        <figcaption>The two angles are equal, because the dashed line and the sea are parallel.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody">
+        <div class="eyebrow">Don't forget your eyes</div>
+        <h2>The triangle starts at your eyes</h2>
+        <p>When you look up at a tree, your eyes aren't on the ground. They're about 1.5 m up.</p>
+        <p>So the triangle you solve only gives the height <b>above your eyes</b>. To get the full height, <b>add your eye height</b>.</p>
+        <div class="boxnote eye-box">
+          <div class="eyebrow">Example</div>
+          <p>You stand 20 m from a tree. The angle of elevation to the top is 40° (tan 40° ≈ 0.84). Your eyes are 1.5 m above the ground.</p>
+          <p>Height above your eyes: <span class="num">20 × 0.84 = 16.8 m</span>. Full height: <span class="num">16.8 + 1.5 = 18.3 m</span>.</p>
+        </div>
+        <p class="tip">This is the most common mistake in real measuring. If a problem says "your eyes are 1.5 m above the ground", that 1.5 m is there to be added.</p>
+      </div>
+      <figure class="scenefig">
+        <svg id="figEye" viewBox="0 0 400 280" role="img" aria-label="A person 20 metres from a tree. The triangle starts at eye level, 1.5 metres above the ground."></svg>
+        <figcaption>Height = the part above your eyes + your eye height.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">How to solve</div>
+        <h2>Draw it first</h2>
+        <ol class="recipe">
+          <li><b>Draw a picture.</b> Put in the ground, the thing you're measuring, and where you are.</li>
+          <li><b>Draw the flat line</b> from the eyes, and the line of sight. Mark the right angle.</li>
+          <li><b>Mark the angle</b> and the side you know. Put a ? on the side you want.</li>
+          <li><b>Solve the right triangle</b> as before: <a class="kb-link" data-concept="l1-ratios" href="../#c-l1-ratios">pick sin, cos or tan</a>, then <a class="kb-link" data-concept="l2-turn-around" href="../level-2/#c-l2-turn-around">multiply or divide</a>.</li>
+          <li><b>Finish:</b> add any extra height (like your eyes), and check the answer makes sense.</li>
+        </ol>
+      </div>
+      <div class="span">
+        <div class="example lighthouse">
+          <div class="eyebrow">Example: how far is the boat?</div>
+          <p><b>A lighthouse is 40 m tall. From the top, the angle of depression to a boat is 20° (tan 20° ≈ 0.364). How far is the boat from the bottom of the lighthouse?</b></p>
+          <ol class="recipe compact">
+            <li>Draw it: lighthouse up the side, the sea along the bottom, the line of sight from the top down to the boat.</li>
+            <li>The angle at the boat is also 20° (step 3). From there, the lighthouse is <b class="opp">opposite</b> and the distance is <b class="adj">adjacent</b>: <b>TOA</b>, so tan.</li>
+            <li><span class="num">tan 20° = 40 ÷ ?</span>. The ? is on the bottom, so divide.</li>
+            <li><span class="num">? = 40 ÷ 0.364 ≈ 109.9 m</span>. The boat is about 110 m away.</li>
+          </ol>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody">
+        <div class="eyebrow">Two triangles</div>
+        <h2>A flagpole on a roof</h2>
+        <p>Sometimes one triangle isn't enough. Say there's a flagpole on top of a building, and you want the length of the pole.</p>
+        <p>Stand 20 m away and measure <b>two</b> angles: up to the top of the building, and up to the top of the flag. That gives <b>two triangles</b> that share the same bottom side (the 20 m).</p>
+        <ul class="checks">
+          <li>Building: angle 30°, so height <span class="num">= 20 × tan 30° ≈ 20 × 0.5774 ≈ 11.55 m</span></li>
+          <li>Top of flag: angle 40°, so height <span class="num">= 20 × tan 40° ≈ 20 × 0.8391 ≈ 16.78 m</span></li>
+          <li>The pole is the difference: <span class="num">16.78 − 11.55 ≈ 5.2 m</span> (keep the decimals until the end, like in <a class="kb-link" data-concept="l4-exact" href="../level-4/#c-l4-exact">Level 4</a>)</li>
+        </ul>
+        <p>Big problems are often just two small triangles. Find each one, then add or subtract.</p>
+      </div>
+      <figure class="scenefig">
+        <svg id="figFlag" viewBox="0 0 400 280" role="img" aria-label="A flagpole on a building, seen from 20 metres away at angles of 30 and 40 degrees."></svg>
+        <figcaption>Two triangles share the same 20 m. The pole is the difference in height.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Real life</div>
+        <h2>Who measures like this?</h2>
+        <ul class="uses">
+          <li><h3>Surveyors</h3><p>They use a tool called a theodolite to measure angles very precisely, to map land and plan roads and buildings.</p></li>
+          <li><h3>Sailors</h3><p>A lighthouse's height is on the sea map. One angle tells them how far they are from the rocks.</p></li>
+          <li><h3>Pilots</h3><p>Planes land along a slope of about 3°. From the height and that angle, they know how far the runway is.</p></li>
+          <li><h3>Ancient Greeks</h3><p>The story goes that Thales worked out the height of a pyramid, more than 2,500 years ago, by comparing its shadow with the shadow of a stick.</p></li>
+        </ul>
+        <div class="boxnote sense5">
+          <div class="eyebrow">Does it make sense?</div>
+          <ul class="checks">
+            <li><b>Walk closer and the angle of elevation gets bigger.</b> Walk away and it gets smaller.</li>
+            <li><b>A small angle of depression means far away.</b> A boat near the cliff needs a steep angle.</li>
+            <li><b>At 45°, the height above your eyes equals the distance</b> (<a class="kb-link" data-concept="l4-45-values" href="../level-4/#c-l4-45-values">tan 45° = 1</a>). Below 45° it's shorter, above 45° it's taller.</li>
+            <li><b>Did you add the eye height?</b></li>
+          </ul>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself</h2>
+    <p class="lede" style="margin-top:8px">Look up at a building, or down from a cliff. Change the angle and the distance, then show the steps.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Measure it">
+    <div class="stage">
+      <svg id="scene" viewBox="0 0 400 280" role="img" aria-label="The scene you are measuring"></svg>
+      <div class="hint" id="sceneNote">The picture is drawn to the real angle.</div>
+    </div>
+    <div class="readout">
+      <div class="controls">
+        <div class="row">
+          <span class="label">Look</span>
+          <div class="seg" role="radiogroup" aria-label="Look up or down">
+            <input type="radio" name="kind" id="kindUp" value="up" checked><label for="kindUp">up at a building</label>
+            <input type="radio" name="kind" id="kindDown" value="down"><label for="kindDown">down from a cliff</label>
+          </div>
+        </div>
+        <div class="row">
+          <label class="label" for="ang">Angle</label>
+          <input type="range" id="ang" min="15" max="70" step="1" value="35">
+          <output class="out" id="angOut" for="ang">35°</output>
+        </div>
+        <div class="row">
+          <label class="label" for="dist" id="distLabel">Distance</label>
+          <input type="range" id="dist" min="5" max="60" step="1" value="20">
+          <output class="out" id="distOut" for="dist">20 m</output>
+        </div>
+        <div class="row eye-row" id="eyeRow">
+          <label class="label" for="eye">Eye height</label>
+          <input type="range" id="eye" min="0" max="2" step="0.1" value="1.5">
+          <output class="out" id="eyeOut" for="eye">1.5 m</output>
+        </div>
+      </div>
+      <ol class="work" id="work" aria-live="polite"></ol>
+      <div class="row">
+        <button type="button" class="primary" id="stepNext">Show first step</button>
+        <button type="button" id="stepAll">Show all</button>
+        <button type="button" id="stepHide">Hide steps</button>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Real measuring problems</h2>
+      <p class="lede" style="margin-top:8px">Draw it, solve the triangle, and don't forget any extra height. The tan values you need are given. Type your answer to one decimal place.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig">
+        <svg id="pmini" viewBox="0 0 400 280" role="img" aria-label="Picture for the problem"></svg>
+      </div>
+      <div class="q">
+        <div class="qtext" id="ptext"></div>
+        <div class="values5" id="pvalues"></div>
+        <form class="answer-row" id="pform">
+          <label for="pans" class="sr">Your answer in metres</label>
+          <input id="pans" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 18.3">
+          <span>m</span>
+          <button type="submit" class="primary" id="pcheck">Check</button>
+          <button type="button" id="phint">Hint</button>
+        </form>
+        <div class="feedback" id="pfeedback" aria-live="polite"></div>
+        <div class="qfoot">
+          <span class="streak" id="pstreak"></span>
+          <button type="button" id="pnext">Next problem</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Level quiz</div>
+      <h2 id="quizTitle">10 questions on Level 5</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">From here to the unit circle</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>Name the sides</h3><p>Opposite, adjacent, hypotenuse, and SOH CAH TOA.</p><a class="golink" href="../">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><a class="golink" href="../level-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><a class="golink" href="../level-3/">Review Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Special angles</h3><p>Exact values for 30°, 45° and 60° without a calculator.</p><a class="golink" href="../level-4/">Review Level 4 →</a></li>
+      <li class="panel now"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming next</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Drawing helpers (same as Level 2) ---------- */
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) {
+      const v = String(attrs[k]);
+      if ((k === "fill" || k === "stroke") && v.startsWith("var(")) n.style.setProperty(k, v);
+      else n.setAttribute(k, v);
+    }
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+  const norm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  function arcPath(c, p1, p2, r) {
+    const u1 = norm(sub(p1, c)), u2 = norm(sub(p2, c));
+    const s = { x: c.x + r * u1.x, y: c.y + r * u1.y }, e = { x: c.x + r * u2.x, y: c.y + r * u2.y };
+    const sweep = (u1.x * u2.y - u1.y * u2.x) > 0 ? 1 : 0;
+    return `M${s.x},${s.y} A${r},${r} 0 0 ${sweep} ${e.x},${e.y}`;
+  }
+  function rightMark(C, P, Q, s) {
+    const u = norm(sub(P, C)), v = norm(sub(Q, C));
+    const a = { x: C.x + s * u.x, y: C.y + s * u.y };
+    const b = { x: a.x + s * v.x, y: a.y + s * v.y };
+    const c = { x: C.x + s * v.x, y: C.y + s * v.y };
+    return `M${a.x},${a.y} L${b.x},${b.y} L${c.x},${c.y}`;
+  }
+  function sideLabel(P, Q, cen, off) {
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    const d = norm(sub(Q, P));
+    let n = { x: -d.y, y: d.x };
+    if ((m.x - cen.x) * n.x + (m.y - cen.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+    return {
+      x: m.x + off * n.x, y: m.y + off * n.y, n,
+      anchor: n.x > 0.35 ? "start" : n.x < -0.35 ? "end" : "middle",
+      baseline: n.y > 0.35 ? "hanging" : n.y < -0.35 ? "auto" : "middle",
+    };
+  }
+
+  const COL = { opp: "var(--opp)", adj: "var(--adj)", hyp: "var(--hyp)" };
+  const NAME = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
+  const RATIO = { sin: ["opp", "hyp"], cos: ["adj", "hyp"], tan: ["opp", "adj"] };
+  const MNEMONIC = { sin: "SOH", cos: "CAH", tan: "TOA" };
+  const trig = (fn, deg) => Math[fn](deg * Math.PI / 180);
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const fmtLen = (x) => String(parseFloat(x.toFixed(2)));
+  const fmt1 = (x) => x.toFixed(1);
+
+  function pickFn(a, b) {
+    for (const fn in RATIO) { const [n, d] = RATIO[fn]; if ((n === a && d === b) || (n === b && d === a)) return fn; }
+  }
+  // Solve for the wanted side. "shown" uses the 3-decimal value a student would read off a calculator.
+  function solve(theta, known, k, want) {
+    const fn = pickFn(known, want);
+    const [n, d] = RATIO[fn];
+    const v = r3(trig(fn, theta));
+    const top = n === want;
+    return { fn, n, d, v, top, exact: top ? k * trig(fn, theta) : k / trig(fn, theta), shown: top ? k * v : k / v };
+  }
+
+  /*
+   * Right triangle with θ at A (bottom left) and the square corner at C (bottom right).
+   * opts.area: box the triangle is fitted into. opts.labels: text per side. opts.twoLine: name + value labels.
+   */
+  function drawTriangle(svg, opts) {
+    svg.replaceChildren();
+    const { area } = opts;
+    const drawn = Math.min(opts.maxDraw ?? 90, Math.max(opts.minDraw ?? 0, opts.theta));
+    const t = drawn * Math.PI / 180;
+    const W = area.x1 - area.x0, H = area.yBase - area.yTop;
+    const s = Math.min(W / Math.cos(t), H / Math.sin(t));
+    const w = s * Math.cos(t), h = s * Math.sin(t);
+    const left = area.x0 + (W - w) / 2, base = area.yBase - (H - h) / 2;
+    const A = { x: left, y: base }, C = { x: left + w, y: base }, B = { x: left + w, y: base - h };
+    const cen = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+    const sides = [[A, C, "adj"], [C, B, "opp"], [A, B, "hyp"]];
+    const colour = (role) => (opts.colorRoles ? COL[role] : "var(--ink)");
+
+    if (opts.colorRoles) el("polygon", { points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`, fill: "var(--hyp)", "fill-opacity": "0.06" }, svg);
+    for (const [P, Q, role] of sides) {
+      const highlight = opts.emphasis && opts.emphasis.includes(role);
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: colour(role), "stroke-width": opts.colorRoles ? (highlight ? 5 : 3) : 2.5, "stroke-linecap": "round",
+        ...(opts.colorRoles && !highlight ? { "stroke-opacity": 0.45 } : {}) }, svg);
+    }
+    el("path", { d: rightMark(C, A, B, opts.small ? 10 : 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+
+    // Angle mark and its label: inside the corner when there is room, otherwise to the left along the ground.
+    const room = Math.min(dist(A, C), dist(A, B));
+    const arcR = Math.min(opts.small ? 20 : 28, 0.6 * room);
+    el("path", { d: arcPath(A, C, B, arcR), fill: "none", stroke: "var(--angle)", "stroke-width": opts.small ? 2.5 : 3 }, svg);
+    const rIn = arcR + (opts.small ? 20 : 26);
+    const inside = drawn >= 48 && room > rIn * 1.6 && String(opts.angleText).length <= 3;
+    const fs = opts.small ? 14 : 16;
+    if (inside) {
+      const b = norm({ x: norm(sub(C, A)).x + norm(sub(B, A)).x, y: norm(sub(C, A)).y + norm(sub(B, A)).y });
+      el("text", { x: A.x + rIn * b.x, y: A.y + rIn * b.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    } else {
+      el("text", { x: A.x - 8, y: A.y, "text-anchor": "end", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    }
+
+    for (const [P, Q, role] of sides) {
+      const lab = opts.labels[role];
+      if (!lab) continue;
+      const fill = lab.colour ? COL[role] : colour(role);
+      if (!opts.twoLine && role !== "hyp") {
+        const pos = sideLabel(P, Q, cen, 8);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab.value);
+      } else if (!opts.twoLine) {
+        // Hypotenuse number written along the slope, so a long number can't clip the line.
+        const pos = sideLabel(P, Q, cen, 6);
+        const ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 15 }, svg, lab.value);
+      } else if (role === "hyp") {
+        const pos = sideLabel(P, Q, cen, 10);
+        let ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        const t2 = el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", {}, t2, NAME[role] + (lab.value ? " " : ""));
+        if (lab.value) el("tspan", { class: "num", "font-size": 14 }, t2, lab.value);
+      } else {
+        const pos = sideLabel(P, Q, cen, 10);
+        const lines = lab.value ? 2 : 1;
+        const blockH = lines * 17;
+        const top = pos.baseline === "hanging" ? pos.y : pos.baseline === "auto" ? pos.y - blockH : pos.y - blockH / 2;
+        const t2 = el("text", { "text-anchor": pos.anchor, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", { x: pos.x, y: top + 13 }, t2, NAME[role]);
+        if (lab.value) el("tspan", { x: pos.x, y: top + 30, class: "num", "font-size": 14 }, t2, lab.value);
+      }
+    }
+    return { clamped: drawn !== opts.theta };
+  }
+
+  /* ---------- Scenes: looking up at a building, down from a cliff, a flagpole ---------- */
+  const RAD = Math.PI / 180;
+  const tanD = (d) => Math.tan(d * RAD);
+  const t3 = (d) => tanD(d).toFixed(3);
+  const G = 240; // ground level
+  const line = (svg, x1, y1, x2, y2, colour, width, dashed) =>
+    el("line", { x1, y1, x2, y2, stroke: colour, "stroke-width": width, "stroke-linecap": "round", ...(dashed ? { "stroke-dasharray": "6 5" } : {}) }, svg);
+  const text = (svg, x, y, s, fill, o = {}) =>
+    el("text", { x, y, fill, "font-size": o.fs || 14, "font-weight": 700, class: o.num === false ? "" : "num", "text-anchor": o.anchor || "middle", "dominant-baseline": o.base || "middle" }, svg, s);
+  // Angle label: inside the angle when it's wide enough, otherwise just past the sight line.
+  // maxR keeps the label near the corner when the triangle is narrow; flip puts an outside label
+  // on the other side of the angle (past the flat line instead of past the sight line).
+  // W is how far the angle's lines run, so a label never reaches the far end of a narrow triangle.
+  // A thin angle gets its label further out, where the wedge is wide enough; if even that won't fit,
+  // the label goes just outside (past the sight line, or past the flat line when flip is set).
+  function angleLabel(svg, x, y, from, to, s, W = 240, flip = false) {
+    const span = Math.abs(to - from);
+    const dir = Math.sign(to - from);
+    const far = 20 / Math.sin((span / 2) * RAD);
+    const wide = span >= 36, thinFits = !wide && far <= 0.7 * W;
+    const a = (wide || thinFits ? (from + to) / 2 : flip ? from - dir * 22 : to + dir * 22) * RAD;
+    const r = wide ? Math.min(64, 0.55 * W) : thinFits ? far : 58;
+    text(svg, x + r * Math.cos(a), y - r * Math.sin(a), s, "var(--angle)", { num: true });
+  }
+  function arc(svg, x, y, from, to, r) {
+    const p1 = { x: x + r * Math.cos(from * RAD), y: y - r * Math.sin(from * RAD) };
+    const p2 = { x: x + r * Math.cos(to * RAD), y: y - r * Math.sin(to * RAD) };
+    const sweep = to > from ? 0 : 1;
+    el("path", { d: `M${p1.x},${p1.y} A${r},${r} 0 0 ${sweep} ${p2.x},${p2.y}`, fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+  }
+  function person(svg, x, eyeY) {
+    if (G - eyeY < 10) { el("circle", { cx: x, cy: G - 4, r: 5, fill: "var(--ink)" }, svg); return; }
+    line(svg, x, G, x, eyeY + 7, "var(--ink)", 3);
+    el("circle", { cx: x, cy: eyeY, r: 6, fill: "var(--ink)" }, svg);
+  }
+  // o: { kind, theta, theta2 (flag), eye (m), d (m), labels: { dist, rise, eye, total, height, pole }, stage }
+  function drawScene(svg, o) {
+    svg.replaceChildren();
+    line(svg, 10, G, 390, G, "var(--muted)", 1.5);
+    const th = Math.min(72, Math.max(8, o.theta));
+    if (o.kind === "up" || o.kind === "flag") {
+      const big = o.kind === "flag" ? Math.min(75, o.theta2) : th;
+      const W = Math.min(240, 170 / tanD(big));
+      const xP = 300 - W;
+      const eyePx = o.kind === "flag" || !o.eye ? 0 : Math.min(40, Math.max(14, (W * o.eye) / o.d));
+      const eyeY = G - eyePx;
+      const topY = eyeY - W * tanD(th);
+      el("rect", { x: 300, y: topY, width: 30, height: G - topY, class: "f-wall" }, svg);
+      if (o.kind === "flag") {
+        const poleY = G - W * tanD(big);
+        line(svg, 306, topY, 306, poleY, "var(--ink)", 3);
+        el("polygon", { points: `306,${poleY} 330,${poleY + 7} 306,${poleY + 14}`, fill: "var(--opp)" }, svg);
+        line(svg, xP, G, 306, poleY, "var(--opp)", 2, true);
+        line(svg, xP, G, 300, topY, "var(--hyp)", 3);
+        el("circle", { cx: xP, cy: G - 4, r: 5, fill: "var(--ink)" }, svg);
+        // Two thin angles: colour-coded labels beside the person instead of squeezing them between the lines.
+        const big2 = Math.atan2(G - poleY, 306 - xP) / RAD;
+        el("path", { d: `M${xP + 34},${G} A34,34 0 0 0 ${xP + 34 * Math.cos(th * RAD)},${G - 34 * Math.sin(th * RAD)}`, fill: "none", stroke: "var(--hyp)", "stroke-width": 3 }, svg);
+        el("path", { d: `M${xP + 56},${G} A56,56 0 0 0 ${xP + 56 * Math.cos(big2 * RAD)},${G - 56 * Math.sin(big2 * RAD)}`, fill: "none", stroke: "var(--opp)", "stroke-width": 3 }, svg);
+        text(svg, xP - 12, G - 34, `${o.theta2}°`, "var(--opp)", { anchor: "end" });
+        text(svg, xP - 12, G - 14, `${o.theta}°`, "var(--hyp)", { anchor: "end" });
+        text(svg, 338, (topY + poleY) / 2, o.labels.pole || "", "var(--opp)", { anchor: "start" });
+        text(svg, 338, (topY + G) / 2, o.labels.height || "", "var(--ink)", { anchor: "start" });
+        line(svg, xP, G + 14, 300, G + 14, "var(--adj)", 2);
+        text(svg, (xP + 300) / 2, G + 20, o.labels.dist || "", "var(--adj)", { base: "hanging" });
+        return { clamped: big !== o.theta2 };
+      }
+      line(svg, xP, eyeY, 300, eyeY, "var(--adj)", 2, true);
+      line(svg, 300, eyeY, 300, topY, "var(--opp)", 4);
+      line(svg, xP, eyeY, 300, topY, "var(--hyp)", 3);
+      el("path", { d: rightMark({ x: 300, y: eyeY }, { x: xP, y: eyeY }, { x: 300, y: topY }, 12), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+      person(svg, xP, eyeY);
+      arc(svg, xP, eyeY, 0, th, 30);
+      angleLabel(svg, xP, eyeY, 0, th, `${o.theta}°`, W);
+      line(svg, xP, G + 14, 300, G + 14, "var(--adj)", 2);
+      text(svg, (xP + 300) / 2, G + 20, o.labels.dist || "", "var(--adj)", { base: "hanging" });
+      text(svg, 338, (eyeY + topY) / 2, o.labels.rise || "", "var(--opp)", { anchor: "start" });
+      if (eyePx && o.labels.eye) text(svg, xP - 12, eyeY, o.labels.eye, "var(--muted)", { anchor: "end" });
+      if (o.labels.total) text(svg, 320, topY - 8, o.labels.total, "var(--ink)", { base: "auto" });
+      return { clamped: th !== o.theta };
+    }
+    // Looking down from a cliff to a boat
+    const W = Math.min(240, 170 / tanD(th));
+    const xC = 116, topY = G - W * tanD(th), xB = xC + W;
+    el("rect", { x: 76, y: topY, width: xC - 76, height: G - topY, class: "f-wall" }, svg);
+    el("polygon", { points: `${xB - 14},${G - 8} ${xB + 14},${G - 8} ${xB + 9},${G} ${xB - 9},${G}`, fill: "var(--ink)" }, svg);
+    line(svg, xC, topY, xB + 20, topY, "var(--muted)", 2, true);
+    line(svg, xC, topY, xC, G, "var(--opp)", 4);
+    line(svg, xC, G, xB, G, "var(--adj)", 3);
+    line(svg, xC, topY, xB, G - 4, "var(--hyp)", 3);
+    el("circle", { cx: xC, cy: topY, r: 5, fill: "var(--ink)" }, svg);
+    arc(svg, xC, topY, 0, -th, 30);
+    angleLabel(svg, xC, topY, 0, -th, `${o.theta}°`, W, true);
+    if (o.stage >= 2) {
+      arc(svg, xB, G - 4, 180, 180 - th, 30);
+      // A thin angle at the boat keeps just its arc: the label would have no room.
+      if (th >= 20) angleLabel(svg, xB, G - 4, 180, 180 - th, `${o.theta}°`, W);
+    }
+    text(svg, 70, (topY + G) / 2, o.labels.height || "", "var(--opp)", { anchor: "end" });
+    line(svg, xC, G + 14, xB, G + 14, "var(--adj)", 2);
+    text(svg, (xC + xB) / 2, G + 20, o.labels.dist || "", "var(--adj)", { base: "hanging" });
+    return { clamped: th !== o.theta };
+  }
+  drawScene($("figWhy"), { kind: "up", theta: 40, eye: 1.5, d: 20, labels: { rise: "?", dist: "20 m" } });
+  drawScene($("figUp"), { kind: "up", theta: 35, eye: 1.5, d: 25, labels: { dist: "horizontal", rise: "height" } });
+  drawScene($("figDown"), { kind: "down", theta: 30, stage: 2, labels: { height: "cliff", dist: "distance" } });
+  drawScene($("figEye"), { kind: "up", theta: 40, eye: 1.5, d: 20, labels: { dist: "20 m", rise: "16.8 m", eye: "1.5 m", total: "18.3 m" } });
+  drawScene($("figFlag"), { kind: "flag", theta: 30, theta2: 40, d: 20, labels: { dist: "20 m", pole: "? m" } });
+
+  /* ---------- Measure-it lab ---------- */
+  const lab = { kind: "up", theta: 35, d: 20, h: 40, eye: 1.5, shown: 0 };
+  const m1 = (x) => fmtLen(parseFloat(x.toFixed(1)));
+  function labSteps() {
+    const th = lab.theta, t = tanD(th);
+    if (lab.kind === "up") {
+      const rise = lab.d * t, total = rise + lab.eye;
+      return [
+        `Draw it: the flat line from your eyes to the building, your line of sight up to the top, and the angle between them: ${th}°.`,
+        `In the right triangle, the ${lab.d} m along the ground is <b class="adj">adjacent</b> to the angle, and the height above your eyes is <b class="opp">opposite</b>. Opposite and adjacent: <b>TOA</b>, so tan.`,
+        `<span class="num">tan ${th}° = ? ÷ ${lab.d}</span>. The ? is on top, so multiply: <span class="num">? = ${lab.d} × ${t3(th)} ≈ ${m1(rise)} m</span>.`,
+        lab.eye ? `Add your eye height: <span class="num">${m1(rise)} + ${fmtLen(lab.eye)} ≈ ${m1(total)} m</span>. That's the full height of the building.` : "Your eyes are at ground level here, so there's nothing to add.",
+        th < 45 ? `Check: the angle is under 45°, so the height above your eyes (${m1(rise)} m) should be less than the distance (${lab.d} m). ✓`
+          : th > 45 ? `Check: the angle is over 45°, so the height above your eyes (${m1(rise)} m) should be more than the distance (${lab.d} m). ✓`
+          : "Check: at 45°, the height above your eyes equals the distance. ✓",
+      ];
+    }
+    const dist = lab.h / t;
+    return [
+      `Draw it: the cliff, the sea, the flat line from the top of the cliff, and your line of sight down to the boat. The angle of depression is ${th}°.`,
+      `The angle at the boat, looking up, is also ${th}°, because the flat line and the sea are parallel.`,
+      `From the boat: the cliff (${lab.h} m) is <b class="opp">opposite</b>, and the distance is <b class="adj">adjacent</b>. <b>TOA</b>, so tan: <span class="num">tan ${th}° = ${lab.h} ÷ ?</span>.`,
+      `The ? is on the bottom, so divide: <span class="num">? = ${lab.h} ÷ ${t3(th)} ≈ ${m1(dist)} m</span>.`,
+      th < 45 ? `Check: a small angle means the boat is far away. Under 45°, it's further away than the cliff is tall (${m1(dist)} m > ${lab.h} m). ✓`
+        : th > 45 ? `Check: a steep angle means the boat is close. Over 45°, it's nearer than the cliff is tall (${m1(dist)} m < ${lab.h} m). ✓`
+        : "Check: at 45°, the distance equals the cliff's height. ✓",
+    ];
+  }
+  function renderLab() {
+    const th = lab.theta, t = tanD(th);
+    const s = lab.shown;
+    let res;
+    if (lab.kind === "up") {
+      const rise = lab.d * t;
+      res = drawScene($("scene"), { kind: "up", theta: th, eye: lab.eye, d: lab.d,
+        labels: { dist: `${lab.d} m`, rise: s >= 3 ? `${m1(rise)} m` : "?", eye: lab.eye ? `${fmtLen(lab.eye)} m` : "", total: s >= 4 && lab.eye ? `${m1(rise + lab.eye)} m` : "" } });
+    } else {
+      res = drawScene($("scene"), { kind: "down", theta: th, stage: s, labels: { height: `${lab.h} m`, dist: s >= 4 ? `${m1(lab.h / t)} m` : "?" } });
+    }
+    $("sceneNote").textContent = res.clamped ? "This angle is too steep to draw well, so the picture is not to scale." : "The picture is drawn to the real angle.";
+    const steps5 = labSteps();
+    $("work").innerHTML = steps5.map((x, i) => `<li${i < s ? "" : " hidden"}>${x}</li>`).join("");
+    $("stepNext").disabled = s >= steps5.length;
+    $("stepNext").textContent = s === 0 ? "Show first step" : "Show next step";
+    $("angOut").textContent = `${th}°`;
+    $("ang").value = th;
+    const up = lab.kind === "up";
+    $("distLabel").textContent = up ? "Distance" : "Cliff height";
+    $("dist").min = up ? 5 : 10;
+    $("dist").max = up ? 60 : 100;
+    $("dist").value = up ? lab.d : lab.h;
+    $("distOut").textContent = `${up ? lab.d : lab.h} m`;
+    $("eyeRow").hidden = !up;
+    $("eyeOut").textContent = `${fmtLen(lab.eye)} m`;
+    $("eye").value = lab.eye;
+  }
+  document.querySelectorAll('input[name="kind"]').forEach((r) => r.addEventListener("change", () => { lab.kind = r.value; lab.shown = 0; renderLab(); }));
+  $("ang").addEventListener("input", (e) => { lab.theta = +e.target.value; lab.shown = 0; renderLab(); });
+  $("dist").addEventListener("input", (e) => { if (lab.kind === "up") lab.d = +e.target.value; else lab.h = +e.target.value; lab.shown = 0; renderLab(); });
+  $("eye").addEventListener("input", (e) => { lab.eye = +e.target.value; lab.shown = 0; renderLab(); });
+  $("stepNext").addEventListener("click", () => { lab.shown += 1; renderLab(); });
+  $("stepAll").addEventListener("click", () => { lab.shown = 5; renderLab(); });
+  $("stepHide").addEventListener("click", () => { lab.shown = 0; renderLab(); });
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const PROBLEMS = [
+    { id: "building", kind: "up", eye: 1.5, d: [15, 50, 5], a: [25, 60, 5],
+      text: (v) => `You stand ${v.d} m from a building. Your eyes are 1.5 m above the ground. The angle of elevation to the top of the building is ${v.a}°. How tall is the building?`,
+      answer: (v) => v.d * tanD(v.a) + 1.5 },
+    { id: "tree", kind: "up", eye: 0, d: [10, 40, 5], a: [20, 60, 5],
+      text: (v) => `You lie on the ground ${v.d} m from a tree. The angle of elevation to the top is ${v.a}°. How tall is the tree?`,
+      answer: (v) => v.d * tanD(v.a) },
+    { id: "lighthouse", kind: "down", h: [20, 80, 10], a: [10, 40, 5],
+      text: (v) => `From the top of a ${v.h} m lighthouse, the angle of depression to a boat is ${v.a}°. How far is the boat from the bottom of the lighthouse?`,
+      answer: (v) => v.h / tanD(v.a) },
+    { id: "plane", kind: "down", h: [300, 1200, 100], a: [5, 20, 5],
+      text: (v) => `A plane is flying ${v.h} m above the ground. The angle of depression from the plane to the start of the runway is ${v.a}°. How far away is the runway, measured along the ground?`,
+      answer: (v) => v.h / tanD(v.a) },
+    { id: "cliff", kind: "downH", dist: [50, 200, 25], a: [10, 40, 5],
+      text: (v) => `From the top of a cliff, the angle of depression to a boat ${v.dist} m out to sea is ${v.a}°. How tall is the cliff?`,
+      answer: (v) => v.dist * tanD(v.a) },
+    { id: "flag", kind: "flag", d: [10, 30, 5], a: [20, 40, 5], extra: [5, 15, 5],
+      text: (v) => `You stand ${v.d} m from a building with a flagpole on top. The angle of elevation to the top of the building is ${v.a}°, and to the top of the flag it's ${v.a2}°. How long is the flagpole?`,
+      answer: (v) => v.d * (tanD(v.a2) - tanD(v.a)) },
+  ];
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const pick3 = (lo, hi, step) => lo + step * rnd(Math.round((hi - lo) / step) + 1);
+  let p = null;
+  let pstreak = 0;
+  try { pstreak = +(localStorage.getItem("trig-l5-streak") || 0) || 0; } catch (_) {}
+  const saveStreak = () => { try { localStorage.setItem("trig-l5-streak", String(pstreak)); } catch (_) {} };
+
+  function drawProblem() {
+    const v = p.v, reveal = p.answered, ans = `${m1(p.answer)} m`;
+    if (p.t.kind === "up") drawScene($("pmini"), { kind: "up", theta: v.a, eye: p.t.eye, d: v.d, labels: { dist: `${v.d} m`, rise: reveal && !p.t.eye ? ans : "?", eye: p.t.eye ? "1.5 m" : "", total: reveal && p.t.eye ? ans : "" } });
+    else if (p.t.kind === "down") drawScene($("pmini"), { kind: "down", theta: v.a, stage: 2, labels: { height: `${v.h} m`, dist: reveal ? ans : "?" } });
+    else if (p.t.kind === "downH") drawScene($("pmini"), { kind: "down", theta: v.a, stage: 2, labels: { height: reveal ? ans : "?", dist: `${v.dist} m` } });
+    else drawScene($("pmini"), { kind: "flag", theta: v.a, theta2: v.a2, d: v.d, labels: { dist: `${v.d} m`, pole: reveal ? ans : "? m", height: "" } });
+  }
+  function newProblem(force) {
+    const f = force || {};
+    const t = f.tpl ? PROBLEMS.find((x) => x.id === f.tpl) : PROBLEMS[rnd(PROBLEMS.length)];
+    const v = {};
+    for (const key of ["d", "h", "dist", "a"]) if (t[key]) v[key] = f[key] ?? pick3(...t[key]);
+    if (t.kind === "flag") v.a2 = v.a + (f.extra ?? pick3(...t.extra));
+    p = { t, v, answer: t.answer(v), answered: false, hint: 0 };
+    $("ptext").textContent = t.text(v);
+    $("pvalues").textContent = (t.kind === "flag" ? [v.a, v.a2] : [v.a]).map((a) => `tan ${a}° ≈ ${t3(a)}`).join(" · ");
+    $("pans").value = "";
+    for (const id of ["pans", "pcheck", "phint"]) $(id).disabled = false;
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "";
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+  }
+  function workLines() {
+    const v = p.v, t = p.t;
+    if (t.kind === "up") return [
+      `Draw it. The ${v.d} m is <b class="adj">adjacent</b> to the ${v.a}° angle, and the height ${t.eye ? "above your eyes " : ""}is <b class="opp">opposite</b>: TOA, so tan.`,
+      `<span class="num">? = ${v.d} × tan ${v.a}° ≈ ${v.d} × ${t3(v.a)} ≈ ${m1(v.d * tanD(v.a))} m</span>.`,
+      t.eye ? `Add the eye height: <span class="num">${m1(v.d * tanD(v.a))} + 1.5 ≈ ${m1(p.answer)} m</span>.` : `Your eyes are on the ground, so the height is <span class="num">${m1(p.answer)} m</span>.`,
+    ];
+    if (t.kind === "down") return [
+      `Draw it. The angle at the bottom is also ${v.a}° (the flat line and the ground are parallel).`,
+      `From the bottom, the ${v.h} m is <b class="opp">opposite</b> and the distance is <b class="adj">adjacent</b>: <span class="num">tan ${v.a}° = ${v.h} ÷ ?</span>.`,
+      `The ? is on the bottom, so divide: <span class="num">? = ${v.h} ÷ ${t3(v.a)} ≈ ${m1(p.answer)} m</span>.`,
+    ];
+    if (t.kind === "downH") return [
+      `Draw it. The angle at the boat is also ${v.a}° (the flat line and the sea are parallel).`,
+      `From the boat, the cliff is <b class="opp">opposite</b> and the ${v.dist} m is <b class="adj">adjacent</b>: <span class="num">tan ${v.a}° = ? ÷ ${v.dist}</span>.`,
+      `The ? is on top, so multiply: <span class="num">? = ${v.dist} × ${t3(v.a)} ≈ ${m1(p.answer)} m</span>.`,
+    ];
+    return [
+      `Two triangles share the ${v.d} m. Building: <span class="num">${v.d} × tan ${v.a}° ≈ ${(v.d * tanD(v.a)).toFixed(2)} m</span>.`,
+      `Top of the flag: <span class="num">${v.d} × tan ${v.a2}° ≈ ${(v.d * tanD(v.a2)).toFixed(2)} m</span>.`,
+      `The pole is the difference: <span class="num">${(v.d * tanD(v.a2)).toFixed(2)} − ${(v.d * tanD(v.a)).toFixed(2)} ≈ ${m1(p.answer)} m</span>.`,
+    ];
+  }
+  const close5 = (x, target) => Math.abs(x - target) <= Math.max(0.2, 0.01 * Math.abs(target));
+  function checkAnswer(x) {
+    const ok = close5(x, p.answer);
+    const list = `<ol class="work">${workLines().map((s) => `<li>${s}</li>`).join("")}</ol>`;
+    const fb = $("pfeedback");
+    if (ok) {
+      pstreak += 1;
+      fb.className = "feedback good";
+      fb.innerHTML = `Correct, about ${m1(p.answer)} m.${list}`;
+    } else {
+      pstreak = 0;
+      const v = p.v, t = p.t;
+      let why = "", see = "l5-draw";
+      if (t.kind === "up" && t.eye && close5(x, p.answer - 1.5)) { why = "You found the height above your eyes. Now add your eye height (1.5 m)."; see = "l5-eye"; }
+      else if (t.kind === "down" && close5(x, v.h * tanD(v.a))) { why = "You multiplied. The distance is on the bottom (tan = height ÷ distance), so divide. Also check you used the angle from the flat line."; see = "l5-depression"; }
+      else if (t.kind === "downH" && close5(x, v.dist / tanD(v.a))) { why = "You divided. The cliff is on top (tan = cliff ÷ distance), so multiply."; see = "l2-turn-around"; }
+      else if (t.kind === "flag" && close5(x, v.d * tanD(v.a2))) { why = "That's the height to the top of the flag. Take away the building's height to get just the pole."; see = "l5-two"; }
+      else if (t.kind === "up" && close5(x, v.d / tanD(v.a) + (t.eye ? 1.5 : 0))) { why = "You divided. The height is on top (tan = height ÷ distance), so multiply."; see = "l2-turn-around"; }
+      why += ` <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`;
+      fb.className = "feedback bad";
+      fb.innerHTML = `Not quite. The answer is about ${m1(p.answer)} m. ${why}${list}`;
+    }
+    p.answered = true;
+    for (const id of ["pans", "pcheck", "phint"]) $(id).disabled = true;
+    saveStreak();
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+    $("pnext").focus();
+  }
+  $("pform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (p.answered) return;
+    const raw = $("pans").value.trim().replace(",", ".");
+    const x = parseFloat(raw);
+    if (!raw || Number.isNaN(x)) { $("pfeedback").className = "feedback bad"; $("pfeedback").textContent = "Type a number first."; return; }
+    checkAnswer(x);
+  });
+  $("phint").addEventListener("click", () => {
+    p.hint += 1;
+    const lines = workLines();
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "Hint: " + lines.slice(0, p.hint).join(" ");
+    if (p.hint >= lines.length) $("phint").disabled = true;
+  });
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- One step at a time, each with a quick check (shared engine) ---------- */
+  const AR = [
+    "لماذا نتعلم هذا؟ لقياس أشياء لا نستطيع الوصول إليها: ارتفاع مبنى، أو بُعد قارب في البحر. نقف في مكان آمن، ونقيس مسافة واحدة وزاوية واحدة، وحساب المثلثات يفعل الباقي. هكذا قِيس ارتفاع جبل إيفرست لأول مرة في القرن التاسع عشر، من مسافة أكثر من 100 كم.",
+    "<b>زاوية الارتفاع</b>: عندما تنظر إلى أعلى، هي الزاوية بين الخط الأفقي المستقيم من عينيك وخط النظر إلى القمة. تُقاس دائمًا من الخط الأفقي، وليس من الحائط. وتصنع مثلثًا قائمًا: الخط الأفقي في الأسفل، والمبنى على الجانب، وخط النظر هو الوتر.",
+    "<b>زاوية الانخفاض</b>: عندما تنظر إلى أسفل من مكان مرتفع، هي الزاوية بين الخط الأفقي وخط النظر إلى أسفل. وهي تساوي زاوية الارتفاع من القارب إلى أعلى الجرف، لأن الخط الأفقي عند القمة وسطح البحر متوازيان (ابحث عن شكل حرف Z).",
+    "لا تنسَ عينيك: المثلث يبدأ عند مستوى العين، وليس عند الأرض. لذلك يعطي الحل الارتفاع فوق عينيك فقط، ويجب أن تضيف ارتفاع عينيك (حوالي 1.5 م). مثال: 20 × 0.84 = 16.8 م، والارتفاع الكامل 16.8 + 1.5 = 18.3 م.",
+    "ارسم أولًا: (1) ارسم الصورة. (2) ارسم الخط الأفقي وخط النظر، وحدد الزاوية القائمة. (3) ضع الزاوية والضلع المعروف، وعلامة ? على المطلوب. (4) حُلّ المثلث كما تعلمت. (5) أضف أي ارتفاع إضافي وتأكد أن الجواب منطقي. مثال: منارة ارتفاعها 40 م وزاوية الانخفاض 20°: المسافة = 40 ÷ 0.364 ≈ 110 م.",
+    "مثلثان: لإيجاد طول سارية علم فوق مبنى، نقيس زاويتين من نفس المكان: إلى قمة المبنى وإلى قمة العلم. نحسب الارتفاعين، ثم نطرح: طول السارية = الارتفاع إلى قمة العلم − ارتفاع المبنى.",
+    "في الحياة: المسّاحون يستخدمون جهاز الثيودوليت لقياس الزوايا، والبحّارة يعرفون بُعدهم عن المنارة لأن ارتفاعها مكتوب على الخريطة، والطيّارون يهبطون بزاوية حوالي 3°. للتأكد: كلما اقتربت زادت زاوية الارتفاع، والزاوية الصغيرة للانخفاض تعني أن القارب بعيد.",
+  ];
+  const QUIZ = [
+    [{ type: "choice", q: "You want to know how tall a building is, but you can't reach the top. What do you measure?", correct: 1,
+       options: [["Just the angle", "One angle alone isn't enough. You also need a distance."],
+                 ["One distance along the ground and one angle", null],
+                 ["Nothing, you need to climb it", "You don't need to climb it. One distance and one angle are enough."]],
+       ok: "Right. One distance and one angle, then trigonometry does the rest." }],
+    [{ type: "choice", q: "The angle of elevation is measured between your line of sight and…", correct: 0,
+       options: [["the flat (horizontal) line from your eyes", null],
+                 ["the wall of the building", "It's always measured from the flat line, not from the wall."],
+                 ["straight up", "It's measured up from the flat line, not down from straight up."]],
+       ok: "Right. Always up from the horizontal." }],
+    [{ type: "choice", q: "From the top of a cliff, the angle of depression to a boat is 25°. What is the angle of elevation from the boat up to the top of the cliff?", correct: 0,
+       options: [["25°", null],
+                 ["65°", "65° would be measured from the cliff wall. The angle from the sea is the same as the angle of depression."],
+                 ["90°", "90° is the corner where the cliff meets the sea."]],
+       ok: "Right. The flat line and the sea are parallel, so the angles are equal." }],
+    [{ type: "choice", q: "You worked out the height of a tree above your eyes: 12 m. Your eyes are 1.5 m above the ground. How tall is the tree?", correct: 2,
+       options: [["12 m", "That's only the part above your eyes. Add your eye height."],
+                 ["10.5 m", "You took the eye height away. The tree goes all the way down to the ground, so add it."],
+                 ["13.5 m", null]],
+       ok: "Right. 12 + 1.5 = 13.5 m." }],
+    [{ type: "choice", q: "What is the first thing to do with a heights and distances problem?", correct: 1,
+       options: [["Press tan on the calculator", "Not yet: first you need to know which sides you have."],
+                 ["Draw a picture with the flat line and the angle", null],
+                 ["Add 1.5 m", "Only add eye height at the end, if the problem mentions it."]],
+       ok: "Right. A picture shows you the right triangle and which sides you know." },
+     { type: "choice", q: "A lighthouse is 40 m tall. tan θ = 40 ÷ distance. To find the distance, do you multiply or divide?", correct: 1, see: "l2-divide",
+       options: [["Multiply: 40 × tan θ", "The distance is on the bottom of the fraction, so you divide."],
+                 ["Divide: 40 ÷ tan θ", null]],
+       ok: "Right. The ? is on the bottom, so divide." }],
+    [{ type: "choice", q: "From the same spot, the top of a building is 11.6 m up and the top of the flag on it is 16.8 m up. How long is the flagpole?", correct: 0,
+       options: [["5.2 m", null],
+                 ["16.8 m", "That's the height to the top of the flag. The pole is only the part above the building."],
+                 ["28.4 m", "You added them. The pole is the difference: take away the building's height."]],
+       ok: "Right. 16.8 − 11.6 = 5.2 m." }],
+    [{ type: "choice", q: "You walk closer to a tall building. What happens to the angle of elevation to the top?", correct: 0,
+       options: [["It gets bigger", null],
+                 ["It gets smaller", "Think of standing right next to it: you have to look almost straight up."],
+                 ["It stays the same", "The angle changes as you move. Closer means steeper."]],
+       ok: "Right. The closer you are, the steeper you have to look up." },
+     { type: "choice", q: "The angle of elevation is exactly 45° and you're 30 m away (eyes on the ground). How tall is it?", correct: 2, see: "l4-45-values",
+       options: [["15 m", "At 45°, tan is 1, so the height is 30 × 1."],
+                 ["60 m", "At 45°, tan is 1, so the height is 30 × 1."],
+                 ["30 m", null]],
+       ok: "Right. tan 45° = 1, so the height equals the distance." }],
+  ];
+  const steps = LessonSteps.mount({ storageKey: "trig-l5-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const Q = LessonQuiz;
+  const L5_BANK = [
+    { id: "why-measure", concept: "l5-why",
+      make: () => Q.mc("How was the height of Mount Everest first worked out?", "By measuring angles to the top from far away",
+        ["By climbing it with a very long tape measure", "By guessing"],
+        "In the 1850s, surveyors measured angles to the top from over 100 km away and used trigonometry to find the height.") },
+    { id: "what-elevation", concept: "l5-elevation",
+      make: () => Q.mc("What is the angle of elevation?", "The angle up from the flat line to your line of sight", ["The angle between your line of sight and the wall", "The angle down from the top of a cliff"],
+        "Looking up, the angle of elevation starts at the horizontal line from your eyes and goes up to your line of sight.") },
+    { id: "what-depression", concept: "l5-depression",
+      make: () => Q.mc("What is the angle of depression?", "The angle down from the flat line to your line of sight", ["The angle up from the ground to the sky", "The angle between your line of sight and the cliff"],
+        "Looking down from somewhere high, the angle of depression starts at the horizontal line and goes down to your line of sight.") },
+    { id: "equal-angles", concept: "l5-equal-angles",
+      make: () => {
+        const a = Q.pick([15, 20, 25, 30, 35, 40]);
+        return Q.mc(`The angle of depression from a cliff to a boat is ${a}°. What is the angle of elevation from the boat to the top of the cliff?`, `${a}°`, [`${90 - a}°`, "90°", `${2 * a}°`],
+          "The flat line at the top and the sea are parallel, so your line of sight makes the same angle with both.");
+      } },
+    { id: "add-eyes", concept: "l5-eye",
+      make: () => {
+        const r = Q.between(8, 30), e = Q.pick([1.4, 1.5, 1.6]);
+        return Q.mc(`The height above your eyes is ${r} m and your eyes are ${e} m above the ground. How tall is it?`, `${fmtLen(r + e)} m`, [`${r} m`, `${fmtLen(r - e)} m`],
+          `The triangle starts at your eyes, so add your eye height: ${r} + ${e} = ${fmtLen(r + e)} m.`);
+      } },
+    { id: "building", concept: "l5-eye", also: "l5-elevation",
+      make: () => {
+        const d = Q.between(2, 8) * 5, a = Q.pick([30, 35, 40, 50]), t = tanD(a);
+        const ans = d * t + 1.5;
+        return Q.mc(`You're ${d} m from a building, eyes 1.5 m up. The angle of elevation to the top is ${a}° (tan ${a}° ≈ ${t3(a)}). How tall is the building?`,
+          `${m1(ans)} m`, [`${m1(d * t)} m`, `${m1(d / t + 1.5)} m`],
+          `Height above your eyes: ${d} × ${t3(a)} ≈ ${m1(d * t)} m. Add 1.5 m: about ${m1(ans)} m.`);
+      } },
+    { id: "lighthouse", concept: "l5-lighthouse", also: "l2-divide",
+      make: () => {
+        const h = Q.between(2, 8) * 10, a = Q.pick([15, 20, 25, 30]), t = tanD(a);
+        return Q.mc(`From the top of a ${h} m lighthouse, the angle of depression to a boat is ${a}° (tan ${a}° ≈ ${t3(a)}). How far away is the boat?`,
+          `${m1(h / t)} m`, [`${m1(h * t)} m`, `${m1(h / tanD(90 - a))} m`],
+          `The angle at the boat is also ${a}°. tan ${a}° = ${h} ÷ distance, so divide: ${h} ÷ ${t3(a)} ≈ ${m1(h / t)} m.`);
+      } },
+    { id: "which-ratio", concept: "l5-draw", also: "l1-ratios",
+      make: () => Q.mc("You know the distance along the ground and the angle of elevation. You want the height. Which do you use?", "tan", ["sin", "cos"],
+        "The distance is adjacent to the angle and the height is opposite. Opposite and adjacent go together in TOA, so tan.") },
+    { id: "draw-first", concept: "l5-draw",
+      make: () => Q.mc("What's the best first step for a heights and distances problem?", "Draw a picture with the flat line, the angle and the sides", ["Add 1.5 m", "Press tan straight away"],
+        "A picture shows the right triangle, which side you know and which side you want.") },
+    { id: "flag", concept: "l5-two", also: "l5-flag",
+      make: () => {
+        const b = Q.between(8, 20), p2 = Q.between(3, 8);
+        return Q.mc(`From where you stand, the top of a building is ${b}.0 m up and the top of the flagpole on it is ${b + p2}.0 m up. How long is the flagpole?`,
+          `${p2} m`, [`${b + p2} m`, `${2 * b + p2} m`],
+          `The pole is the difference between the two heights: ${b + p2} − ${b} = ${p2} m.`);
+      } },
+    { id: "why-two", concept: "l5-two",
+      make: () => Q.mc("Why do you need two triangles to find the length of a flagpole on a roof?", "One gives the height to the roof and one to the top of the flag; the pole is the difference",
+        ["Because one triangle is always wrong", "To make it harder"],
+        "Each angle gives one height. The pole is the part between them, so subtract.") },
+    { id: "closer", concept: "l5-checks",
+      make: () => {
+        const closer = Math.random() < 0.5;
+        return Q.mc(`You walk ${closer ? "towards" : "away from"} a tall tower. What happens to the angle of elevation to the top?`, closer ? "It gets bigger" : "It gets smaller", ["It gets bigger", "It gets smaller", "It stays the same"],
+          closer ? "Closer means you have to look up more steeply." : "Further away means you look up less steeply.");
+      } },
+    { id: "depression-far", concept: "l5-checks", also: "l5-depression",
+      make: () => Q.mc("From a cliff, the angle of depression to a boat keeps getting smaller. What is the boat doing?", "Moving away from the cliff", ["Moving towards the cliff", "Staying still"],
+        "A small angle of depression means you're looking almost straight ahead: the boat is far away.") },
+    { id: "special45", concept: "l5-checks", also: "l4-45-values",
+      make: () => {
+        const d = Q.between(2, 10) * 5;
+        return Q.mc(`You lie on the ground ${d} m from a tree. The angle of elevation to the top is 45°. How tall is the tree?`, `${d} m`, [`${d / 2} m`, `${2 * d} m`],
+          `tan 45° = 1, so the height equals the distance: ${d} × 1 = ${d} m.`);
+      } },
+    { id: "find-angle", concept: "l5-draw", also: "l3-backwards",
+      make: () => {
+        const d = Q.between(2, 10) * 5;
+        return Q.mc(`A tower is ${d} m tall and you lie on the ground ${d} m from it. What is the angle of elevation to the top?`, "45°", ["30°", "60°", "90°"],
+          `tan θ = ${d} ÷ ${d} = 1, and tan 45° = 1, so the angle is 45°.`);
+      } },
+    { id: "real-life", concept: "l5-real",
+      make: () => Q.mc("How can sailors work out how far they are from a lighthouse?", "Its height is on their map, so they measure one angle", ["They row there and count", "They can't"],
+        "Knowing the height and the angle of elevation, they can solve the triangle: distance = height ÷ tan of the angle.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: L5_BANK, count: 10, storageKey: "trig-l5-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-l5-quiz-best", state: quiz.serialize(), retry: k } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === 5 ? "" : ` (Level ${c.level})`}`; },
+  });
+  // Concept links: jump to the idea that explains something, in any level, and come back (concepts.js).
+  const links = LessonLinks.init({
+    level: 5, steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-l5-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
+  });
+
+  /* ---------- Theme switch (same as Level 1) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-theme", mode);
+      root.dataset.themeByPage = "1";
+    } else if (root.dataset.themeByPage) {
+      root.removeAttribute("data-theme");
+      delete root.dataset.themeByPage;
+    }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["scene", "pmini"],
+    prepare() { steps.prepare(); },
+    quizBank: L5_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: 5,
+    cases() {
+      const out = [];
+      for (const kind of ["up", "down"]) for (const theta of [15, 25, 35, 45, 55, 70]) for (const dist of kind === "up" ? [5, 60] : [10, 100]) for (const eye of kind === "up" ? [0, 1.5, 2] : [0]) for (const shown of [0, 5])
+        out.push({ kind: "lab", lk: kind, theta, dist, eye, shown, name: `scene ${kind} ${theta}° ${dist} m eye=${eye} steps=${shown}` });
+      for (const t of PROBLEMS) {
+        const corners = [];
+        const keys = ["d", "h", "dist", "a"].filter((k) => t[k]);
+        for (let mask = 0; mask < (1 << keys.length); mask++) {
+          const f = { tpl: t.id };
+          keys.forEach((k, i) => { f[k] = t[k][(mask >> i) & 1]; });
+          if (t.kind === "flag") for (const extra of [5, 15]) corners.push({ ...f, extra }); else corners.push(f);
+        }
+        for (const f of corners) for (const answered of [false, true])
+          out.push({ kind: "practice", f, answered, name: `problem ${JSON.stringify(f)} ${answered ? "after" : "before"}` });
+      }
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") {
+        Object.assign(lab, { kind: c.lk, theta: c.theta, eye: c.eye, shown: c.shown });
+        if (c.lk === "up") lab.d = c.dist; else lab.h = c.dist;
+        renderLab();
+      } else { newProblem(c.f); if (c.answered) checkAnswer(p.answer); }
+    },
+  };
+})();
+</script>
