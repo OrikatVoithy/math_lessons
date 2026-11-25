@@ -1,0 +1,1187 @@
+<title>School Book Skills</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+
+<style>
+/* Book skills additions */
+.boxnote { background: var(--paper); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+.boxnote .eyebrow { margin: 0; }
+.bookq { border-left: 4px solid var(--hyp); background: var(--paper); border-radius: 0 10px 10px 0; padding: 12px 16px; font-family: var(--mono); font-size: 0.95rem; }
+.translate { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px 14px; font-size: 0.95rem; }
+.translate dt { font-family: var(--mono); font-weight: 700; }
+.translate dd { margin: 0; }
+.letterfig svg { width: 100%; height: auto; display: block; }
+.triples { display: flex; flex-wrap: wrap; gap: 8px; }
+.triples span { font-family: var(--mono); font-weight: 700; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; }
+.proof { font-family: var(--mono); font-size: 0.95rem; line-height: 1.9; }
+.angleseg[hidden] { display: none; }
+@media (max-width: 560px) { .translate { grid-template-columns: minmax(0, 1fr); } .translate dd { margin-bottom: 8px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../level-2/">← Level 2: Find a missing side</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Trigonometry · Book skills (between Levels 2 and 3)</div>
+    <h1>School book skills</h1>
+    <p class="lede">Your school book asks about the same ideas you've learned, but in its own way: with letters, Pythagoras, exact fractions and proofs. Learn its language here, so your tests feel familiar. Go through the 7 short steps one at a time.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Why learn this?</div>
+        <h2>Same ideas, different language</h2>
+        <p>A question in your book might look like this:</p>
+        <p class="bookq">In △XYZ, m(∠Z) = 90°, XZ = 9 cm and YZ = 12 cm. Find sin X, cos X and tan X.</p>
+        <p>It looks hard, but it only uses things you already know. Here's what it means:</p>
+        <dl class="translate">
+          <dt>△XYZ</dt><dd>a triangle with corners called X, Y and Z</dd>
+          <dt>m(∠Z) = 90°</dt><dd>the angle at corner Z is a right angle (the square corner)</dd>
+          <dt>XZ = 9 cm</dt><dd>the side that joins X and Z is 9 cm long</dd>
+          <dt>Find sin X</dt><dd>use the angle at corner X as θ</dd>
+        </dl>
+        <p>The book also wants you to find the third side first (with Pythagoras), and to write answers as exact fractions. This level teaches all of that, so you can do the questions in your book.</p>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">Names with letters</div>
+        <h2>Reading △ABC</h2>
+        <div class="names">
+          <ul class="checks">
+            <li><b>Corners</b> get capital letters: A, B, C.</li>
+            <li><b>An angle</b> is named by its corner: <span class="num">∠A</span>. Sometimes by three letters with the corner in the middle: <span class="num">∠BAC</span> is the angle at A.</li>
+            <li><b>m(∠B) = 90°</b> means "the measure of the angle at B is 90°": the right angle is at B.</li>
+            <li><b>A side</b> is named by the two corners it joins: <span class="num">AC</span> joins A and C.</li>
+          </ul>
+        </div>
+        <div class="boxnote opprule">
+          <div class="eyebrow">The letter trick</div>
+          <p>The side <b class="opp">opposite</b> an angle uses the <b>other two letters</b>. Opposite ∠A is <span class="num">BC</span>, because it doesn't touch A.</p>
+          <p>The <b class="hyp">hypotenuse</b> is opposite the right angle. If m(∠B) = 90°, the hypotenuse is <span class="num">AC</span>.</p>
+          <p>The <b class="adj">adjacent</b> side of ∠A is the other side that touches A: <span class="num">AB</span>.</p>
+        </div>
+      </div>
+      <figure class="letterfig">
+        <svg id="figNames" viewBox="0 0 400 280" role="img" aria-label="Triangle ABC with the right angle at B. Seen from angle A: BC is opposite, AB is adjacent, AC is the hypotenuse."></svg>
+        <figcaption>From ∠A: <span class="opp">BC</span> is opposite, <span class="adj">AB</span> is adjacent, <span class="hyp">AC</span> is the hypotenuse.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">Pythagoras first</div>
+        <h2>Find the third side before the ratios</h2>
+        <p>Book questions usually give you only <b>two</b> sides. To write all the ratios, you need the third. Use <a class="kb-link" data-concept="l4-pythagoras" href="../level-4/#c-l4-pythagoras">Pythagoras</a>:</p>
+        <p class="big num">short side² + short side² = hypotenuse²</p>
+        <ul class="checks">
+          <li><b>Missing hypotenuse:</b> add the squares. XZ = 9, YZ = 12: <span class="num">9² + 12² = 81 + 144 = 225</span>, so <span class="num">XY = √225 = 15 cm</span>.</li>
+          <li><b>Missing short side:</b> take away. Hypotenuse 13, one side 5: <span class="num">13² − 5² = 169 − 25 = 144</span>, so the other side is <span class="num">√144 = 12</span>.</li>
+        </ul>
+        <p>Then the question from step 1 is easy: from ∠X, the opposite side is YZ = 12, the adjacent side is XZ = 9, and the hypotenuse is XY = 15. So <span class="num">sin X = 12/15 = 4/5</span>.</p>
+        <div class="boxnote">
+          <div class="eyebrow">A shortcut: number families</div>
+          <p>Some sets of whole numbers fit Pythagoras exactly. Book questions use them a lot, so if you spot two of them, you know the third:</p>
+          <div class="triples"><span>3, 4, 5</span><span>5, 12, 13</span><span>8, 15, 17</span><span>7, 24, 25</span></div>
+          <p>Any multiple works too: 6, 8, 10 and 9, 12, 15 are 3, 4, 5 made bigger (<a class="kb-link" data-concept="l1-same-shape" href="../#c-l1-same-shape">same shape</a>).</p>
+        </div>
+      </div>
+      <figure class="letterfig">
+        <svg id="figPyth" viewBox="0 0 400 280" role="img" aria-label="Triangle XYZ with the right angle at Z. XZ is 9, YZ is 12, and XY is 15."></svg>
+        <figcaption>9² + 12² = 15², so the hypotenuse XY is 15 cm.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Exact answers</div>
+        <h2>Fractions and roots, not decimals</h2>
+        <p>Your book wants <b>exact</b> answers: write <span class="num">sin X = 4/5</span>, not 0.8. (<a class="kb-link" data-concept="l4-exact" href="../level-4/#c-l4-exact">Why exact is better</a>.)</p>
+      </div>
+      <div class="span">
+        <div class="pair">
+          <div class="boxnote fracbox">
+            <div class="eyebrow">Simplify fractions</div>
+            <p>Divide the top and bottom by the same number until you can't any more.</p>
+            <p><span class="num">12/15</span>: both divide by 3, so it's <span class="num">4/5</span>.</p>
+            <p><span class="num">10/26</span>: both divide by 2, so it's <span class="num">5/13</span>.</p>
+          </div>
+          <div class="boxnote rootbox">
+            <div class="eyebrow">Simplify roots</div>
+            <p>Look for a square number (4, 9, 16, 25…) hidden inside.</p>
+            <p><span class="num">√8 = √(4 × 2) = 2√2</span>, because √4 = 2.</p>
+            <p><span class="num">√12 = √(4 × 3) = 2√3</span> and <span class="num">√18 = √(9 × 2) = 3√2</span>.</p>
+          </div>
+        </div>
+        <p class="tip">Decimals are still right for real-life measuring (like the building heights in Level 5). For book questions, give the fraction or the root.</p>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody">
+        <div class="eyebrow">From one ratio</div>
+        <h2>Draw a triangle that fits the ratio</h2>
+        <p>Sometimes the book gives you <b>one</b> ratio and asks for the others: "If sin θ = 1/3, find cos θ and tan θ."</p>
+        <p>The trick: <b>draw a triangle that fits</b>. sin θ = opposite ÷ hypotenuse = 1/3, so make the opposite side <b>1</b> and the hypotenuse <b>3</b>.</p>
+        <p>Is that allowed? Yes. Any triangle with this angle has the same ratio (<a class="kb-link" data-concept="l1-same-shape" href="../#c-l1-same-shape">same angle, same shape</a>), so the simplest one is fine.</p>
+        <ol class="recipe compact">
+          <li>Pythagoras for the adjacent side: <span class="num">3² − 1² = 8</span>, so it's <span class="num">√8 = 2√2</span>.</li>
+          <li><span class="num">cos θ = adjacent ÷ hypotenuse = 2√2/3</span></li>
+          <li><span class="num">tan θ = opposite ÷ adjacent = 1/(2√2)</span></li>
+        </ol>
+        <p>With a number family it's even easier: if cos β = 5/13, the sides are 5 and 13, so the third is 12. Then <span class="num">sin β = 12/13</span> and <span class="num">tan β = 12/5</span>.</p>
+      </div>
+      <figure class="letterfig">
+        <svg id="figRatio" viewBox="0 0 400 280" role="img" aria-label="A triangle built from sin theta equals one third: opposite 1, hypotenuse 3, adjacent 2 root 2."></svg>
+        <figcaption>sin θ = 1/3, so draw opposite 1 and hypotenuse 3. Pythagoras gives 2√2.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Both angles</div>
+        <h2>The rules for the two acute angles</h2>
+        <p>In △ABC with m(∠B) = 90°, the angles A and C share the same three sides. What's opposite A is next to C, and the other way round (<a class="kb-link" data-concept="l4-swap" href="../level-4/#c-l4-swap">like sin 30° and cos 60°</a>). That gives three rules your book uses all the time:</p>
+        <ul class="checks rules">
+          <li><span class="num">sin A = cos C</span> and <span class="num">cos A = sin C</span>: both are the same division, BC ÷ AC or AB ÷ AC.</li>
+          <li><span class="num">tan A × tan C = 1</span>: tan A = BC/AB and tan C = AB/BC, the same fraction upside down.</li>
+          <li><span class="num">sin²A + cos²A = 1</span>: this is just Pythagoras divided by AC². (sin²A means sin A × sin A.)</li>
+        </ul>
+      </div>
+      <div class="span">
+        <div class="example proofwrap">
+          <div class="eyebrow">How to write a proof</div>
+          <p><b>Prove that tan A × tan C = 1.</b> A proof just means writing the steps that show it's true:</p>
+          <div class="proof">
+            tan A = BC/AB&nbsp;&nbsp;(opposite ÷ adjacent, from A)<br>
+            tan C = AB/BC&nbsp;&nbsp;(opposite ÷ adjacent, from C)<br>
+            tan A × tan C = (BC/AB) × (AB/BC) = (BC × AB)/(AB × BC) = 1 ✓
+          </div>
+          <p>Start from the definitions, use the letters, and end with exactly what you were asked to show.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody">
+        <div class="eyebrow">Figures with a line inside</div>
+        <h2>A height makes two right triangles</h2>
+        <p>Many book figures draw a line from the top of a triangle straight down to the bottom side, meeting it at a right angle (AD ⊥ BC means "AD is at right angles to BC").</p>
+        <p>That line splits the figure into <b>two right triangles that share a side</b> (AD), just like the <a class="kb-link" data-concept="l5-two" href="../level-5/#c-l5-two">flagpole in Level 5</a>. Solve one triangle, then use the shared side in the other.</p>
+        <div class="boxnote">
+          <div class="eyebrow">Example</div>
+          <p>AD ⊥ BC, AD = 6 cm, BD = 8 cm and DC = 4.5 cm. Find tan(∠BAD) and the length of AC.</p>
+          <p><b>Triangle ABD:</b> from ∠BAD, BD is opposite and AD is adjacent: <span class="num">tan(∠BAD) = 8/6 = 4/3</span>.</p>
+          <p><b>Triangle ADC:</b> Pythagoras: <span class="num">AC² = 6² + 4.5² = 36 + 20.25 = 56.25</span>, so <span class="num">AC = 7.5 cm</span>.</p>
+        </div>
+      </div>
+      <figure class="letterfig">
+        <svg id="figHeight" viewBox="0 0 400 280" role="img" aria-label="Triangle ABC with a height AD down to BC. BD is 8, DC is 4.5 and AD is 6."></svg>
+        <figcaption>AD is shared by triangles ABD and ADC.</figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: the triangle reader</h2>
+    <p class="lede" style="margin-top:8px">A new book-style triangle each time. Pick an angle, work it out on paper, then show the steps to check.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Triangle reader">
+    <div class="stage">
+      <svg id="reader" viewBox="0 0 400 280" role="img" aria-label="A right triangle with lettered corners and two sides given"></svg>
+      <div class="hint" id="readerQ"></div>
+    </div>
+    <div class="readout">
+      <div class="controls">
+        <div class="row">
+          <span class="label">Angle</span>
+          <div class="seg" role="radiogroup" aria-label="Which angle" id="angleSeg">
+            <input type="radio" name="rangle" id="rangle1" value="0" checked><label for="rangle1" id="rangle1L">A</label>
+            <input type="radio" name="rangle" id="rangle2" value="1"><label for="rangle2" id="rangle2L">C</label>
+          </div>
+        </div>
+        <div class="row">
+          <button type="button" id="newTri">New triangle</button>
+        </div>
+      </div>
+      <ol class="work" id="work" aria-live="polite"></ol>
+      <div class="row">
+        <button type="button" class="primary" id="stepNext">Show first step</button>
+        <button type="button" id="stepAll">Show all</button>
+        <button type="button" id="stepHide">Hide steps</button>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Book-style questions</h2>
+      <p class="lede" style="margin-top:8px">Type fractions with a slash, like 3/5, and simplify them. No calculator needed.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig">
+        <svg id="pmini" viewBox="0 0 400 280" role="img" aria-label="Figure for the question"></svg>
+      </div>
+      <div class="q">
+        <div class="qtext" id="ptext"></div>
+        <form class="answer-row" id="pform">
+          <label for="pans" class="sr">Your answer</label>
+          <input id="pans" type="text" inputmode="text" autocomplete="off" placeholder="e.g. 3/5">
+          <span id="punit"></span>
+          <button type="submit" class="primary" id="pcheck">Check</button>
+          <button type="button" id="phint">Hint</button>
+        </form>
+        <div class="feedback" id="pfeedback" aria-live="polite"></div>
+        <div class="qfoot">
+          <span class="streak" id="pstreak"></span>
+          <button type="button" id="pnext">Next question</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on book skills</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">From here to the unit circle</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>Name the sides</h3><p>Opposite, adjacent, hypotenuse, and SOH CAH TOA.</p><a class="golink" href="../">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Find a missing side</h3><p>Use one angle and one side to get any other side.</p><a class="golink" href="../level-2/">Review Level 2 →</a></li>
+      <li class="panel now"><span class="lv">Book skills</span><h3>School book skills</h3><p>Letters, Pythagoras, exact fractions and proofs, the way your book asks.</p><span class="pill">You are here</span></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Find a missing angle</h3><p>Go backwards with sin⁻¹, cos⁻¹ and tan⁻¹.</p><a class="golink" href="../level-3/">Go to Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Special angles</h3><p>Exact values for 30°, 45° and 60° without a calculator.</p><a class="golink" href="../level-4/">Go to Level 4 →</a></li>
+      <li class="panel"><span class="lv">Level 5</span><h3>Heights and distances</h3><p>Trees, ladders, ramps and shadows.</p><a class="golink" href="../level-5/">Go to Level 5 →</a></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>The unit circle</h3><p>sin and cos for any angle, not just acute ones.</p><span class="pill">Coming next</span></li>
+    </ol>
+    <a class="nextlevel panel" href="../level-3/"><span><span class="eyebrow">Next</span><b>Level 3: Find a missing angle</b></span><span aria-hidden="true">→</span></a>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Drawing helpers (same as Level 2) ---------- */
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) {
+      const v = String(attrs[k]);
+      if ((k === "fill" || k === "stroke") && v.startsWith("var(")) n.style.setProperty(k, v);
+      else n.setAttribute(k, v);
+    }
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  const sub = (p, q) => ({ x: p.x - q.x, y: p.y - q.y });
+  const norm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  function arcPath(c, p1, p2, r) {
+    const u1 = norm(sub(p1, c)), u2 = norm(sub(p2, c));
+    const s = { x: c.x + r * u1.x, y: c.y + r * u1.y }, e = { x: c.x + r * u2.x, y: c.y + r * u2.y };
+    const sweep = (u1.x * u2.y - u1.y * u2.x) > 0 ? 1 : 0;
+    return `M${s.x},${s.y} A${r},${r} 0 0 ${sweep} ${e.x},${e.y}`;
+  }
+  function rightMark(C, P, Q, s) {
+    const u = norm(sub(P, C)), v = norm(sub(Q, C));
+    const a = { x: C.x + s * u.x, y: C.y + s * u.y };
+    const b = { x: a.x + s * v.x, y: a.y + s * v.y };
+    const c = { x: C.x + s * v.x, y: C.y + s * v.y };
+    return `M${a.x},${a.y} L${b.x},${b.y} L${c.x},${c.y}`;
+  }
+  function sideLabel(P, Q, cen, off) {
+    const m = { x: (P.x + Q.x) / 2, y: (P.y + Q.y) / 2 };
+    const d = norm(sub(Q, P));
+    let n = { x: -d.y, y: d.x };
+    if ((m.x - cen.x) * n.x + (m.y - cen.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+    return {
+      x: m.x + off * n.x, y: m.y + off * n.y, n,
+      anchor: n.x > 0.35 ? "start" : n.x < -0.35 ? "end" : "middle",
+      baseline: n.y > 0.35 ? "hanging" : n.y < -0.35 ? "auto" : "middle",
+    };
+  }
+
+  const COL = { opp: "var(--opp)", adj: "var(--adj)", hyp: "var(--hyp)" };
+  const NAME = { opp: "opposite", adj: "adjacent", hyp: "hypotenuse" };
+  const RATIO = { sin: ["opp", "hyp"], cos: ["adj", "hyp"], tan: ["opp", "adj"] };
+  const MNEMONIC = { sin: "SOH", cos: "CAH", tan: "TOA" };
+  const trig = (fn, deg) => Math[fn](deg * Math.PI / 180);
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const fmtLen = (x) => String(parseFloat(x.toFixed(2)));
+  const fmt1 = (x) => x.toFixed(1);
+
+  function pickFn(a, b) {
+    for (const fn in RATIO) { const [n, d] = RATIO[fn]; if ((n === a && d === b) || (n === b && d === a)) return fn; }
+  }
+  // Solve for the wanted side. "shown" uses the 3-decimal value a student would read off a calculator.
+  function solve(theta, known, k, want) {
+    const fn = pickFn(known, want);
+    const [n, d] = RATIO[fn];
+    const v = r3(trig(fn, theta));
+    const top = n === want;
+    return { fn, n, d, v, top, exact: top ? k * trig(fn, theta) : k / trig(fn, theta), shown: top ? k * v : k / v };
+  }
+
+  /*
+   * Right triangle with θ at A (bottom left) and the square corner at C (bottom right).
+   * opts.area: box the triangle is fitted into. opts.labels: text per side. opts.twoLine: name + value labels.
+   */
+  function drawTriangle(svg, opts) {
+    svg.replaceChildren();
+    const { area } = opts;
+    const drawn = Math.min(opts.maxDraw ?? 90, Math.max(opts.minDraw ?? 0, opts.theta));
+    const t = drawn * Math.PI / 180;
+    const W = area.x1 - area.x0, H = area.yBase - area.yTop;
+    const s = Math.min(W / Math.cos(t), H / Math.sin(t));
+    const w = s * Math.cos(t), h = s * Math.sin(t);
+    const left = area.x0 + (W - w) / 2, base = area.yBase - (H - h) / 2;
+    const A = { x: left, y: base }, C = { x: left + w, y: base }, B = { x: left + w, y: base - h };
+    const cen = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 };
+    const sides = [[A, C, "adj"], [C, B, "opp"], [A, B, "hyp"]];
+    const colour = (role) => (opts.colorRoles ? COL[role] : "var(--ink)");
+
+    if (opts.colorRoles) el("polygon", { points: `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`, fill: "var(--hyp)", "fill-opacity": "0.06" }, svg);
+    for (const [P, Q, role] of sides) {
+      const highlight = opts.emphasis && opts.emphasis.includes(role);
+      el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: colour(role), "stroke-width": opts.colorRoles ? (highlight ? 5 : 3) : 2.5, "stroke-linecap": "round",
+        ...(opts.colorRoles && !highlight ? { "stroke-opacity": 0.45 } : {}) }, svg);
+    }
+    el("path", { d: rightMark(C, A, B, opts.small ? 10 : 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+
+    // Angle mark and its label: inside the corner when there is room, otherwise to the left along the ground.
+    const room = Math.min(dist(A, C), dist(A, B));
+    const arcR = Math.min(opts.small ? 20 : 28, 0.6 * room);
+    el("path", { d: arcPath(A, C, B, arcR), fill: "none", stroke: "var(--angle)", "stroke-width": opts.small ? 2.5 : 3 }, svg);
+    const rIn = arcR + (opts.small ? 20 : 26);
+    const inside = drawn >= 48 && room > rIn * 1.6 && String(opts.angleText).length <= 3;
+    const fs = opts.small ? 14 : 16;
+    if (inside) {
+      const b = norm({ x: norm(sub(C, A)).x + norm(sub(B, A)).x, y: norm(sub(C, A)).y + norm(sub(B, A)).y });
+      el("text", { x: A.x + rIn * b.x, y: A.y + rIn * b.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    } else {
+      el("text", { x: A.x - 8, y: A.y, "text-anchor": "end", "dominant-baseline": "middle", fill: "var(--angle)", "font-size": fs, "font-weight": 700 }, svg, opts.angleText);
+    }
+
+    for (const [P, Q, role] of sides) {
+      const lab = opts.labels[role];
+      if (!lab) continue;
+      const fill = lab.colour ? COL[role] : colour(role);
+      if (!opts.twoLine && role !== "hyp") {
+        const pos = sideLabel(P, Q, cen, 8);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab.value);
+      } else if (!opts.twoLine) {
+        // Hypotenuse number written along the slope, so a long number can't clip the line.
+        const pos = sideLabel(P, Q, cen, 6);
+        const ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 15 }, svg, lab.value);
+      } else if (role === "hyp") {
+        const pos = sideLabel(P, Q, cen, 10);
+        let ang = Math.atan2(Q.y - P.y, Q.x - P.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        const t2 = el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto",
+          transform: `rotate(${ang} ${pos.x} ${pos.y})`, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", {}, t2, NAME[role] + (lab.value ? " " : ""));
+        if (lab.value) el("tspan", { class: "num", "font-size": 14 }, t2, lab.value);
+      } else {
+        const pos = sideLabel(P, Q, cen, 10);
+        const lines = lab.value ? 2 : 1;
+        const blockH = lines * 17;
+        const top = pos.baseline === "hanging" ? pos.y : pos.baseline === "auto" ? pos.y - blockH : pos.y - blockH / 2;
+        const t2 = el("text", { "text-anchor": pos.anchor, fill, "font-size": 14, "font-weight": 700 }, svg);
+        el("tspan", { x: pos.x, y: top + 13 }, t2, NAME[role]);
+        if (lab.value) el("tspan", { x: pos.x, y: top + 30, class: "num", "font-size": 14 }, t2, lab.value);
+      }
+    }
+    return { clamped: drawn !== opts.theta };
+  }
+
+  /* ---------- Exact fractions ---------- */
+  const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+  function frac(n, d) {
+    // n/d from whole numbers (or halves), simplified, as text.
+    if (!Number.isInteger(n) || !Number.isInteger(d)) { n *= 2; d *= 2; }
+    const g = gcd(n, d);
+    n /= g; d /= g;
+    return d === 1 ? String(n) : `${n}/${d}`;
+  }
+  // Read an answer: a fraction (3/5), a whole number, or a decimal.
+  function readNumber(raw) {
+    const t = raw.trim().replace(/,/g, ".").replace(/\s+/g, "").replace("÷", "/");
+    const m = t.match(/^(-?\d*\.?\d+)(?:\/(\d*\.?\d+))?$/);
+    if (!m) return null;
+    const value = m[2] !== undefined ? +m[1] / +m[2] : +m[1];
+    return Number.isFinite(value) ? { value, isFraction: m[2] !== undefined, text: t } : null;
+  }
+
+  /* ---------- A right triangle with lettered corners ---------- */
+  // o: { a: vertical leg, b: horizontal leg, letters: { R: right-angle corner, H: end of the flat leg, V: top },
+  //      flip, sides: { RH, RV, HV } labels, roles: letter of the angle to colour the sides from, arcAt: letter }
+  function drawLettered(svg, o) {
+    svg.replaceChildren();
+    const s = Math.min(230 / o.b, 170 / o.a);
+    const w = o.b * s, h = o.a * s;
+    const left = 85 + (230 - w) / 2, base = 222 - (170 - h) / 2;
+    const fx = (x) => (o.flip ? 400 - x : x);
+    const P = { R: { x: fx(left + w), y: base }, H: { x: fx(left), y: base }, V: { x: fx(left + w), y: base - h } };
+    const cen = { x: (P.R.x + P.H.x + P.V.x) / 3, y: (P.R.y + P.H.y + P.V.y) / 3 };
+    const L = o.letters;
+    const roleOf = (key) => {
+      if (!o.roles) return null;
+      const from = o.roles === L.H ? "H" : "V";
+      if (key === "HV") return "hyp";
+      if (key === "RV") return from === "H" ? "opp" : "adj";
+      return from === "H" ? "adj" : "opp";
+    };
+    const sides = [["RH", P.R, P.H], ["RV", P.R, P.V], ["HV", P.H, P.V]];
+    if (o.roles) el("polygon", { points: `${P.R.x},${P.R.y} ${P.H.x},${P.H.y} ${P.V.x},${P.V.y}`, fill: "var(--hyp)", "fill-opacity": 0.06 }, svg);
+    for (const [key, A, B] of sides) {
+      const role = roleOf(key);
+      el("line", { x1: A.x, y1: A.y, x2: B.x, y2: B.y, stroke: role ? COL[role] : "var(--ink)", "stroke-width": role ? 4 : 2.5, "stroke-linecap": "round" }, svg);
+    }
+    el("path", { d: rightMark(P.R, P.H, P.V, 13), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    if (o.arcAt) {
+      const k = o.arcAt === L.H ? "H" : "V";
+      const others = k === "H" ? [P.R, P.V] : [P.H, P.R];
+      const room = Math.min(Math.hypot(others[0].x - P[k].x, others[0].y - P[k].y), Math.hypot(others[1].x - P[k].x, others[1].y - P[k].y));
+      el("path", { d: arcPath(P[k], others[0], others[1], Math.min(26, 0.4 * room)), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    }
+    // Corner letters, pushed out from the middle of the triangle
+    for (const k of ["R", "H", "V"]) {
+      const d = norm(sub(P[k], cen));
+      el("text", { x: P[k].x + 18 * d.x, y: P[k].y + 18 * d.y, "text-anchor": "middle", "dominant-baseline": "middle", fill: "var(--ink)", "font-size": 17, "font-weight": 700 }, svg, L[k]);
+    }
+    // Side labels outside each side; the sloping one follows the slope
+    for (const [key, A, B] of sides) {
+      const lab = o.sides && o.sides[key];
+      if (!lab) continue;
+      const role = roleOf(key);
+      const fill = role ? COL[role] : "var(--ink)";
+      if (key === "HV") {
+        const pos = sideLabel(A, B, cen, 8);
+        let ang = Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI;
+        if (ang > 90) ang -= 180; else if (ang < -90) ang += 180;
+        el("text", { x: pos.x, y: pos.y, "text-anchor": "middle", "dominant-baseline": "auto", class: "num", fill, "font-size": 15, transform: `rotate(${ang} ${pos.x} ${pos.y})` }, svg, lab);
+      } else {
+        // The flat side's label sits below it; the upright side's label beside it (clear of the corner letters).
+        const pos = sideLabel(A, B, cen, key === "RH" ? 10 : 12);
+        el("text", { x: pos.x, y: pos.y, "text-anchor": pos.anchor, "dominant-baseline": pos.baseline, class: "num", fill, "font-size": 15 }, svg, lab);
+      }
+    }
+  }
+  drawLettered($("figNames"), { a: 3, b: 4, letters: { R: "B", H: "A", V: "C" }, roles: "A", arcAt: "A", sides: { RH: "AB", RV: "BC", HV: "AC" } });
+  drawLettered($("figPyth"), { a: 12, b: 9, letters: { R: "Z", H: "X", V: "Y" }, arcAt: "X", sides: { RH: "9 cm", RV: "12 cm", HV: "15 cm" } });
+  drawLettered($("figRatio"), { a: 1, b: 2 * Math.SQRT2, letters: { R: "", H: "", V: "" }, roles: "θ", arcAt: null, sides: { RH: "2√2", RV: "1", HV: "3" } });
+  (function drawHeight(svg) {
+    const A = { x: 220, y: 110 }, B = { x: 60, y: 230 }, C = { x: 310, y: 230 }, D = { x: 220, y: 230 };
+    el("polygon", { points: "220,110 60,230 220,230", fill: "var(--hyp)", "fill-opacity": 0.06 }, svg);
+    for (const [P, Q] of [[A, B], [B, C], [C, A]]) el("line", { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y, stroke: "var(--ink)", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+    el("line", { x1: A.x, y1: A.y, x2: D.x, y2: D.y, stroke: "var(--opp)", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    el("path", { d: rightMark(D, C, A, 11), fill: "none", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+    el("path", { d: arcPath(A, B, D, 26), fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    const t = (x, y, s, fill, anchor = "middle", base = "middle", num = true) =>
+      el("text", { x, y, "text-anchor": anchor, "dominant-baseline": base, fill, "font-size": num ? 15 : 17, "font-weight": 700, class: num ? "num" : "" }, svg, s);
+    t(220, 94, "A", "var(--ink)", "middle", "middle", false);
+    t(46, 236, "B", "var(--ink)", "middle", "middle", false);
+    t(324, 236, "C", "var(--ink)", "middle", "middle", false);
+    t(220, 248, "D", "var(--ink)", "middle", "middle", false);
+    t(140, 240, "8", "var(--ink)", "middle", "hanging");
+    t(265, 240, "4.5", "var(--ink)", "middle", "hanging");
+    t(228, 175, "6", "var(--opp)", "start");
+  })($("figHeight"));
+
+  /* ---------- Book-style triangles ---------- */
+  const TRIPLES_B = [[3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [6, 8, 10], [9, 12, 15]];
+  const LETTERS = ["ABC", "XYZ", "LMN", "DEF", "PQR"];
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const pickOne = (a) => a[rnd(a.length)];
+  // A random triangle: legs a (upright) and b (flat), hypotenuse c, with letters and which two sides are given.
+  function makeTri(force = {}) {
+    let [a, b, c] = force.triple || pickOne(TRIPLES_B);
+    if (force.swap ?? Math.random() < 0.5) [a, b] = [b, a];
+    const ls = (force.letters || pickOne(LETTERS)).split("");
+    const order = force.order || [0, 1, 2].sort(() => Math.random() - 0.5);
+    const letters = { R: ls[order[0]], H: ls[order[1]], V: ls[order[2]] };
+    const given = force.given || pickOne(["legs", "flat+hyp", "upright+hyp"]);
+    return { a, b, c, letters, flip: force.flip ?? Math.random() < 0.5, given };
+  }
+  const side = (t, k) => ({ RH: t.b, RV: t.a, HV: t.c }[k]);
+  // Letters in alphabetical order, as the book writes them: side PQ, triangle △LMN.
+  const abc = (...ls) => ls.sort().join("");
+  const sideName = (t, k) => ({ RH: abc(t.letters.R, t.letters.H), RV: abc(t.letters.R, t.letters.V), HV: abc(t.letters.H, t.letters.V) }[k]);
+  const triName = (t) => "△" + abc(t.letters.R, t.letters.H, t.letters.V);
+  const givenKeys = (t) => ({ legs: ["RH", "RV"], "flat+hyp": ["RH", "HV"], "upright+hyp": ["RV", "HV"] }[t.given]);
+  // From the angle at letter X: which side key is opposite, adjacent, hypotenuse.
+  const rolesFrom = (t, X) => (X === t.letters.H ? { opp: "RV", adj: "RH", hyp: "HV" } : { opp: "RH", adj: "RV", hyp: "HV" });
+  const ratioOf = (t, X, fn) => { const r = rolesFrom(t, X); const [n, d] = RATIO[fn]; return { n: side(t, r[n]), d: side(t, r[d]), nk: r[n], dk: r[d] }; };
+
+  /* ---------- Triangle reader lab ---------- */
+  let rt = makeTri();
+  const lab = { pick: 0, shown: 0 };
+  const acute = () => [rt.letters.H, rt.letters.V];
+  function readerSteps() {
+    const X = acute()[lab.pick], Y = acute()[1 - lab.pick], L = rt.letters;
+    const r = rolesFrom(rt, X);
+    const [g1, g2] = givenKeys(rt);
+    const missing = ["RH", "RV", "HV"].find((k) => k !== g1 && k !== g2);
+    const pyth = missing === "HV"
+      ? `Pythagoras for the missing side ${sideName(rt, "HV")}: <span class="num">${side(rt, g1)}² + ${side(rt, g2)}² = ${side(rt, g1) ** 2 + side(rt, g2) ** 2}</span>, so <span class="num">${sideName(rt, "HV")} = ${rt.c}</span>.`
+      : `Pythagoras for the missing side ${sideName(rt, missing)}: <span class="num">${rt.c}² − ${side(rt, g1 === "HV" ? g2 : g1)}² = ${rt.c ** 2 - side(rt, g1 === "HV" ? g2 : g1) ** 2}</span>, so <span class="num">${sideName(rt, missing)} = ${side(rt, missing)}</span>.`;
+    const f = (fn, at) => { const q = ratioOf(rt, at, fn); return `<span class="num">${fn} ${at} = ${sideName(rt, q.nk)}/${sideName(rt, q.dk)} = ${frac(q.n, q.d)}</span>`; };
+    return [
+      `m(∠${L.R}) = 90°, so the hypotenuse is the side opposite ${L.R}: <b class="hyp">${sideName(rt, "HV")}</b> (the other two letters).`,
+      `From ∠${X}: the <b class="opp">opposite</b> side uses the other two letters: <b class="opp">${sideName(rt, r.opp)}</b>. The <b class="adj">adjacent</b> side is the other one touching ${X}: <b class="adj">${sideName(rt, r.adj)}</b>.`,
+      pyth,
+      `${f("sin", X)}, ${f("cos", X)}, ${f("tan", X)}.`,
+      `And for ∠${Y}: ${f("sin", Y)} (= cos ${X}), ${f("cos", Y)} (= sin ${X}), ${f("tan", Y)}. Check: tan ${X} × tan ${Y} = 1. ✓`,
+    ];
+  }
+  function renderReader() {
+    const X = acute()[lab.pick];
+    const [g1, g2] = givenKeys(rt);
+    const sides = {};
+    for (const k of ["RH", "RV", "HV"]) sides[k] = k === g1 || k === g2 ? `${side(rt, k)} cm` : lab.shown >= 3 ? `${side(rt, k)} cm` : "?";
+    drawLettered($("reader"), { a: rt.a, b: rt.b, letters: rt.letters, flip: rt.flip, sides, roles: lab.shown >= 2 ? X : null, arcAt: X });
+    $("readerQ").textContent = `In ${triName(rt)}, m(∠${rt.letters.R}) = 90°, ${sideName(rt, g1)} = ${side(rt, g1)} cm and ${sideName(rt, g2)} = ${side(rt, g2)} cm. Find the trigonometric ratios of ∠${X}.`;
+    $("rangle1L").textContent = `∠${acute()[0]}`;
+    $("rangle2L").textContent = `∠${acute()[1]}`;
+    const st = readerSteps();
+    $("work").innerHTML = st.map((x, i) => `<li${i < lab.shown ? "" : " hidden"}>${x}</li>`).join("");
+    $("stepNext").disabled = lab.shown >= st.length;
+    $("stepNext").textContent = lab.shown === 0 ? "Show first step" : "Show next step";
+  }
+  document.querySelectorAll('input[name="rangle"]').forEach((r) => r.addEventListener("change", () => { lab.pick = +r.value; lab.shown = 0; renderReader(); }));
+  $("newTri").addEventListener("click", () => { rt = makeTri(); lab.shown = 0; renderReader(); });
+  $("stepNext").addEventListener("click", () => { lab.shown += 1; renderReader(); });
+  $("stepAll").addEventListener("click", () => { lab.shown = 5; renderReader(); });
+  $("stepHide").addEventListener("click", () => { lab.shown = 0; renderReader(); });
+  renderReader();
+
+  /* ---------- Practice: book-style questions ---------- */
+  // kind "ratio": find a ratio from two given sides (Pythagoras first)
+  // kind "other": given one ratio, find another (draw a triangle that fits)
+  // kind "side": given a ratio and one side, find another side
+  // kind "comp": given a ratio of one angle, find a ratio of the other angle
+  const KINDS = ["ratio", "ratio", "other", "side", "comp"];
+  let p = null;
+  let pstreak = 0;
+  try { pstreak = +(localStorage.getItem("trig-bk-streak") || 0) || 0; } catch (_) {}
+  const saveStreak = () => { try { localStorage.setItem("trig-bk-streak", String(pstreak)); } catch (_) {} };
+
+  function newProblem(force = {}) {
+    const kind = force.kind || pickOne(KINDS);
+    const t = makeTri(force);
+    const L = t.letters, tri = triName(t);
+    const X = force.at || pickOne([L.H, L.V]), Y = X === L.H ? L.V : L.H;
+    const fn = force.fn || pickOne(["sin", "cos", "tan"]);
+    let q, answer, unit = "", sides = {}, work, arcAt = X;
+    const q1 = ratioOf(t, X, fn);
+    if (kind === "ratio") {
+      const [g1, g2] = givenKeys(t);
+      sides = { [g1]: `${side(t, g1)} cm`, [g2]: `${side(t, g2)} cm` };
+      q = `In ${tri}, m(∠${L.R}) = 90°, ${sideName(t, g1)} = ${side(t, g1)} cm and ${sideName(t, g2)} = ${side(t, g2)} cm. Find ${fn} ${X}.`;
+      answer = { n: q1.n, d: q1.d };
+      work = [`Pythagoras gives all three sides: ${sideName(t, "RH")} = ${t.b}, ${sideName(t, "RV")} = ${t.a}, ${sideName(t, "HV")} = ${t.c}.`,
+        `From ∠${X}: ${fn} = ${NAME[RATIO[fn][0]]} ÷ ${NAME[RATIO[fn][1]]} = <span class="num">${sideName(t, q1.nk)}/${sideName(t, q1.dk)} = ${q1.n}/${q1.d}</span>.`,
+        `Simplify: <span class="num">${fn} ${X} = ${frac(q1.n, q1.d)}</span>.`];
+    } else if (kind === "other") {
+      const given = pickOne(["sin", "cos", "tan"].filter((g) => g !== fn));
+      const g = ratioOf(t, X, given);
+      q = `In ${tri}, m(∠${L.R}) = 90°. If ${given} ${X} = ${frac(g.n, g.d)}, find ${fn} ${X}.`;
+      answer = { n: q1.n, d: q1.d };
+      arcAt = X;
+      work = [`Draw a triangle that fits: ${given} ${X} = ${frac(g.n, g.d)}, so make the ${NAME[RATIO[given][0]]} ${g.n / gcd(g.n, g.d)} and the ${NAME[RATIO[given][1]]} ${g.d / gcd(g.n, g.d)}.`,
+        `Pythagoras gives the third side, so the sides are in the family ${t.a / gcd(gcd(t.a, t.b), t.c)}, ${t.b / gcd(gcd(t.a, t.b), t.c)}, ${t.c / gcd(gcd(t.a, t.b), t.c)}.`,
+        `Then <span class="num">${fn} ${X} = ${NAME[RATIO[fn][0]]} ÷ ${NAME[RATIO[fn][1]]} = ${frac(q1.n, q1.d)}</span>.`];
+    } else if (kind === "side") {
+      // Know one side of the ratio, find the other
+      const knowTop = Math.random() < 0.5;
+      const kKey = knowTop ? q1.nk : q1.dk, wKey = knowTop ? q1.dk : q1.nk;
+      sides = { [kKey]: `${side(t, kKey)} cm`, [wKey]: "?" };
+      q = `In ${tri}, m(∠${L.R}) = 90°. If ${fn} ${X} = ${frac(q1.n, q1.d)} and ${sideName(t, kKey)} = ${side(t, kKey)} cm, find the length of ${sideName(t, wKey)}.`;
+      answer = { n: side(t, wKey), d: 1 };
+      unit = "cm";
+      // The answer you'd get by multiplying instead of dividing (or the other way round)
+      var mixUp = knowTop ? side(t, kKey) * q1.n / q1.d : side(t, kKey) * q1.d / q1.n;
+      work = [`From ∠${X}: ${fn} ${X} = <span class="num">${sideName(t, q1.nk)}/${sideName(t, q1.dk)}</span>.`,
+        `So <span class="num">${frac(q1.n, q1.d)} = ${knowTop ? `${side(t, kKey)}/${sideName(t, wKey)}` : `${sideName(t, wKey)}/${side(t, kKey)}`}</span>.`,
+        knowTop ? `${sideName(t, wKey)} is on the bottom, so divide: <span class="num">${side(t, kKey)} ÷ ${frac(q1.n, q1.d)} = ${side(t, wKey)} cm</span>.`
+                : `${sideName(t, wKey)} is on top, so multiply: <span class="num">${side(t, kKey)} × ${frac(q1.n, q1.d)} = ${side(t, wKey)} cm</span>.`];
+    } else {
+      const fn2 = fn === "tan" ? "tan" : fn === "sin" ? "cos" : "sin";
+      const g = ratioOf(t, X, fn);
+      const qy = ratioOf(t, Y, fn2);
+      q = `In ${tri}, m(∠${L.R}) = 90°. If ${fn} ${X} = ${frac(g.n, g.d)}, find ${fn2} ${Y}.`;
+      answer = { n: qy.n, d: qy.d };
+      arcAt = Y;
+      work = [`∠${X} and ∠${Y} are the two acute angles of the same triangle, so they share the same sides.`,
+        fn === "tan" ? `tan ${Y} is tan ${X} upside down (tan ${X} × tan ${Y} = 1).` : `${fn2} ${Y} uses the same two sides as ${fn} ${X} (what's opposite ${X} is adjacent to ${Y}).`,
+        `So <span class="num">${fn2} ${Y} = ${frac(qy.n, qy.d)}</span>.`];
+    }
+    p = { kind, t, X, Y, fn, q, answer, unit, sides, work, arcAt, mixUp: kind === "side" ? mixUp : null, answered: false, hint: 0 };
+    $("ptext").textContent = q;
+    $("punit").textContent = unit;
+    $("pans").placeholder = unit ? "e.g. 12" : "e.g. 3/5";
+    $("pans").value = "";
+    for (const id of ["pans", "pcheck", "phint"]) $(id).disabled = false;
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "";
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+  }
+  function drawProblem() {
+    const t = p.t;
+    const sides = p.answered && p.kind !== "other" && p.kind !== "comp" ? { RH: `${t.b} cm`, RV: `${t.a} cm`, HV: `${t.c} cm` } : p.sides;
+    drawLettered($("pmini"), { a: t.a, b: t.b, letters: t.letters, flip: t.flip, sides, roles: p.answered ? p.arcAt : null, arcAt: p.arcAt });
+  }
+  function checkAnswer(raw) {
+    const r = readNumber(raw);
+    const fb = $("pfeedback");
+    if (!r) { fb.className = "feedback bad"; fb.textContent = p.unit ? "Type a number, like 12." : "Type a fraction like 3/5, or a whole number."; return; }
+    const target = p.answer.n / p.answer.d;
+    const exact = frac(p.answer.n, p.answer.d);
+    const ok = Math.abs(r.value - target) < (r.isFraction ? 1e-9 : 0.006);
+    const list = `<ol class="work">${p.work.map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    if (ok) {
+      pstreak += 1;
+      let note = "";
+      if (!p.unit && !r.isFraction && exact.includes("/")) note = ` In your book, write it as a fraction: <b>${exact}</b>.`;
+      else if (r.isFraction && r.text !== exact) note = ` Simplify it: <b>${exact}</b>.`;
+      fb.className = "feedback good";
+      fb.innerHTML = `Correct!${note}${list}`;
+    } else {
+      pstreak = 0;
+      let why = "", see = "bk-opposite";
+      const near = (v) => Math.abs(r.value - v) < (r.isFraction ? 1e-9 : 0.006);
+      if (p.kind === "side" && near(p.mixUp)) { why = "You multiplied when you should divide, or the other way round. Check whether the side you want is on the top or the bottom of the fraction."; see = "l2-turn-around"; }
+      else if (!p.unit && near(1 / target)) { why = "Your fraction is upside down. Check which side goes on top (SOH CAH TOA)."; see = "l1-ratios"; }
+      else if (!p.unit) {
+        for (const f2 of ["sin", "cos", "tan"]) for (const at of [p.X, p.Y]) {
+          const q2 = ratioOf(p.t, at, f2);
+          if (near(q2.n / q2.d) && !(Math.abs(q2.n / q2.d - target) < 1e-9)) {
+            why = at === p.X ? `That's ${f2} ${at}, not the one asked for. Check SOH CAH TOA.` : `That's the ratio for ∠${at}, the other angle. From ∠${p.kind === "comp" ? p.Y : p.X}, the opposite side uses the other two letters.`;
+            see = at === p.X ? "l1-ratios" : "bk-opposite";
+          }
+        }
+      }
+      if (p.kind === "other" || p.kind === "comp") see = p.kind === "other" ? "bk-from-ratio" : "bk-both-angles";
+      why += ` <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`;
+      fb.className = "feedback bad";
+      fb.innerHTML = `Not quite. The answer is <b>${exact}${p.unit ? " " + p.unit : ""}</b>. ${why}${list}`;
+    }
+    p.answered = true;
+    for (const id of ["pans", "pcheck", "phint"]) $(id).disabled = true;
+    saveStreak();
+    $("pstreak").textContent = `Right in a row: ${pstreak}`;
+    drawProblem();
+    $("pnext").focus();
+  }
+  $("pform").addEventListener("submit", (e) => { e.preventDefault(); if (!p.answered) checkAnswer($("pans").value); });
+  $("phint").addEventListener("click", () => {
+    p.hint += 1;
+    $("pfeedback").className = "feedback";
+    $("pfeedback").innerHTML = "Hint: " + p.work.slice(0, p.hint).join(" ");
+    if (p.hint >= p.work.length) $("phint").disabled = true;
+  });
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- One step at a time, each with a quick check (shared engine) ---------- */
+  const AR = [
+    "لماذا نتعلم هذا؟ كتاب المدرسة يسأل عن نفس الأفكار التي تعلمتها، لكن بطريقته: بالحروف، ونظرية فيثاغورس، والكسور الدقيقة، والبراهين. مثال: «في △XYZ، ق(∠Z) = 90°، XZ = 9 سم، YZ = 12 سم. أوجد جا X». معناه: مثلث رؤوسه X و Y و Z، والزاوية القائمة عند Z، ونريد جيب الزاوية X.",
+    "الأسماء بالحروف: رؤوس المثلث حروف كبيرة A و B و C. الزاوية تُسمّى برأسها ∠A، و ق(∠B) = 90° تعني أن الزاوية القائمة عند B. الضلع يُسمّى بالرأسين اللذين يصل بينهما: AC. <b>الحيلة</b>: الضلع المقابل لزاوية يستخدم الحرفين الآخرين: المقابل لـ ∠A هو BC. والوتر يقابل الزاوية القائمة.",
+    "فيثاغورس أولًا: غالبًا يعطيك الكتاب ضلعين فقط، فأوجد الثالث قبل كتابة النسب. لإيجاد الوتر: اجمع المربعين (9² + 12² = 225، إذن الوتر 15). لإيجاد ضلع قصير: اطرح (13² − 5² = 144، إذن الضلع 12). وتذكّر عائلات الأعداد: 3، 4، 5 و 5، 12، 13 و 8، 15، 17.",
+    "إجابات دقيقة: اكتب جا X = 4/5 وليس 0.8. بسّط الكسور (12/15 = 4/5)، وبسّط الجذور بإخراج المربع الكامل: √8 = √(4 × 2) = 2√2، و √12 = 2√3.",
+    "من نسبة واحدة: إذا كان جا θ = 1/3، ارسم مثلثًا مناسبًا: المقابل 1 والوتر 3. بفيثاغورس المجاور = √8 = 2√2. إذن جتا θ = 2√2/3 و ظا θ = 1/(2√2). هذا مسموح لأن كل المثلثات التي فيها نفس الزاوية لها نفس النسب.",
+    "الزاويتان الحادتان: في △ABC القائم في B، الزاويتان A و C تشتركان في نفس الأضلاع. لذلك: جا A = جتا C، و ظا A × ظا C = 1، و جا²A + جتا²A = 1 (فيثاغورس مقسومة على مربع الوتر). البرهان يعني كتابة الخطوات التي تُظهر أن العبارة صحيحة، بدءًا من التعريفات.",
+    "أشكال بداخلها خط: إذا رُسم ارتفاع AD عمودي على BC، ينقسم الشكل إلى مثلثين قائمين يشتركان في الضلع AD. حُلّ مثلثًا، ثم استخدم الضلع المشترك في الآخر. مثال: AD = 6، BD = 8، DC = 4.5: ظا(∠BAD) = 8/6 = 4/3، و AC = 7.5.",
+  ];
+  const QUIZ = [
+    [{ type: "choice", q: "In a book question, \"m(∠Z) = 90°\" means…", correct: 1,
+       options: [["side Z is 90 cm long", "Z is a corner, not a side. m(∠Z) is the size of the angle at Z."],
+                 ["the right angle is at corner Z", null],
+                 ["all the angles are 90°", "Only the angle at Z is 90°."]],
+       ok: "Right. The square corner is at Z." }],
+    [{ type: "choice", q: "In △ABC with m(∠B) = 90°, which side is opposite ∠A?", correct: 2,
+       options: [["AB", "AB touches A. The opposite side uses the other two letters."],
+                 ["AC", "AC is opposite the right angle at B, so it's the hypotenuse."],
+                 ["BC", null]],
+       ok: "Right. Opposite ∠A uses the other two letters: B and C." },
+     { type: "choice", q: "And which side is the hypotenuse?", correct: 0,
+       options: [["AC", null],
+                 ["BC", "BC is opposite ∠A. The hypotenuse is opposite the right angle at B."],
+                 ["AB", "AB touches the right angle. The hypotenuse is opposite it."]],
+       ok: "Right. The hypotenuse is opposite the right angle at B: AC." }],
+    [{ type: "choice", q: "Two sides of a right triangle are 6 cm and 8 cm. How long is the hypotenuse?", correct: 1,
+       options: [["14 cm", "Pythagoras adds the squares, not the sides: 6² + 8² = 100."],
+                 ["10 cm", null],
+                 ["48 cm", "That's 6 × 8. Pythagoras adds the squares: 36 + 64 = 100."]],
+       ok: "Right. 36 + 64 = 100, and √100 = 10. It's 3, 4, 5 doubled." }],
+    [{ type: "choice", q: "Simplify 10/26.", correct: 0,
+       options: [["5/13", null],
+                 ["10/26 is already simple", "Both 10 and 26 can be divided by 2."],
+                 ["1/2.6", "Keep whole numbers on top and bottom. Divide both by 2."]],
+       ok: "Right. Divide top and bottom by 2." },
+     { type: "choice", q: "Simplify √12.", correct: 2,
+       options: [["6", "√12 isn't 12 ÷ 2. Look for a square number inside 12."],
+                 ["3√2", "3√2 = √18. Look for a square number inside 12: 4 × 3."],
+                 ["2√3", null]],
+       ok: "Right. √12 = √(4 × 3) = 2√3." }],
+    [{ type: "choice", q: "If cos β = 5/13, what is sin β?", correct: 1,
+       options: [["13/5", "That's cos β upside down. Draw the triangle: adjacent 5, hypotenuse 13."],
+                 ["12/13", null],
+                 ["5/12", "That's 1 ÷ tan β. sin = opposite ÷ hypotenuse."]],
+       ok: "Right. Adjacent 5 and hypotenuse 13 give an opposite side of 12, so sin β = 12/13." }],
+    [{ type: "choice", q: "In △ABC with m(∠B) = 90°, sin A = 3/5. What is cos C?", correct: 0,
+       options: [["3/5", null],
+                 ["4/5", "That's cos A. cos C uses the same sides as sin A."],
+                 ["5/3", "Upside down. cos C = sin A."]],
+       ok: "Right. What's opposite A is next to C, so cos C = sin A = 3/5." },
+     { type: "choice", q: "tan A = 3/4. What is tan A × tan C?", correct: 2,
+       options: [["9/16", "tan C isn't the same as tan A: it's tan A upside down, 4/3."],
+                 ["3/4", "tan C = 4/3, so multiply 3/4 × 4/3."],
+                 ["1", null]],
+       ok: "Right. tan C = 4/3, and 3/4 × 4/3 = 1." }],
+    [{ type: "choice", q: "AD ⊥ BC in a triangle. What does that give you?", correct: 1,
+       options: [["Two triangles that don't share anything", "They share the side AD."],
+                 ["Two right triangles that share the side AD", null],
+                 ["A square", "AD ⊥ BC means a right angle at D, not a square."]],
+       ok: "Right. Solve one triangle, then use AD in the other." }],
+  ];
+  const steps = LessonSteps.mount({ storageKey: "trig-bk-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Quiz ---------- */
+  const Q = LessonQuiz;
+  const BK_BANK = [
+    { id: "meaning-m", concept: "bk-names",
+      make: () => { const l = pickOne(["B", "Z", "C", "Q"]); return Q.mc(`What does "m(∠${l}) = 90°" mean?`, `The right angle is at corner ${l}`, [`Side ${l} is 90 cm`, "The triangle has three right angles"], `m(∠${l}) means the measure of the angle at ${l}. It's 90°, so that's the square corner.`); } },
+    { id: "opposite-letters", concept: "bk-opposite",
+      make: () => { const t = makeTri(); const X = pickOne([t.letters.H, t.letters.V]); const r = rolesFrom(t, X);
+        return Q.mc(`In ${triName(t)}, m(∠${t.letters.R}) = 90°. Which side is opposite ∠${X}?`, sideName(t, r.opp), [sideName(t, r.adj), sideName(t, r.hyp)],
+          `The opposite side uses the other two letters: ${sideName(t, r.opp)}. It doesn't touch ${X}.`); } },
+    { id: "hyp-letters", concept: "bk-opposite",
+      make: () => { const t = makeTri();
+        return Q.mc(`In ${triName(t)}, m(∠${t.letters.R}) = 90°. Which side is the hypotenuse?`, sideName(t, "HV"), [sideName(t, "RH"), sideName(t, "RV")],
+          `The hypotenuse is opposite the right angle at ${t.letters.R}: ${sideName(t, "HV")}.`); } },
+    { id: "pyth-hyp", concept: "bk-pythagoras", also: "bk-triples",
+      make: () => { const [a, b, c] = pickOne(TRIPLES_B); return Q.mc(`The two short sides of a right triangle are ${a} cm and ${b} cm. How long is the hypotenuse?`, `${c} cm`, [`${a + b} cm`, `${a * b} cm`, `${c + 1} cm`], `${a}² + ${b}² = ${a * a + b * b}, and √${a * a + b * b} = ${c}.`); } },
+    { id: "pyth-leg", concept: "bk-pythagoras",
+      make: () => { const [a, b, c] = pickOne(TRIPLES_B); return Q.mc(`A right triangle has a hypotenuse of ${c} cm and one side of ${a} cm. How long is the other side?`, `${b} cm`, [`${c - a} cm`, `${c + a} cm`, `${b + 1} cm`], `Take away: ${c}² − ${a}² = ${c * c - a * a}, and √${c * c - a * a} = ${b}.`); } },
+    { id: "ratio-from-sides", concept: "bk-pythagoras", also: "bk-fractions",
+      make: () => { const t = makeTri({ given: "legs" }); const X = pickOne([t.letters.H, t.letters.V]); const fn = pickOne(["sin", "cos"]); const q = ratioOf(t, X, fn); const other = ratioOf(t, X, fn === "sin" ? "cos" : "sin");
+        return Q.mc(`In ${triName(t)}, m(∠${t.letters.R}) = 90°, ${sideName(t, "RH")} = ${t.b} cm and ${sideName(t, "RV")} = ${t.a} cm. What is ${fn} ${X}?`,
+          frac(q.n, q.d), [frac(other.n, other.d), frac(q.d, q.n), frac(t.a, t.b) === frac(q.n, q.d) ? frac(t.b, t.a) : frac(t.a, t.b)],
+          `First Pythagoras: the hypotenuse ${sideName(t, "HV")} = ${t.c}. Then ${fn} ${X} = ${sideName(t, q.nk)}/${sideName(t, q.dk)} = ${frac(q.n, q.d)}.`); } },
+    { id: "simplify-frac", concept: "bk-fractions",
+      make: () => { const [a, , c] = pickOne([[3, 4, 5], [5, 12, 13], [8, 15, 17]]); const k = pickOne([2, 3, 4]); return Q.mc(`Simplify ${a * k}/${c * k}.`, frac(a, c), [`${a * k}/${c}`, `${a}/${c * k}`, `${c}/${a}`], `Divide the top and bottom by ${k}: ${a}/${c}.`); } },
+    { id: "simplify-root", concept: "bk-roots",
+      make: () => { const [n, ans, w1, w2] = pickOne([[8, "2√2", "4", "4√2"], [12, "2√3", "6", "3√2"], [18, "3√2", "9", "2√3"], [20, "2√5", "10", "5√2"], [27, "3√3", "9", "9√3"], [50, "5√2", "25", "2√5"]]);
+        return Q.mc(`Simplify √${n}.`, ans, [w1, w2], `Find the square number inside ${n}: √${n} = ${ans}.`); } },
+    { id: "from-ratio", concept: "bk-from-ratio", also: "l1-same-shape",
+      make: () => { const t = makeTri(); const X = t.letters.H; const given = pickOne(["sin", "cos", "tan"]); const want = pickOne(["sin", "cos", "tan"].filter((f) => f !== given)); const g = ratioOf(t, X, given), w = ratioOf(t, X, want);
+        return Q.mc(`If ${given} θ = ${frac(g.n, g.d)}, what is ${want} θ?`, frac(w.n, w.d), [frac(w.d, w.n), frac(g.d, g.n)].filter((x) => x !== frac(w.n, w.d)),
+          `Draw a triangle that fits ${given} θ = ${frac(g.n, g.d)}, find the third side with Pythagoras, then ${want} θ = ${frac(w.n, w.d)}.`); } },
+    { id: "from-ratio-root", concept: "bk-from-ratio", also: "bk-roots",
+      make: () => Q.mc("If sin θ = 1/3, what is cos θ?", "2√2/3", ["2/3", "√8", "1/3"], "Opposite 1 and hypotenuse 3, so the adjacent side is √(9 − 1) = √8 = 2√2. cos θ = 2√2/3.") },
+    { id: "complement", concept: "bk-both-angles", also: "l4-swap",
+      make: () => { const t = makeTri(); const A = t.letters.H, C = t.letters.V; const s = ratioOf(t, A, "sin");
+        return Q.mc(`In ${triName(t)}, m(∠${t.letters.R}) = 90° and sin ${A} = ${frac(s.n, s.d)}. What is cos ${C}?`, frac(s.n, s.d), [frac(ratioOf(t, A, "cos").n, ratioOf(t, A, "cos").d), frac(s.d, s.n)],
+          `What's opposite ${A} is next to ${C}, so cos ${C} = sin ${A} = ${frac(s.n, s.d)}.`); } },
+    { id: "tan-product", concept: "bk-both-angles",
+      make: () => Q.mc("In a right triangle, ∠A and ∠C are the two acute angles. What is tan A × tan C?", "1", ["0", "tan² A", "It depends on the triangle"], "tan C is tan A upside down, so their product is always 1.") },
+    { id: "sin2cos2", concept: "bk-both-angles", also: "bk-proof",
+      make: () => { const [a, b, c] = pickOne(TRIPLES_B); return Q.mc(`sin A = ${frac(a, c)} and cos A = ${frac(b, c)}. What is sin²A + cos²A?`, "1", [frac(a + b, c), frac(a * a + b * b, c)], `${a * a}/${c * c} + ${b * b}/${c * c} = ${c * c}/${c * c} = 1. It's always 1: Pythagoras divided by the hypotenuse squared.`); } },
+    { id: "proof-step", concept: "bk-proof",
+      make: () => Q.mc("To prove tan A × tan C = 1 in △ABC with m(∠B) = 90°, what's the first step?", "Write tan A and tan C using the sides: BC/AB and AB/BC",
+        ["Use a calculator", "Say it's true because the book says so"], "A proof starts from the definitions, using the letters, then shows the steps.") },
+    { id: "height-figure", concept: "bk-figures", also: "l5-two",
+      make: () => { const k = pickOne([1, 2]); const ad = 6 * k, bd = 8 * k; return Q.mc(`AD ⊥ BC, AD = ${ad} cm and BD = ${bd} cm. What is tan(∠BAD)?`, "4/3", ["3/4", "3/5", "4/5"], `In triangle ABD, from ∠BAD: BD is opposite and AD is adjacent. tan(∠BAD) = ${bd}/${ad} = 4/3.`); } },
+    { id: "exact-not-decimal", concept: "bk-fractions", also: "l4-exact",
+      make: () => Q.mc("Your book asks for sin X and you get 0.8. How should you write it?", "4/5", ["0.8 is fine", "8/100"], "Book questions want exact, simplified fractions: 0.8 = 8/10 = 4/5.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: BK_BANK, count: 10, storageKey: "trig-bk-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-bk-quiz-best", state: quiz.serialize(), retry: k } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "bk" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "bk", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-bk-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
+  });
+
+  /* ---------- Theme switch (same as Level 1) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") {
+      root.setAttribute("data-theme", mode);
+      root.dataset.themeByPage = "1";
+    } else if (root.dataset.themeByPage) {
+      root.removeAttribute("data-theme");
+      delete root.dataset.themeByPage;
+    }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["reader", "pmini"],
+    prepare() { steps.prepare(); },
+    quizBank: BK_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "bk",
+    cases() {
+      const out = [];
+      for (const triple of TRIPLES_B) for (const swap of [false, true]) for (const flip of [false, true]) for (const order of [[0, 1, 2], [1, 2, 0], [2, 0, 1]]) for (const pick of [0, 1]) for (const shown of [0, 5])
+        out.push({ kind: "lab", f: { triple, swap, flip, order, letters: "XYZ", given: "legs" }, pick, shown, name: `reader ${triple} swap=${swap} flip=${flip} order=${order} angle=${pick} steps=${shown}` });
+      for (const kind of ["ratio", "other", "side", "comp"]) for (const triple of TRIPLES_B) for (const swap of [false, true]) for (const flip of [false, true]) for (const answered of [false, true])
+        out.push({ kind: "practice", f: { kind, triple, swap, flip, letters: "LMN", given: "flat+hyp" }, answered, name: `practice ${kind} ${triple} swap=${swap} flip=${flip} ${answered ? "after" : "before"}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { rt = makeTri(c.f); lab.pick = c.pick; lab.shown = c.shown; renderReader(); }
+      else { newProblem(c.f); if (c.answered) checkAnswer(frac(p.answer.n, p.answer.d)); }
+    },
+    frac, readNumber,
+  };
+})();
+</script>
