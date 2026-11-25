@@ -110,6 +110,34 @@ async function examChecks(page, problems) {
   const wrongListed = await page.locator("#app .review > li.bad").count();
   if (wrongListed !== plan.wrong.length) problems.push(`exam: ${wrongListed} wrong answers listed, expected ${plan.wrong.length}`);
 
+  // 3b. Feedback after each question: Check marks it at once, with the button to the full explanation
+  await page.evaluate(() => window.__examTest.startExam(10, "each"));
+  const eachRun = [];
+  for (let k = 0; k < 10; k++) {
+    const q = await page.evaluate(() => { const S = window.__examTest.state(); return S.qs[S.i]; });
+    const wrong = k === 0 && q.kind !== "self";
+    if (q.kind !== "self") await page.evaluate((w) => { const E = window.__examTest, S = E.state(); S.ans[S.i] = w ? E.wrongAnswer(S.qs[S.i]) : E.rightAnswer(S.qs[S.i]); }, wrong);
+    await page.click("#checkQ");
+    const fb = await page.evaluate(() => ({ good: document.querySelectorAll("#app .verdict.good").length, bad: document.querySelectorAll("#app .verdict.bad").length, btn: document.querySelectorAll("#app .kb-btn[data-concept]").length, sol: document.querySelectorAll("#app .solution").length }));
+    if (q.kind === "self") { if (!fb.sol) problems.push("exam each: no model proof after Check"); await page.locator('#app [data-self][data-v="1"]').click(); }
+    else if (wrong ? !(fb.bad && fb.btn) : !fb.good) problems.push(`exam each: question ${k + 1} feedback ${JSON.stringify(fb)} (wrong=${wrong})`);
+    eachRun.push(q.kind === "self" ? "S" : wrong ? "W" : "R");
+    await page.click(k < 9 ? "#exNext" : "#seeScore");
+  }
+  const eachScore = await scoreText();
+  const eachExpect = 10 - (eachRun[0] === "W" ? 1 : 0);
+  if (!eachScore.startsWith(String(eachExpect))) problems.push(`exam each: score "${eachScore}", expected ${eachExpect}`);
+  // back to the normal exam results for the link check
+  await page.evaluate(() => window.__examTest.startExam(10));
+  await page.evaluate(() => {
+    const E = window.__examTest, S = E.state();
+    E.fill(S.qs.map((q, k) => (q.kind === "self" ? -1 : k)).filter((k) => k >= 0).slice(0, 2));
+    S.qs.forEach((q, k) => { if (q.kind === "self") S.self[k] = true; });
+  });
+  await page.click("#exFinish");
+  await page.click("#finishYes");
+  shown = await scoreText();
+
   // 4. "Show me where this is explained" from the results, then back to the same results
   const link = page.locator("#app .review > li.bad a[data-concept]").first();
   await link.click();
@@ -120,6 +148,7 @@ async function examChecks(page, problems) {
   await page.waitForTimeout(1200);
   const back = await page.evaluate(() => ({ url: location.pathname, score: document.querySelector("#app .big-score") && document.querySelector("#app .big-score").textContent.replace(/\s+/g, " ").trim() }));
   if (!back.url.includes("/exam/") || back.score !== shown) problems.push(`exam link: expected to come back to the results (${shown}), got ${JSON.stringify(back)}`);
+  console.log(`exam: after-each-question mode ${eachRun.join("")} = ${eachScore};`);
   console.log(`exam: kinds ${JSON.stringify(bank.kinds)}; answered ${kindsSeen.join(", ")} through the screen; exam ${shown} (${plan.wrong.length} wrong, ${plan.self} proofs); link → ${there.url} → back to results`);
 }
 
@@ -184,7 +213,23 @@ async function examChecks(page, problems) {
       const choice = i === 1 || i === 4 ? (right + 1) % (await opts.count()) : right;
       await opts.nth(choice).click();
       flow.push((await opts.nth(choice).getAttribute("class")).includes("right") ? "R" : "W");
-      await quiz.locator(".qz-nav button").click();
+      if (i === 1) {
+        // On the spot: a wrong answer offers the detailed explanation, and "Back" returns to this question.
+        const x = quiz.locator(".qz-nav [data-x]");
+        if (!(await x.count())) problems.push(`${name} quiz: no "detailed explanation" button right after a wrong answer`);
+        else {
+          await x.click();
+          await page.waitForTimeout(900);
+          const seen = await page.evaluate(() => ({ focus: !!document.querySelector(".lesson-focus"), more: !!document.querySelector(".step.show-more") }));
+          if (!seen.focus || !seen.more) problems.push(`${name} quiz: the detailed explanation wasn't opened in full (${JSON.stringify(seen)})`);
+          await page.locator(".kb-bar .kb-back").click();
+          await page.waitForTimeout(900);
+          const at = await quiz.locator(".qz-top .eyebrow").textContent();
+          const kept = await quiz.locator(".qz-opt.wrong").count();
+          if (!/Question 2 of/.test(at) || kept !== 1) problems.push(`${name} quiz: after the explanation, expected question 2 with his answer, got "${at}" (${kept} wrong marked)`);
+        }
+      }
+      await quiz.locator(".qz-nav [data-go]").click();
     }
     const big = (await quiz.locator(".qz-big").textContent()).replace(/\s+/g, " ").trim();
     const cells = await quiz.locator(".qz-cell").evaluateAll((cs) => cs.map((c) => (c.classList.contains("ok") ? "R" : c.classList.contains("bad") ? "W" : "?")).join(""));
@@ -285,6 +330,39 @@ async function examChecks(page, problems) {
     const res = await page.evaluate(() => ({ score: document.querySelector("#quiz .qz-big").textContent.replace(/\s+/g, " ").trim(), fixed: document.querySelectorAll("#quiz .qz-cell.fixed").length, ok: document.querySelectorAll("#quiz .qz-cell.ok").length }));
     if (!res.score.startsWith("9") || res.fixed !== 1 || res.ok !== 9) problems.push(`quiz link: after fixing, expected 9 / 10 with 9 right and 1 fixed, got ${JSON.stringify(res)}`);
     console.log(`quiz link: Level 3 quiz → Level 1 table → back to "${back.title}" → fixed; results ${res.score}, ${res.ok} right + ${res.fixed} fixed`);
+    await page.context().close();
+  }
+
+  // 4b'. During the quiz (not the results): a wrong answer about the table opens Level 1, then back to the same question.
+  {
+    const page = await fresh("level-3 quiz link during the quiz");
+    await page.goto(url("level-3"));
+    await page.waitForTimeout(300);
+    await page.click("#modeBtn");
+    await page.evaluate(() => {
+      const T = window.__layoutTest;
+      const ids = ["backwards-table", ...T.quizBank.map((g) => g.id).filter((id) => id !== "backwards-table").slice(0, 9)];
+      const items = ids.map((id, i) => {
+        const inst = T.quizBank.find((g) => g.id === id).make();
+        return { id, inst, pick: i === 0 ? (inst.correct + 1) % inst.options.length : null, ok: false, fixed: false };
+      });
+      T.quizApi.restore({ items });
+      T.quizApi.ask(0);
+    });
+    await page.locator("#quiz .qz-nav [data-x]").click();
+    await page.waitForTimeout(1200);
+    const there = await page.evaluate(() => ({ level1: !location.pathname.includes("level-"), table: !!document.querySelector(".tablewrap.lesson-focus"), more: !!document.querySelector(".step.show-more") }));
+    if (!there.level1 || !there.table || !there.more) problems.push(`quiz link during the quiz: expected the Level 1 table in full detail, got ${JSON.stringify(there)}`);
+    await page.locator(".kb-back").click();
+    await page.waitForTimeout(1200);
+    const back = await page.evaluate(() => ({
+      level3: location.pathname.includes("level-3"),
+      title: document.querySelector("#quiz .qz-top .eyebrow") && document.querySelector("#quiz .qz-top .eyebrow").textContent,
+      wrong: document.querySelectorAll("#quiz .qz-opt.wrong").length,
+      next: document.querySelector("#quiz [data-go]") && document.querySelector("#quiz [data-go]").textContent,
+    }));
+    if (!back.level3 || !/Question 1 of/.test(back.title || "") || back.wrong !== 1 || !/Next question/.test(back.next || "")) problems.push(`quiz link during the quiz: expected Level 3 question 1 with his answer and "Next question", got ${JSON.stringify(back)}`);
+    console.log(`quiz link during the quiz: Level 3 question 1 → Level 1 table (in full detail) → back to "${back.title}" with his answer`);
     await page.context().close();
   }
 

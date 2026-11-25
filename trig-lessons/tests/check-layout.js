@@ -106,6 +106,40 @@ function auditContrast(context) {
   return pairs.filter(([f, b, min]) => ratio(f, b) < min).map(([f, b, min]) => `${context}: ${f} on ${b} contrast ${ratio(f, b).toFixed(2)} (needs ${min})`);
 }
 
+// Runs inside the page: the colours as actually drawn. Every visible piece of text (page text and
+// SVG labels) is compared with the background behind it. Catches a missing colour rule, where
+// text falls back to black on the dark theme.
+function auditDrawnContrast(context) {
+  const rgb = (c) => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return { c: v.slice(0, 3), a: v.length > 3 ? v[3] : 1 }; };
+  const lum = (v) => { const [r, g, b] = v.map((x) => x / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  const bgOf = (el) => {
+    for (let e = el; e; e = e.parentElement) {
+      if (e instanceof SVGElement && !(e instanceof SVGSVGElement)) continue;
+      const b = rgb(getComputedStyle(e).backgroundColor);
+      if (b && b.a > 0.5) return b.c;
+    }
+    return rgb(getComputedStyle(document.body).backgroundColor).c;
+  };
+  const seen = new Set(), out = [];
+  const visible = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden" && !e.closest("[hidden]"); };
+  const check = (e, colour, label) => {
+    const f = rgb(colour);
+    if (!f || f.a < 0.5) return;
+    const r = ratio(f.c, bgOf(e));
+    const key = label + colour;
+    if (r < 3 && !seen.has(key)) { seen.add(key); out.push(`${context}: "${label}" is hard to read (${colour}, contrast ${r.toFixed(2)})`); }
+  };
+  document.querySelectorAll("svg text").forEach((t) => { if (visible(t) && t.textContent.trim()) check(t, getComputedStyle(t).fill, t.textContent.trim().slice(0, 30)); });
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = walker.nextNode());) {
+    const e = n.parentElement;
+    if (!n.textContent.trim() || !e || e.closest("svg, script, style") || !visible(e)) continue;
+    check(e, getComputedStyle(e).color, n.textContent.trim().slice(0, 30));
+  }
+  return out;
+}
+
 (async () => {
   const browser = await chromium.launch();
   const problems = [];
@@ -122,8 +156,10 @@ function auditContrast(context) {
         await page.evaluate(`window.__audit = ${auditSvgs.toString()}`);
         // Pages that show content in stages (one step at a time) reveal everything for the check.
         await page.evaluate(() => window.__layoutTest && window.__layoutTest.prepare && window.__layoutTest.prepare());
+        await page.waitForTimeout(250); // let button colour changes finish
 
         problems.push(...await page.evaluate(auditContrast, ctx));
+        problems.push(...await page.evaluate(auditDrawnContrast, ctx));
         problems.push(...await page.evaluate((c) => window.__audit(c), `${ctx} page`));
         await page.screenshot({ path: path.join(outDir, `${pageName}-${label}-${theme}.png`), fullPage: true });
 

@@ -849,11 +849,16 @@ a { color: var(--hyp); }
     return `<div class="ans-row"><label class="sr" for="ansIn">Your answer</label><input id="ansIn" type="text" inputmode="text" autocomplete="off" placeholder="${ph}" value="${value == null ? "" : String(value).replace(/"/g, "")}"${locked ? " disabled" : ""}><span>${q.unit || ""}</span></div>`;
   }
   const solutionHtml = (q) => `<div class="solution"><b>${q.kind === "self" ? "Model proof" : "Model answer"}</b><ol>${q.solution.map((s) => `<li>${s}</li>`).join("")}</ol></div>`;
-  const conceptLink = (q) => `<a class="kb-link" data-concept="${q.concept}" href="#">Show me where this is explained (${LessonLinks.levelName(LessonLinks.CONCEPTS[q.concept].level)}) →</a>`;
+  const conceptLink = (q) => `<a class="kb-btn" data-concept="${q.concept}" href="#">Show me the detailed explanation (${LessonLinks.levelName(LessonLinks.CONCEPTS[q.concept].level)}) →</a>`;
+  // Right after an answer: was it right, the model answer, and a button to the full explanation.
+  function feedbackHtml(q, res) {
+    if (q.kind === "self") return solutionHtml(q);
+    return `<p class="verdict ${res.ok ? "good" : "bad"}">${res.ok ? "Correct!" : `Not quite. The answer is ${q.exact}.`} ${res.note || ""}</p>${solutionHtml(q)}${res.ok ? "" : `<p>${conceptLink(q)}</p>`}`;
+  }
 
   /* ---------- App state ---------- */
   const app = $("app");
-  let S = { mode: "menu", topics: TOPICS.map((t) => t.id), count: 10, minutes: 20 };
+  let S = { mode: "menu", topics: TOPICS.map((t) => t.id), count: 10, minutes: 20, feedback: "end" };
   let timerId = null;
   const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
   const history = () => { try { return JSON.parse(localStorage.getItem("trig-exam-history") || "[]"); } catch (_) { return []; } };
@@ -879,7 +884,7 @@ a { color: var(--hyp); }
       </section>
       <section class="panel ex-card" aria-labelledby="eTitle">
         <div class="eyebrow">Exam</div><h2 id="eTitle">Take an exam</h2>
-        <p>Mixed questions from every topic. No feedback until you finish, like a real test. Then you get your score and every answer explained.</p>
+        <p>Mixed questions from every topic. Choose when to see if you're right: at the end, like a real test, or after each question, like the level quiz.</p>
         <div class="ex-row"><span class="label">Questions</span><div class="seg" role="radiogroup" aria-label="Number of questions">
           <input type="radio" name="count" id="c10" value="10"${S.count === 10 ? " checked" : ""}><label for="c10">10</label>
           <input type="radio" name="count" id="c20" value="20"${S.count === 20 ? " checked" : ""}><label for="c20">20</label></div></div>
@@ -887,6 +892,9 @@ a { color: var(--hyp); }
           <input type="radio" name="mins" id="m0" value="0"${S.minutes === 0 ? " checked" : ""}><label for="m0">No limit</label>
           <input type="radio" name="mins" id="m20" value="20"${S.minutes === 20 ? " checked" : ""}><label for="m20">20 min</label>
           <input type="radio" name="mins" id="m40" value="40"${S.minutes === 40 ? " checked" : ""}><label for="m40">40 min</label></div></div>
+        <div class="ex-row"><span class="label">Feedback</span><div class="seg" role="radiogroup" aria-label="When to see if you're right">
+          <input type="radio" name="fb" id="fbEnd" value="end"${S.feedback !== "each" ? " checked" : ""}><label for="fbEnd">At the end</label>
+          <input type="radio" name="fb" id="fbEach" value="each"${S.feedback === "each" ? " checked" : ""}><label for="fbEach">After each question</label></div></div>
         <div><button type="button" class="primary" id="startExam">Start the exam</button></div>
         ${h.length ? `<div><div class="eyebrow">Your last exams</div><ul class="history">${h.slice().reverse().map((x) => `<li><span>${x.date}</span><span class="bar"><span style="width:${x.pct}%"></span></span><span>${x.score}/${x.total}</span></li>`).join("")}</ul></div>` : ""}
       </section>
@@ -896,6 +904,7 @@ a { color: var(--hyp); }
     $("noTopics").addEventListener("click", () => { S.topics = []; renderMenu(); });
     app.querySelectorAll('input[name="count"]').forEach((r) => r.addEventListener("change", () => { S.count = +r.value; }));
     app.querySelectorAll('input[name="mins"]').forEach((r) => r.addEventListener("change", () => { S.minutes = +r.value; }));
+    app.querySelectorAll('input[name="fb"]').forEach((r) => r.addEventListener("change", () => { S.feedback = r.value; }));
     $("startPractice").addEventListener("click", () => {
       if (!S.topics.length) { S.topics = TOPICS.map((t) => t.id); }
       S = { ...S, mode: "practice", pq: make(pickOne(S.topics)), pval: null, checked: false, right: 0, done: 0 };
@@ -910,7 +919,7 @@ a { color: var(--hyp); }
     app.innerHTML = `<div class="panel qcard">
       <div class="qhead"><span class="eyebrow">Practice · ${S.right} right out of ${S.done}</span><span class="topic-tag">${TOPIC[q.topic].name} · ${LessonLinks.levelName(TOPIC[q.topic].level)}</span></div>
       <div class="qbody${q.fig ? "" : " nofig"}"><div style="display:grid;gap:14px;min-width:0"><p class="qtext2">${q.q}</p>${answerHtml(q, S.pval, S.checked)}</div>${figureHtml(q, "qfig")}</div>
-      ${S.checked ? `${q.kind === "self" ? "" : `<p class="verdict ${res.ok ? "good" : "bad"}">${res.ok ? "Correct!" : `Not quite. The answer is ${q.exact}.`} ${res.note || ""}</p>`}${solutionHtml(q)}<p>${conceptLink(q)}</p>` : ""}
+      ${S.checked ? `${feedbackHtml(q, res)}${q.kind === "self" ? `<p>${conceptLink(q)}</p>` : ""}` : ""}
       <div class="ex-nav"><button type="button" id="toMenu">← Menu</button>${S.checked ? '<button type="button" class="primary" id="nextQ">Next question →</button>' : `<button type="button" class="primary" id="checkQ">${q.kind === "self" ? "Show the model proof" : "Check"}</button>`}</div>
     </div>`;
     drawFig(q, "qfig");
@@ -943,7 +952,7 @@ a { color: var(--hyp); }
     const order = shuffle(TOPICS.map((t) => t.id));
     const picks = [];
     while (picks.length < S.count) picks.push(order[picks.length % order.length]);
-    S = { ...S, mode: "exam", qs: shuffle(picks).map(make), ans: Array(S.count).fill(null), self: Array(S.count).fill(null), i: 0, start: Date.now(), limit: S.minutes * 60, confirm: false };
+    S = { ...S, mode: "exam", qs: shuffle(picks).map(make), ans: Array(S.count).fill(null), self: Array(S.count).fill(null), seen: Array(S.count).fill(false), i: 0, start: Date.now(), limit: S.minutes * 60, confirm: false };
     render();
   }
   function timeLeft() { return S.limit ? Math.max(0, S.limit - Math.floor((Date.now() - S.start) / 1000)) : null; }
@@ -951,23 +960,42 @@ a { color: var(--hyp); }
   function renderExam() {
     const q = S.qs[S.i], left = timeLeft();
     const answered = S.ans.filter((a) => a != null && a !== "").length;
+    // "After each question": Check shows right or wrong at once, with the model answer.
+    const each = S.feedback === "each", seen = each && S.seen[S.i];
+    const res = seen ? mark(q, S.ans[S.i]) : null;
+    const last = S.i === S.qs.length - 1;
+    const right = each ? S.qs.filter((x, k) => S.seen[k] && x.kind !== "self" && mark(x, S.ans[k]).ok).length : 0;
+    const cellClass = (x, k) => (each && S.seen[k] && x.kind !== "self" ? (mark(x, S.ans[k]).ok ? "ok" : "bad") : S.ans[k] != null && S.ans[k] !== "" ? "done" : "");
+    const mainBtn = !each ? `<button type="button" class="primary" id="exNext"${last ? " disabled" : ""}>Next →</button>`
+      : seen ? (last ? '<button type="button" class="primary" id="seeScore">See my score</button>' : '<button type="button" class="primary" id="exNext">Next question →</button>')
+      : `<button type="button" class="primary" id="checkQ">${q.kind === "self" ? "Show the model proof" : "Check"}</button>`;
     app.innerHTML = `<div class="panel qcard">
-      <div class="ex-top"><span class="eyebrow" style="margin:0">Question ${S.i + 1} of ${S.qs.length} · ${answered} answered</span>${left == null ? "" : `<span class="timer${left < 120 ? " low" : ""}" id="timer">${clock(left)}</span>`}</div>
-      <ol class="palette" aria-label="Questions">${S.qs.map((x, k) => `<li><button type="button" data-go="${k}" class="${S.ans[k] != null && S.ans[k] !== "" ? "done" : ""}${k === S.i ? " cur" : ""}" aria-label="Question ${k + 1}">${k + 1}</button></li>`).join("")}</ol>
+      <div class="ex-top"><span class="eyebrow" style="margin:0">Question ${S.i + 1} of ${S.qs.length} · ${each ? `${right} right so far` : `${answered} answered`}</span>${left == null ? "" : `<span class="timer${left < 120 ? " low" : ""}" id="timer">${clock(left)}</span>`}</div>
+      <ol class="palette" aria-label="Questions">${S.qs.map((x, k) => `<li><button type="button" data-go="${k}" class="${cellClass(x, k)}${k === S.i ? " cur" : ""}" aria-label="Question ${k + 1}">${k + 1}</button></li>`).join("")}</ol>
       <div class="qhead"><span class="topic-tag">${TOPIC[q.topic].name}</span></div>
-      <div class="qbody${q.fig ? "" : " nofig"}"><div style="display:grid;gap:14px;min-width:0"><p class="qtext2">${q.q}</p>${answerHtml(q, S.ans[S.i], false)}</div>${figureHtml(q, "qfig")}</div>
+      <div class="qbody${q.fig ? "" : " nofig"}"><div style="display:grid;gap:14px;min-width:0"><p class="qtext2">${q.q}</p>${answerHtml(q, S.ans[S.i], seen)}</div>${figureHtml(q, "qfig")}</div>
+      ${seen ? `${feedbackHtml(q, res)}${q.kind === "self" ? `<div class="selfmark"><span>Did your proof show the same steps?</span><button type="button" data-self="${S.i}" data-v="1"${S.self[S.i] === true ? ' class="on"' : ""}>Yes, I got it</button><button type="button" data-self="${S.i}" data-v="0"${S.self[S.i] === false ? ' class="on"' : ""}>Not yet</button></div>${S.self[S.i] === false ? `<p>${conceptLink(q)}</p>` : ""}` : ""}` : ""}
       ${S.confirm ? `<div class="confirm"><p>${S.qs.length - answered - S.qs.filter((x) => x.kind === "self").length > 0 ? `You haven't answered ${S.qs.length - answered - S.qs.filter((x) => x.kind === "self").length} question(s). ` : ""}Finish the exam and see your score?</p><div class="ex-row"><button type="button" class="primary" id="finishYes">Yes, finish</button><button type="button" id="finishNo">Keep going</button></div></div>` : ""}
-      <div class="ex-nav"><button type="button" id="exPrev"${S.i === 0 ? " disabled" : ""}>← Previous</button><button type="button" id="exFinish">Finish exam</button><button type="button" class="primary" id="exNext"${S.i === S.qs.length - 1 ? " disabled" : ""}>Next →</button></div>
+      <div class="ex-nav"><button type="button" id="exPrev"${S.i === 0 ? " disabled" : ""}>← Previous</button><button type="button" id="exFinish">Finish exam</button>${mainBtn}</div>
     </div>`;
     drawFig(q, "qfig");
-    wireAnswer(q, (v) => {
+    if (!seen) wireAnswer(q, (v) => {
       S.ans[S.i] = v;
       const b = app.querySelector(`[data-go="${S.i}"]`);
       if (b) b.classList.toggle("done", v != null && v !== "");
     });
+    const chk = $("checkQ");
+    if (chk) chk.addEventListener("click", () => {
+      if (q.kind !== "self" && (S.ans[S.i] == null || S.ans[S.i] === "")) return;
+      S.seen[S.i] = true;
+      S.confirm = false;
+      renderExam();
+    });
+    app.querySelectorAll("[data-self]").forEach((b) => b.addEventListener("click", () => { S.self[+b.dataset.self] = b.dataset.v === "1"; renderExam(); }));
+    if ($("seeScore")) $("seeScore").addEventListener("click", finishExam);
     app.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { S.i = +b.dataset.go; S.confirm = false; renderExam(); }));
     $("exPrev").addEventListener("click", () => { S.i -= 1; S.confirm = false; renderExam(); });
-    $("exNext").addEventListener("click", () => { if (S.i < S.qs.length - 1) { S.i += 1; S.confirm = false; renderExam(); } });
+    if ($("exNext")) $("exNext").addEventListener("click", () => { if (S.i < S.qs.length - 1) { S.i += 1; S.confirm = false; renderExam(); } });
     $("exFinish").addEventListener("click", () => { S.confirm = true; renderExam(); });
     if (S.confirm) { $("finishYes").addEventListener("click", finishExam); $("finishNo").addEventListener("click", () => { S.confirm = false; renderExam(); }); }
     if (left != null) timerId = setInterval(() => {
@@ -1039,7 +1067,14 @@ a { color: var(--hyp); }
   const stepsStub = { current: () => 0, goTo() {}, explainAt() {}, clearFocus() {} };
   const links = LessonLinks.init({
     level: "exam", steps: stepsStub,
-    onReturn: (t) => { if (t.quiz && t.quiz.key === "exam") { S = t.quiz.state; render(); if (t.scroll) window.scrollTo(0, t.scroll); } },
+    onReturn: (t) => {
+      if (!(t.quiz && t.quiz.key === "exam")) return;
+      S = t.quiz.state;
+      // The clock stops while he reads an explanation.
+      if (S.mode === "exam" && S.pausedAt) { S.start += Date.now() - S.pausedAt; delete S.pausedAt; }
+      render();
+      if (t.scroll) window.scrollTo(0, t.scroll);
+    },
   });
   // Save the whole screen before following a link, so "Back" restores it.
   document.addEventListener("click", (e) => {
@@ -1048,7 +1083,7 @@ a { color: var(--hyp); }
     e.stopImmediatePropagation();
     e.preventDefault();
     clearInterval(timerId);
-    links.open(a.dataset.concept, { label: "read", quiz: { key: "exam", state: JSON.parse(JSON.stringify(S)) } });
+    links.open(a.dataset.concept, { label: "read", quiz: { key: "exam", state: { ...JSON.parse(JSON.stringify(S)), pausedAt: Date.now() } } });
   }, true);
   render();
 
@@ -1093,7 +1128,7 @@ a { color: var(--hyp); }
   };
   window.__examTest = {
     topics: TOPICS, make, mark, rightAnswer, wrongAnswer,
-    startExam(count) { S.count = count; S.minutes = 0; startExam(); },
+    startExam(count, feedback = "end") { S.count = count; S.minutes = 0; S.feedback = feedback; startExam(); },
     fill(wrong) { S.qs.forEach((q, k) => { S.ans[k] = wrong.includes(k) ? wrongAnswer(q) : rightAnswer(q); }); render(); },
     finish() { finishExam(); },
     state: () => S,

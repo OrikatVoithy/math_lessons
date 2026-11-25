@@ -10,8 +10,11 @@
  *              { q, options: [...], correct: index, why }
  *   explain(question, index, also): the page opens the idea (on this page or another one)
  *   alsoLabel(question): text for the "Also see" button
- * Returns { key, retry, serialize, restore } so the page can bring him back to his quiz after
- * reading an explanation on another page.
+ * Returns { key, retry, serialize, restore, back, resume } so the page can bring him back to his
+ * quiz after reading an explanation (on this page or another one):
+ *   explain: (g, k, also) => links.open(id, { onBack: () => quiz.back(), quiz: { key, state: quiz.serialize() } })
+ *   onReturn: (t) => quiz.resume(t.quiz.state)
+ * "Back" goes to where he left: the same question (if he asked during the quiz) or a retry.
  *
  * Flow: 10 random questions. Each answer turns green or red at once, with the right answer
  * and why. At the end: the score, then every mistake with a button that jumps to its
@@ -61,6 +64,20 @@
         done(k, ok);
       }));
     }
+    // Shows a question that was already answered: his choice, the right answer and why.
+    function showAnswered(inst, pickK) {
+      current = inst;
+      const ok = pickK === inst.correct;
+      root.querySelectorAll(".qz-opt").forEach((x) => {
+        x.disabled = true;
+        if (+x.dataset.k === inst.correct) x.classList.add("right");
+        if (+x.dataset.k === pickK && !ok) x.classList.add("wrong");
+      });
+      const why = root.querySelector(".qz-why");
+      why.className = "qz-why " + (ok ? "good" : "bad");
+      why.innerHTML = (ok ? "<b>Correct!</b> " : `<b>Not quite.</b> The right answer is <b>${inst.options[inst.correct]}</b>. `) + inst.why;
+    }
+    const detailBtn = (attr) => `<button type="button" class="kb-btn" ${attr}>Show me the detailed explanation →</button>`;
 
     function start() {
       run = null;
@@ -76,22 +93,29 @@
       ask(0);
     }
 
-    function ask(i) {
+    function ask(i, scroll = false) {
       const it = run.items[i];
       root.innerHTML = `<div class="qz-card">
         <div class="qz-top"><span class="eyebrow">Question ${i + 1} of ${run.items.length}</span><span class="qz-score">Score: <b>${score()}</b></span></div>
         ${cells(i)}${questionBlock(it.inst)}<div class="qz-nav"></div></div>`;
+      const after = () => {
+        const last = i === run.items.length - 1;
+        const nav = root.querySelector(".qz-nav");
+        // A wrong answer: the short reason is shown above; this button opens the full explanation.
+        nav.innerHTML = `${it.ok ? "" : detailBtn("data-x")}<button type="button" class="primary" data-go>${last ? "See my score" : "Next question →"}</button>`;
+        const b = nav.querySelector("[data-go]");
+        b.addEventListener("click", () => { if (last) results(true); else ask(i + 1); });
+        if (!it.ok) nav.querySelector("[data-x]").addEventListener("click", () => explain(i, false, "question"));
+        b.focus({ preventScroll: true });
+      };
+      if (scroll) root.scrollIntoView({ behavior: "auto", block: "start" });
+      if (it.pick != null) { showAnswered(it.inst, it.pick); after(); return; }
       onAnswer(it.inst, (k, ok) => {
         it.pick = k;
         it.ok = ok;
         root.querySelector(".qz-cells").outerHTML = cells(i);
         root.querySelector(".qz-score b").textContent = score();
-        const last = i === run.items.length - 1;
-        const nav = root.querySelector(".qz-nav");
-        nav.innerHTML = `<button type="button" class="primary">${last ? "See my score" : "Next question →"}</button>`;
-        const b = nav.querySelector("button");
-        b.addEventListener("click", () => { if (last) results(true); else ask(i + 1); });
-        b.focus({ preventScroll: true });
+        after();
       });
     }
 
@@ -112,7 +136,7 @@
           <p class="qz-yours">You chose: <b>${it.inst.options[it.pick]}</b></p>
           <p class="qz-right">Right answer: <b>${it.inst.options[it.inst.correct]}</b></p>
           <p>${it.inst.why}</p>
-          ${it.fixed ? "" : `<div class="qz-actions"><button type="button" class="primary" data-explain="${k}">Show me where this is explained</button><button type="button" data-retry="${k}">Try it again now</button>${it.g.also && cfg.alsoLabel ? `<button type="button" class="qz-also" data-also="${k}">${cfg.alsoLabel(it.g)}</button>` : ""}</div>`}
+          ${it.fixed ? "" : `<div class="qz-actions"><button type="button" class="primary" data-explain="${k}">Show me the detailed explanation</button><button type="button" data-retry="${k}">Try it again now</button>${it.g.also && cfg.alsoLabel ? `<button type="button" class="qz-also" data-also="${k}">${cfg.alsoLabel(it.g)}</button>` : ""}</div>`}
         </li>`).join("")}</ol>` : ""}
         <div class="qz-nav"><button type="button" class="qz-again">Start a new quiz</button></div></div>`;
       root.querySelectorAll("[data-explain]").forEach((b) => b.addEventListener("click", () => explain(+b.dataset.explain)));
@@ -122,8 +146,17 @@
       if (!first) root.scrollIntoView({ behavior: smooth(), block: "start" });
     }
 
-    function explain(k, also = false) {
+    // Where "Back" goes after reading the explanation: the question (during the quiz) or a retry.
+    let returnTo = null;
+    function explain(k, also = false, to = "retry") {
+      returnTo = { to, k };
       cfg.explain(run.items[k].g, k, also);
+    }
+    function back() {
+      if (!run || !returnTo) return;
+      if (returnTo.to === "question") ask(returnTo.k, true);
+      else if (returnTo.to === "results") results(false);
+      else retry(returnTo.k);
     }
 
     function retry(k) {
@@ -138,7 +171,7 @@
         const nav = root.querySelector(".qz-nav");
         nav.innerHTML = ok
           ? '<button type="button" class="primary" data-back>Back to my results</button>'
-          : '<button type="button" class="primary" data-x>Show me where this is explained</button><button type="button" data-r>Try another version</button><button type="button" data-back>Back to my results</button>';
+          : `${detailBtn("data-x")}<button type="button" class="primary" data-r>Try another version</button><button type="button" data-back>Back to my results</button>`;
         nav.querySelector("[data-back]").addEventListener("click", () => results(false));
         if (!ok) {
           nav.querySelector("[data-x]").addEventListener("click", () => explain(k));
@@ -150,20 +183,26 @@
 
     start();
     // Save and restore a quiz in progress, so he can read an explanation on another page and come back.
-    const serialize = () => ({ items: run.items.map((it) => ({ id: it.g.id, inst: it.inst, pick: it.pick, ok: it.ok, fixed: it.fixed })) });
+    const serialize = () => ({ items: run.items.map((it) => ({ id: it.g.id, inst: it.inst, pick: it.pick, ok: it.ok, fixed: it.fixed })), returnTo });
     function restore(state) {
       const items = state.items.map((x) => ({ g: cfg.bank.find((g) => g.id === x.id), inst: x.inst, pick: x.pick, ok: x.ok, fixed: x.fixed }));
       if (items.some((it) => !it.g)) { start(); return false; }
       run = { items };
+      returnTo = state.returnTo || null;
       return true;
     }
+    // Coming back from another page: restore the quiz and go to where he left.
+    function resume(state) { if (restore(state)) back(); }
 
     return {
       key: () => (current ? current.correct : null), // used by tests/check-quiz.js
       retry: (k) => retry(k),
+      back,
+      resume,
       serialize,
       restore,
       showResults: () => results(false), // used by tests/check-quiz.js
+      ask: (i) => ask(i), // used by tests/check-quiz.js
     };
   }
 
