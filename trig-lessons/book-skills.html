@@ -1133,12 +1133,12 @@ a { color: var(--hyp); }
   ];
   const quiz = LessonQuiz.mount({
     root: $("quiz"), bank: BK_BANK, count: 10, storageKey: "trig-bk-quiz-best",
-    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.retry(k), quiz: { key: "trig-bk-quiz-best", state: quiz.serialize(), retry: k } }),
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "trig-bk-quiz-best", state: quiz.serialize() } }),
     alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "bk" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
   });
   const links = LessonLinks.init({
     level: "bk", steps,
-    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-bk-quiz-best" && quiz.restore(t.quiz.state)) quiz.retry(t.quiz.retry); },
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "trig-bk-quiz-best") quiz.resume(t.quiz.state); },
   });
 
   /* ---------- Theme switch (same as Level 1) ---------- */
