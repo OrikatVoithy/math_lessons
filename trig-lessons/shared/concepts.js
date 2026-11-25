@@ -15,7 +15,9 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", 3: "level-3/", 4: "level-4/", 5: "level-5/" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5" };
+  const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
@@ -42,6 +44,18 @@
     "l2-shadow": [2, 3, ".pair .example:first-child", "the tree shadow example"],
     "l2-ladder-length": [2, 3, ".pair .example:last-child", "the ladder length example"],
     "l2-checks": [2, 4, ".checks", "checking a side makes sense"],
+    // Book skills (between Levels 2 and 3): the school book's way of asking
+    "bk-why": ["bk", 0, ".stepbody", "how the school book asks questions"],
+    "bk-names": ["bk", 1, ".names", "naming corners, angles and sides with letters"],
+    "bk-opposite": ["bk", 1, ".opprule", "finding the opposite side from the letters"],
+    "bk-pythagoras": ["bk", 2, ".stepbody", "using Pythagoras to find the third side first"],
+    "bk-triples": ["bk", 2, ".triples", "number families like 3, 4, 5"],
+    "bk-fractions": ["bk", 3, ".fracbox", "writing ratios as simplified fractions"],
+    "bk-roots": ["bk", 3, ".rootbox", "simplifying square roots"],
+    "bk-from-ratio": ["bk", 4, ".stepbody", "drawing a triangle from one ratio"],
+    "bk-both-angles": ["bk", 5, ".rules", "the rules for the two acute angles"],
+    "bk-proof": ["bk", 5, ".proofwrap", "how to write a proof"],
+    "bk-figures": ["bk", 6, ".stepbody", "figures with a height drawn inside"],
     // Level 3: Find a missing angle
     "l3-why": [3, 0, ".checks", "why we find angles"],
     "l3-backwards": [3, 1, ".stepbody", "going backwards from the ratio to the angle"],
@@ -149,8 +163,8 @@
         steps.explainAt(arrived.step, arrived.focus);
         if (!t) return;
         const quiz = t.label === "quiz";
-        showBar(quiz ? `This explains your quiz question from Level ${t.fromLevel}. When it makes sense, go back and try again.` : `You came here from Level ${t.fromLevel}. Read the highlighted part.`,
-          quiz ? "I understand: back to the question" : `Back to where I was (Level ${t.fromLevel})`,
+        showBar(quiz ? `This explains your quiz question from ${levelName(t.fromLevel)}. When it makes sense, go back and try again.` : `You came here from ${levelName(t.fromLevel)}. Read the highlighted part.`,
+          quiz ? "I understand: back to the question" : `Back to where I was (${levelName(t.fromLevel)})`,
           () => { location.href = t.url + "#back"; },
           forget);
       }, 60);
@@ -168,5 +182,5 @@
     return { open, href };
   }
 
-  window.LessonLinks = { init, CONCEPTS };
+  window.LessonLinks = { init, CONCEPTS, levelName };
 })();
