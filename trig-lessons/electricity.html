@@ -317,6 +317,8 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
 .f-paper { fill: var(--paper); }
 .t-bad { fill: var(--bad); }
 .circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
 .figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
 .step .figpair figure { grid-column: auto; }
@@ -357,8 +359,8 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         <div class="eyebrow">The problem</div>
         <h2>Why does a torch need a button?</h2>
         <div class="in-short">A new battery next to a good bulb gives no light. The torch button doesn't add anything, yet it turns the light on and off. This level finds out why.</div>
-        <p>Press the button on a torch: light. Press it again: dark. Nothing was added and nothing was taken away. So what did the button do?</p>
-        <p>Here's another puzzle. Put a brand-new battery on the table, right next to a good bulb. The bulb stays dark.</p>
+        <p><b>Puzzle 1.</b> Tap the torch in the picture to press its button: light. Tap again: dark. Nothing was added and nothing was taken away. So what did the button do? Watch the metal strip under the button.</p>
+        <p><b>Puzzle 2.</b> Put a brand-new battery on the table, right next to a good bulb, not joined by any wire. The bulb stays dark.</p>
         <p>The battery is full and the bulb works. Something else is needed. By the end of this level, you'll know exactly what.</p>
         <div class="more">
           <h3>Why start here?</h3>
@@ -367,6 +369,8 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         </div>
       </div>
       <figure>
+        <svg id="torch" class="circfig" viewBox="0 0 300 160" role="button" tabindex="0" aria-pressed="false" aria-label="A torch, drawn open so you can see inside. Tap it to press the button."></svg>
+        <figcaption id="torchCap" aria-live="polite">Puzzle 1: tap the torch to press its button.</figcaption>
         <svg viewBox="0 0 260 170" role="img" aria-label="A battery and a light bulb lying next to each other on a table, not connected. The bulb is dark.">
           <line x1="10" y1="140" x2="250" y2="140" class="s-muted" stroke-width="1.5"/>
           <rect x="40" y="98" width="80" height="34" rx="6" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
@@ -379,7 +383,7 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           <text x="195" y="56" text-anchor="middle" class="t-ink" font-size="13">good bulb</text>
           <text x="152" y="72" text-anchor="middle" class="t-angle" font-size="22" font-weight="700">?</text>
         </svg>
-        <figcaption>A full battery and a working bulb. Still no light.</figcaption>
+        <figcaption>Puzzle 2: a new battery and a good bulb, not joined by any wire. No light. Why?</figcaption>
       </figure>
     </li>
 
@@ -551,7 +555,7 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         <div class="in-short">The torch button is a switch: it closes the loop (light) or opens it (dark). A battery on the table next to a bulb has no closed loop, so no current flows.</div>
         <ul class="checks">
           <li><b>The button is a switch.</b> Pressing it closes the loop, so charges flow and the bulb lights. Pressing again opens the loop, and everything stops.</li>
-          <li><b>The battery on the table</b> has a push, but there's no closed path from + back to −. No loop, no current.</li>
+          <li><b>The battery on the table</b> has a push, but no wire joins it to the bulb, so there's no closed path from + back to −. No loop, no current.</li>
         </ul>
         <p>If a torch doesn't work, check the two things from step 3:</p>
         <ul class="checks">
@@ -734,6 +738,43 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
     }
     return loop[0];
   }
+
+  /* ---------- Step 1: a torch you can switch on and off (drawn open, so you can see inside) ---------- */
+  let torchOn = false;
+  function drawTorch() {
+    const svg = $("torch");
+    svg.replaceChildren();
+    svg.setAttribute("aria-pressed", String(torchOn));
+    if (torchOn) el("path", { d: "M240,62 L298,30 L298,128 L240,96 Z", class: "f-glow" }, svg);
+    el("rect", { x: 30, y: 56, width: 172, height: 52, rx: 10, class: "f-paper", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("path", { d: "M202,56 L240,46 L240,112 L202,108 Z", class: "f-paper", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    // two cells, + ends to the right
+    for (const x of [46, 100]) {
+      el("rect", { x, y: 70, width: 48, height: 22, rx: 4, fill: "var(--surface)", stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+      el("rect", { x: x + 48, y: 76, width: 4, height: 10, fill: "var(--muted)" }, svg);
+    }
+    const w = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+    // + end → switch → bulb → back along the bottom → − end
+    w(152, 81, 160, 81); w(160, 81, 160, 66); w(160, 66, 168, 66);
+    w(192, 66, 214, 66); w(214, 66, 214, 74);
+    w(214, 92, 214, 100); w(214, 100, 38, 100); w(38, 100, 38, 81); w(38, 81, 46, 81);
+    el("circle", { cx: 168, cy: 66, r: 2.5, fill: "var(--ink)" }, svg);
+    el("circle", { cx: 192, cy: 66, r: 2.5, fill: "var(--ink)" }, svg);
+    // the metal strip under the button: touches both wires only when pressed
+    if (torchOn) el("line", { x1: 166, y1: 66, x2: 194, y2: 66, stroke: "var(--angle)", "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    else el("line", { x1: 166, y1: 55, x2: 194, y2: 55, stroke: "var(--angle)", "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    el("rect", { x: 168, y: torchOn ? 50 : 36, width: 24, height: torchOn ? 10 : 16, rx: 4, fill: "var(--hyp)" }, svg);
+    el("circle", { cx: 214, cy: 83, r: 9, fill: torchOn ? "var(--angle)" : "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("text", { x: 180, y: 26, "text-anchor": "middle", class: "t-hyp", "font-size": 13, "font-weight": 700 }, svg, torchOn ? "button: pressed" : "button: tap it");
+    el("text", { x: 98, y: 128, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "batteries");
+    el("text", { x: 221, y: 132, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "bulb");
+    el("text", { x: 120, y: 150, "text-anchor": "middle", class: "t-angle", "font-size": 12 }, svg, torchOn ? "the strip touches both wires" : "the strip doesn't touch the wires");
+    $("torchCap").textContent = torchOn ? "On! Tap again to switch it off. What is the metal strip doing now?" : "Puzzle 1: tap the torch to press its button.";
+  }
+  const toggleTorch = () => { torchOn = !torchOn; drawTorch(); };
+  $("torch").addEventListener("click", toggleTorch);
+  $("torch").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTorch(); } });
+  drawTorch();
 
   /* ---------- Step figures ---------- */
   drawCircuit($("figOpen"), { sw: "off", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" });
@@ -923,7 +964,7 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
 
   /* ---------- Hooks for tests ---------- */
   window.__layoutTest = {
-    svgs: ["lab", "pfig"],
+    svgs: ["lab", "pfig", "torch"],
     prepare() { steps.prepare(); },
     quizBank: E1_BANK,
     quizKey: () => quiz.key(),
@@ -933,12 +974,14 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
       const out = [];
       for (const sw of ["on", "off"]) for (const bat of ["ok", "flat"]) for (const wire of ["ok", "gap"]) for (const bulb of ["ok", "broken"]) for (const dir of ["conv", "elec"])
         out.push({ kind: "lab", s: { sw, bat, wire, bulb, dir }, name: `lab ${sw} ${bat} ${wire} ${bulb} ${dir}` });
+      for (const on of [false, true]) out.push({ kind: "torch", on, name: `torch ${on ? "on" : "off"}` });
       for (const fault of ["none", "sw", "wire", "bat", "bulb"]) for (const kind of fault === "none" ? ["light"] : ["light", "fix"]) for (const answered of [false, true])
         out.push({ kind: "practice", f: { fault, kind }, answered, name: `practice ${fault} ${kind} ${answered ? "after" : "before"}` });
       return out;
     },
     show(c) {
-      if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      if (c.kind === "torch") { torchOn = c.on; drawTorch(); }
+      else if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
       else { newProblem(c.f); if (c.answered) answer(c.f.fault); }
     },
   };
