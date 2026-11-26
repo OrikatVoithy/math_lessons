@@ -430,6 +430,8 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           <p>Water at the top of a tank has potential: it <b>could</b> fall and do work, like turning a wheel. Charge at a high electric level could also flow and do work, like lighting a bulb. "Potential" means "could do work".</p>
           <h3>How your book says it</h3>
           <p>"Electric charges flow through a conductor from the point of higher electric potential (the positive pole) to the point of lower electric potential (the negative pole), according to scientific convention." That's the same + to − rule from <a data-concept="e1-direction" href="#">Level 1</a>.</p>
+          <p><b>Cause and effect:</b> "The presence of a potential difference between the terminals of a conductor (cause) makes an electric current pass through it (effect)." The current depends on the potential difference, <b>not</b> on how much charge there is. A wire is full of charge, but with no difference in level, nothing flows.</p>
+          <p><b>Give reason:</b> "Current does not pass from a conductor at 20 V to one at 30 V." <i>Because current flows from the higher potential to the lower one, so it goes from 30 V to 20 V.</i></p>
         </div>
       </div>
       <figure>
@@ -476,6 +478,8 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           <p>"Work done" means energy used to do something. Moving a coulomb through the circuit takes energy, and the battery supplies it. Both are measured in joules.</p>
           <h3>How your book defines the volt</h3>
           <p>"The volt: the potential difference between two points when the work done to transfer a quantity of electric charge of one coulomb between them equals one joule."</p>
+          <h3>"What is meant by…?" with numbers</h3>
+          <p>"The work needed to move 8 C between the ends of a conductor is 64 J." <i>It means V = W ÷ Q = 64 ÷ 8 = 8 V: the potential difference across the conductor is 8 V.</i></p>
           <h3>What's a joule?</h3>
           <p>About the energy needed to lift an apple (100 g) by 1 metre. A 1.5 V cell gives each coulomb 1.5 J, a bit more than one apple lift.</p>
         </div>
@@ -927,6 +931,20 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
       make: () => { const v = pickOne([2, 4, 5, 10]), q = pickOne([4, 6, 8, 10]), t = pickOne([2, 4]), w = v * q; return Q.mc(`The work done to move a charge is ${w} J, it takes ${t} s, and the potential difference is ${v} V. What is the current?`, `${fmt(q / t)} A`, [`${q} A`, `${fmt(w / t)} A`, `${w * t} A`], `First Q = W ÷ V = ${w} ÷ ${v} = ${q} C. Then I = Q ÷ t = ${q} ÷ ${t} = ${fmt(q / t)} A.`); } },
     { id: "socket", concept: "e3-socket",
       make: () => Q.mc("Why is a 220 V socket far more dangerous than a 1.5 V cell?", "It gives each coulomb about 150 times as much energy", ["It has more coulombs inside it", "Its current flows the other way", "Sockets use a different kind of charge"], "220 V = 220 J per coulomb, against 1.5 J per coulomb for the cell. That can push a dangerous current through your body.") },
+    { id: "gr-20-30", concept: "e3-level",
+      make: () => { const [a, b] = pickOne([[20, 30], [6, 12], [50, 80]]); return Q.mc(`Give reason: current does not pass from a conductor at ${a} V to one at ${b} V.`, `Current flows from higher to lower potential, so it goes from ${b} V to ${a} V`, [`${a} V is too small to carry current`, "Current only flows between equal potentials", "Current flows from lower to higher potential"], `Like water from a higher tank to a lower one: from ${b} V (higher) to ${a} V (lower).`); } },
+    { id: "cause", concept: "e3-level",
+      make: () => Q.mc("What makes an electric current pass through a conductor?", "A potential difference between its two ends", ["A large amount of charge inside it", "Its length", "Its colour"], "Cause: a potential difference between the ends. Effect: a current. It doesn't depend on how much charge is in the conductor.") },
+    { id: "meant-numbers", concept: "e3-units",
+      make: () => { const [w, q] = pickOne([[64, 8], [60, 5], [90, 10], [36, 3]]); return Q.mc(`"The work needed to move ${q} C between the ends of a conductor is ${w} J." What does this mean?`, `The potential difference across it is ${w / q} V`, [`The current is ${w / q} A`, `The potential difference is ${w * q} V`, `The charge is ${w} C`], `V = W ÷ Q = ${w} ÷ ${q} = ${w / q} V.`); } },
+    { id: "term", concept: "e3-def",
+      make: () => { const [d, right, wrongs] = pickOne([
+        ["The work done to move one coulomb of electric charge between two points.", "Electric potential difference", ["Electric current", "The coulomb", "The ampere"]],
+        ["The potential difference between two points when the work done to move one coulomb between them is one joule.", "The volt", ["The ampere", "The joule", "The coulomb"]],
+        ["A device used to measure the potential difference between two points in a circuit.", "The voltmeter", ["The ammeter", "The battery", "The switch"]]]);
+        return Q.mc(`Write the scientific term: "${d}"`, right, wrongs, `${right}: ${d}`); } },
+    { id: "exam-222", concept: "e3-formula",
+      make: () => Q.mc("The work done to move 400 C of charge between two points is 88,800 J. What is the potential difference?", "222 V", ["35,520,000 V", "0.0045 V", "89,200 V"], "V = W ÷ Q = 88,800 ÷ 400 = 222 V.") },
     { id: "recap-tanks", concept: "e1-push",
       make: () => Q.mc("Two points in a circuit are at the same potential. What happens between them?", "No current flows: there's no difference to push the charges", ["A big current flows", "The current flows backwards", "The charges speed up"], "No difference in level, no flow, just like two tanks with equal water levels (Level 1).") },
   ];
