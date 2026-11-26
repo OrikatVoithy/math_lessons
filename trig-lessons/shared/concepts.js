@@ -15,10 +15,20 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
+    // Electricity 1: What makes electricity flow?
+    "e1-why": ["e1", 0, ".stepbody", "why a torch needs a button"],
+    "e1-loop": ["e1", 1, ".maptable", "the water model of a circuit"],
+    "e1-conditions": ["e1", 2, ".checks", "the two things current needs"],
+    "e1-open-closed": ["e1", 2, "figure", "open and closed circuits"],
+    "e1-push": ["e1", 3, ".stepbody", "why charges need a difference in push"],
+    "e1-direction": ["e1", 4, ".dirbox", "which way current flows"],
+    "e1-dc-ac": ["e1", 5, ".srcgrid", "direct and alternating current"],
+    "e1-quantities": ["e1", 5, ".roadmap", "the four things we measure in a circuit"],
+    "e1-torch": ["e1", 6, ".checks", "solving the torch problem"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],

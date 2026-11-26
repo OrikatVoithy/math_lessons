@@ -1,0 +1,946 @@
+<title>What Makes Electricity Flow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../">← Trigonometry</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 1 of 8</div>
+    <h1>What makes electricity flow?</h1>
+    <p class="lede">Before any numbers or formulas: what does electricity need to flow at all? Go through the 7 short steps one at a time. Then switch the circuit on, break it, and try the practice.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Why does a torch need a button?</h2>
+        <div class="in-short">A new battery next to a good bulb gives no light. The torch button doesn't add anything, yet it turns the light on and off. This level finds out why.</div>
+        <p>Press the button on a torch: light. Press it again: dark. Nothing was added and nothing was taken away. So what did the button do?</p>
+        <p>Here's another puzzle. Put a brand-new battery on the table, right next to a good bulb. The bulb stays dark.</p>
+        <p>The battery is full and the bulb works. Something else is needed. By the end of this level, you'll know exactly what.</p>
+        <div class="more">
+          <h3>Why start here?</h3>
+          <p>Every later level measures something about flowing electricity: how much flows, how hard it's pushed, what slows it down. None of that makes sense until you know what makes it flow at all.</p>
+          <p>The same idea explains why a light switch works, why a broken fairy light can make a whole string go dark, and why electricians start by checking for a "broken loop".</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 170" role="img" aria-label="A battery and a light bulb lying next to each other on a table, not connected. The bulb is dark.">
+          <line x1="10" y1="140" x2="250" y2="140" class="s-muted" stroke-width="1.5"/>
+          <rect x="40" y="98" width="80" height="34" rx="6" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="120" y="108" width="8" height="14" rx="2" fill="var(--ink)"/>
+          <text x="58" y="120" class="t-ink" font-size="15" font-weight="700">+</text>
+          <text x="96" y="120" class="t-ink" font-size="15" font-weight="700">−</text>
+          <circle cx="195" cy="92" r="24" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="185" y="116" width="20" height="18" rx="3" fill="var(--muted)"/>
+          <text x="80" y="88" text-anchor="middle" class="t-ink" font-size="13">new battery</text>
+          <text x="195" y="56" text-anchor="middle" class="t-ink" font-size="13">good bulb</text>
+          <text x="152" y="72" text-anchor="middle" class="t-angle" font-size="22" font-weight="700">?</text>
+        </svg>
+        <figcaption>A full battery and a working bulb. Still no light.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big idea</div>
+        <h2>Electricity flows round a loop, like water in pipes</h2>
+        <div class="in-short">A battery pushes electric charges round a loop of wire, like a pump pushes water round a loop of pipe. The charges go round and round. None are used up.</div>
+        <p>Picture water in a loop of pipe. A pump pushes the water round and round. On the way it turns a water wheel.</p>
+        <p>A circuit works the same way. Each part of the water loop has a partner in the circuit:</p>
+        <dl class="maptable">
+          <div><dt>Pump</dt><span class="arrow" aria-hidden="true">→</span><dd><b>Battery</b><span class="ar" lang="ar"> بطارية</span>: pushes</dd></div>
+          <div><dt>Pipes</dt><span class="arrow" aria-hidden="true">→</span><dd><b>Wires</b><span class="ar" lang="ar"> أسلاك</span>: the path</dd></div>
+          <div><dt>Water</dt><span class="arrow" aria-hidden="true">→</span><dd><b class="k-i">Electric charges</b><span class="ar" lang="ar"> شحنات</span>: what moves</dd></div>
+          <div><dt>Tap</dt><span class="arrow" aria-hidden="true">→</span><dd><b>Switch</b><span class="ar" lang="ar"> مفتاح</span>: opens or closes the path</dd></div>
+          <div><dt>Water wheel</dt><span class="arrow" aria-hidden="true">→</span><dd><b>Bulb</b><span class="ar" lang="ar"> مصباح</span>: uses the flow</dd></div>
+        </dl>
+        <p>The flow of electric charges is called <b class="k-i">electric current</b><span class="ar" lang="ar"> التيار الكهربي</span>.</p>
+        <div class="more">
+          <h3>The charges are already in the wire</h3>
+          <p>A battery doesn't fill the wire with charges. The wire is already full of them, like a pipe already full of water. The battery only pushes them along.</p>
+          <p>That's why a light comes on the moment you press the switch. The charges near the bulb start moving straight away. They don't have to travel from the battery first.</p>
+          <h3>Nothing gets used up</h3>
+          <p>The water wheel doesn't use up water. The same water comes back to the pump. The bulb doesn't use up charges either. What the bulb uses is the energy the battery gives the charges. You'll meet that energy in Levels 3 and 8.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 180" role="img" aria-label="Water in a loop of pipe. A pump on the left pushes it round. A water wheel on the right turns.">
+          <rect x="40" y="30" width="180" height="120" rx="14" fill="none" stroke="var(--adj)" stroke-opacity="0.45" stroke-width="12"/>
+          <circle cx="40" cy="90" r="20" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M33,98 L40,80 L47,98 Z" fill="var(--ink)"/>
+          <circle cx="220" cy="90" r="20" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="220" y1="72" x2="220" y2="108" class="s-ink" stroke-width="2"/>
+          <line x1="202" y1="90" x2="238" y2="90" class="s-ink" stroke-width="2"/>
+          <path d="M120,24 L134,30 L120,36 Z" fill="var(--adj)"/>
+          <path d="M140,144 L126,150 L140,156 Z" fill="var(--adj)"/>
+          <text x="70" y="94" class="t-ink" font-size="13">pump</text>
+          <text x="190" y="94" text-anchor="end" class="t-ink" font-size="13">water wheel</text>
+          <text x="130" y="174" text-anchor="middle" class="t-adj" font-size="13">water flows round</text>
+        </svg>
+        <figcaption>The same water goes round and round. The pump just keeps it moving.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">What it needs</div>
+        <h2>Two things are needed for current to flow</h2>
+        <div class="in-short">Current needs (1) a source, like a battery, to push the charges, and (2) a closed circuit: a complete loop with no gaps. Switch off = open circuit = no current anywhere.</div>
+        <ul class="checks">
+          <li><b>A source</b>, like a battery, to push the charges.</li>
+          <li><b>A closed circuit</b><span class="ar" lang="ar"> دائرة مغلقة</span>: a complete loop with no gaps, so the charges have a path all the way round.</li>
+        </ul>
+        <p>A switch opens and closes the loop. Switch on: the loop is <b>closed</b> and current flows. Switch off: the loop is <b>open</b>, and current stops.</p>
+        <p>One gap stops the current <b>everywhere</b> in the loop, not just after the gap. It's like a water loop: block the pipe in one place and the water stops moving all the way round.</p>
+        <div class="more">
+          <h3>Why everywhere, and not just after the gap?</h3>
+          <p>The charges move like a chain of people holding hands in a circle. If one pair lets go, the chain can't be pulled round any more. Everyone stops, even the people far from the break.</p>
+          <h3>What counts as a gap?</h3>
+          <p>An open switch, a cut wire, a loose connection, or a broken bulb. Inside a bulb is a very thin wire called the filament. When it snaps, that's a gap in the loop. That's why a "blown" bulb stays dark.</p>
+          <h3>How your book asks it</h3>
+          <p>"Give reason: there must be a source in the circuit." <i>To push the charges.</i><br>"Give reason: the circuit must be closed." <i>So the charges flow along a closed path.</i></p>
+        </div>
+      </div>
+      <figure>
+        <div class="figpair">
+          <figure><svg id="figOpen" class="circfig" viewBox="0 0 320 230" role="img" aria-label="An open circuit: the switch is off and the bulb is dark."></svg><figcaption>Switch off: open circuit, no current</figcaption></figure>
+          <figure><svg id="figClosed" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A closed circuit: the switch is on and the bulb is lit."></svg><figcaption>Switch on: closed circuit, current flows</figcaption></figure>
+        </div>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody">
+        <div class="eyebrow">Why charges move</div>
+        <h2>Charges only move when there's a difference in push</h2>
+        <div class="in-short">Water flows from a higher tank to a lower one, and stops when the levels are equal. Charges also need a difference between two points to flow. A battery keeps that difference going. A flat battery has no difference left.</div>
+        <p>Two tanks are joined by a pipe with a tap. Tank X is filled higher than tank Y. Open the tap, and water flows from X to Y.</p>
+        <p>The flow stops when the two levels are <b>equal</b>. No difference, no flow.</p>
+        <p>Electric charges work the same way. They flow only when there's a <b class="k-v">difference</b> between two points in the circuit. Your book calls it the <b class="k-v">potential difference</b><span class="ar" lang="ar"> فرق الجهد</span>. Level 3 is all about it.</p>
+        <p>A battery is like a pump that keeps one tank higher than the other, so the flow never stops. A <b>flat</b> battery is like two tanks that have levelled out: no difference, so no current.</p>
+        <div class="more">
+          <h3>Why can't the tanks keep flowing on their own?</h3>
+          <p>As water runs from X to Y, X goes down and Y goes up. The difference shrinks until it's gone. Without a pump to lift the water back, the flow always ends.</p>
+          <p>A battery does that lifting job for charges, using the chemicals inside it. When the chemicals are used up, it can't make a difference any more. That's a flat battery.</p>
+          <h3>How your book says it</h3>
+          <p>"When the tap is opened, water flows from X to Y, because the water pressure in X is greater." It stops "because the water pressure on both sides of the tap becomes equal."</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 180" role="img" aria-label="Two water tanks joined by a pipe with a tap. Tank X is filled higher than tank Y, so water flows from X to Y.">
+          <rect x="30" y="40" width="60" height="100" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="31" y="62" width="58" height="77" class="f-water"/>
+          <rect x="170" y="40" width="60" height="100" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="171" y="108" width="58" height="31" class="f-water"/>
+          <rect x="90" y="124" width="80" height="10" class="f-water" stroke="var(--ink)" stroke-width="1.5"/>
+          <rect x="124" y="114" width="12" height="30" rx="3" fill="var(--muted)"/>
+          <path d="M158,129 L146,123 L146,135 Z" fill="var(--adj)"/>
+          <text x="60" y="30" text-anchor="middle" class="t-ink" font-size="14" font-weight="700">X</text>
+          <text x="200" y="30" text-anchor="middle" class="t-ink" font-size="14" font-weight="700">Y</text>
+          <text x="130" y="104" text-anchor="middle" class="t-ink" font-size="12">tap</text>
+          <text x="130" y="166" text-anchor="middle" class="t-opp" font-size="13">higher level → lower level</text>
+        </svg>
+        <figcaption>Water flows from X to Y until the levels are equal.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody">
+        <div class="eyebrow">Which way?</div>
+        <h2>Current flows from + to −</h2>
+        <div class="in-short">In diagrams, current goes from the battery's + end, round the circuit, to its − end. The electrons that really move go the other way, from − to +. Both describe the same flow.</div>
+        <p>A battery has two ends: <b>+</b> (positive) and <b>−</b> (negative). There are two ways to describe which way things move:</p>
+        <div class="dirbox">
+          <div><h3 class="k-i">Current (what we draw)</h3><p>From <b>+</b> to <b>−</b>, round the outside of the battery. Every book and diagram uses this.</p></div>
+          <div><h3>Electrons (what really moves)</h3><p>From <b>−</b> to <b>+</b>. Electrons are tiny charges that move through the wire. They're negative.</p></div>
+        </div>
+        <p>Why two answers? Scientists agreed on "+ to −" in the 1700s, long before anyone knew about electrons. Later, they found the moving charges were negative and go the other way. By then the rule was everywhere, so it stayed.</p>
+        <div class="more">
+          <h3>Does it matter for a bulb?</h3>
+          <p>No. The bulb lights the same either way. The direction only matters when you draw diagrams and read meters, and there we always use + to −.</p>
+          <h3>How your book says it</h3>
+          <p>"Electric current flows from the point of higher electric potential (the positive pole) to the point of lower potential (the negative pole), according to scientific convention." That's the water idea again: from the higher tank to the lower one.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figDir" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A closed circuit with arrows showing current flowing from the plus end of the battery, round the circuit, to the minus end."></svg>
+        <figcaption>Arrows show the current: out of +, round the loop, back into −.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Where it comes from</div>
+        <h2>Two kinds of supply, and four things to measure</h2>
+        <div class="in-short">Direct current (DC) flows one way, steadily: batteries. Alternating current (AC) keeps changing direction: generators and the socket at home. Next levels measure current, potential difference, resistance and energy.</div>
+        <div class="srcgrid">
+          <div><h3>Direct current (DC)</h3><p>Flows in <b>one direction</b>, at a steady strength.</p><p class="tip">From: a cell, a battery, a car battery, a power bank.</p></div>
+          <div><h3>Alternating current (AC)</h3><p>Keeps <b>changing direction</b>, back and forth, many times a second.</p><p class="tip">From: a generator, and the sockets in your home.</p></div>
+        </div>
+        <p>To understand a circuit, we measure four things. Each one gets its own level:</p>
+        <ul class="roadmap">
+          <li><span class="lv">Level 2</span><b class="k-i">Current</b><span>How much charge flows each second.</span></li>
+          <li><span class="lv">Level 3</span><b class="k-v">Potential difference</b><span>How hard the charges are pushed.</span></li>
+          <li><span class="lv">Level 4</span><b class="k-r">Resistance</b><span>What slows the flow down.</span></li>
+          <li><span class="lv">Level 8</span><b class="k-e">Energy and power</b><span>What the flow can do, and what it costs.</span></li>
+        </ul>
+        <div class="more">
+          <h3>How fast does AC change?</h3>
+          <p>In Egypt, the mains supply changes direction 100 times every second (50 full back-and-forth cycles). It's far too fast to see, so a lamp on AC looks steady.</p>
+          <h3>Why do phones need a charger?</h3>
+          <p>Phone batteries need DC, but the socket gives AC. Part of the charger's job is to turn AC into DC.</p>
+          <h3>The same four in water</h3>
+          <p>Current is how much water flows past each second. Potential difference is how much higher one tank is than the other. Resistance is how narrow the pipe is. Energy is the work the water does, like turning the wheel.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the torch</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">The torch button is a switch: it closes the loop (light) or opens it (dark). A battery on the table next to a bulb has no closed loop, so no current flows.</div>
+        <ul class="checks">
+          <li><b>The button is a switch.</b> Pressing it closes the loop, so charges flow and the bulb lights. Pressing again opens the loop, and everything stops.</li>
+          <li><b>The battery on the table</b> has a push, but there's no closed path from + back to −. No loop, no current.</li>
+        </ul>
+        <p>If a torch doesn't work, check the two things from step 3:</p>
+        <ul class="checks">
+          <li><b>Is the loop closed?</b> A loose spring, a dirty contact or a broken bulb filament all leave a gap.</li>
+          <li><b>Is there a push?</b> A flat battery has no difference left between its ends.</li>
+        </ul>
+        <ul class="uses d-extra">
+          <li><h3>Electricians</h3><p>The first test for a dead light is "is the loop broken somewhere?"</p></li>
+          <li><h3>Circuit breakers</h3><p>In your home, they open the loop on purpose when something is dangerous.</p></li>
+          <li><h3>Car makers</h3><p>The car body is part of the loop, so only one wire is needed to each light.</p></li>
+        </ul>
+        <div class="more">
+          <h3>A string of fairy lights</h3>
+          <p>In some old strings, all the bulbs are in one single loop. When one bulb breaks, it makes a gap, and the <b>whole string</b> goes dark, even though the other bulbs are fine. Level 7 shows how homes are wired so that one broken lamp doesn't switch off everything else.</p>
+          <h3>Why is a switch safe to touch?</h3>
+          <p>Its moving parts are inside a plastic case. Plastic doesn't let charges flow, so your finger isn't part of the loop. Level 4 explains why some materials let current through and others don't.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: switch it on, then break it</h2>
+    <p class="lede" style="margin-top:8px">Change one thing at a time. Before each tap, guess: will the bulb light?</p>
+  </div>
+
+  <section class="panel lab" aria-label="Circuit lab">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A circuit with a battery, a switch and a bulb."></svg>
+    </div>
+    <div class="readout">
+      <div class="toggles">
+        <div class="row"><span class="label">Switch</span><div class="seg" data-k="sw"><button type="button" data-v="on">On</button><button type="button" data-v="off">Off</button></div></div>
+        <div class="row"><span class="label">Battery</span><div class="seg" data-k="bat"><button type="button" data-v="ok">New</button><button type="button" data-v="flat">Flat</button></div></div>
+        <div class="row"><span class="label">Wire</span><div class="seg" data-k="wire"><button type="button" data-v="ok">Joined</button><button type="button" data-v="gap">Cut</button></div></div>
+        <div class="row"><span class="label">Bulb</span><div class="seg" data-k="bulb"><button type="button" data-v="ok">Good</button><button type="button" data-v="broken">Broken</button></div></div>
+        <div class="row"><span class="label">Show</span><div class="seg" data-k="dir"><button type="button" data-v="conv">Current (+ to −)</button><button type="button" data-v="elec">Electrons (− to +)</button></div></div>
+      </div>
+      <div class="status" id="labStatus" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Will it light?</h2>
+      <p class="lede" style="margin-top:8px">A new circuit each time. Look carefully, then choose.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A practice circuit."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next circuit</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on what makes electricity flow</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel now"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Drawing a circuit ----------
+     s = { sw: "on"|"off", bat: "ok"|"flat", wire: "ok"|"gap", bulb: "ok"|"broken", dir: "conv"|"elec" }
+     opts = { labels: true, gapLabel: true, arrows: true }
+     Loop: left x=50 (battery), top y=50 (switch), right x=270 (bulb), bottom y=180 (wire, maybe cut). */
+  const L = 50, R = 270, T = 50, B = 180;
+  const flows = (s) => s.sw === "on" && s.bat === "ok" && s.wire === "ok" && s.bulb === "ok";
+  function arrow(g, x, y, dx, dy) {
+    const k = 7, px = -dy, py = dx;
+    el("path", { d: `M${x + dx * k},${y + dy * k} L${x - dx * k + px * k * 0.8},${y - dy * k + py * k * 0.8} L${x - dx * k - px * k * 0.8},${y - dy * k - py * k * 0.8} Z`, fill: "var(--adj)" }, g);
+  }
+  function drawCircuit(svg, s, opts = {}) {
+    const o = { labels: true, gapLabel: true, arrows: true, ...opts };
+    svg.replaceChildren();
+    const on = flows(s);
+    const wire = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    // battery on the left: long thin plate is +, short thick plate is −
+    wire(L, T, L, 105); wire(L, 125, L, B);
+    const plate = s.bat === "ok" ? "var(--ink)" : "var(--muted)";
+    el("line", { x1: L - 20, y1: 105, x2: L + 20, y2: 105, stroke: plate, "stroke-width": 3 }, svg);
+    el("line", { x1: L - 10, y1: 125, x2: L + 10, y2: 125, stroke: plate, "stroke-width": 7 }, svg);
+    // switch on the top
+    wire(L, T, 140, T); wire(180, T, R, T);
+    el("circle", { cx: 140, cy: T, r: 4, fill: "var(--ink)" }, svg);
+    el("circle", { cx: 180, cy: T, r: 4, fill: "var(--ink)" }, svg);
+    if (s.sw === "on") el("line", { x1: 140, y1: T, x2: 180, y2: T, class: "c-wire", "stroke-width": 3 }, svg);
+    else el("line", { x1: 140, y1: T, x2: 172, y2: T - 24, class: "c-wire", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    // bulb on the right
+    wire(R, T, R, 97); wire(R, 133, R, B);
+    if (on) el("circle", { cx: R, cy: 115, r: 30, class: "f-glow" }, svg);
+    el("circle", { cx: R, cy: 115, r: 18, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+    if (s.bulb === "ok") {
+      el("line", { x1: R - 10, y1: 105, x2: R + 10, y2: 125, stroke: on ? "var(--angle)" : "var(--ink)", "stroke-width": 2 }, svg);
+      el("line", { x1: R + 10, y1: 105, x2: R - 10, y2: 125, stroke: on ? "var(--angle)" : "var(--ink)", "stroke-width": 2 }, svg);
+    } else {
+      el("line", { x1: R - 10, y1: 105, x2: R - 3, y2: 112, stroke: "var(--bad)", "stroke-width": 2 }, svg);
+      el("line", { x1: R + 3, y1: 118, x2: R + 10, y2: 125, stroke: "var(--bad)", "stroke-width": 2 }, svg);
+      el("line", { x1: R + 10, y1: 105, x2: R - 10, y2: 125, stroke: "var(--muted)", "stroke-width": 1.5, "stroke-dasharray": "2 3" }, svg);
+    }
+    // bottom wire, maybe cut
+    if (s.wire === "ok") wire(L, B, R, B);
+    else { wire(L, B, 148, B); wire(176, B, R, B); }
+    // labels
+    el("text", { x: 16, y: 110, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "+");
+    el("text", { x: 18, y: 136, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "−");
+    if (o.labels) {
+      el("text", { x: 78, y: 120, class: s.bat === "ok" ? "t-ink" : "t-bad", "font-size": 13, "font-weight": s.bat === "ok" ? 400 : 700 }, svg, s.bat === "ok" ? "battery" : "flat battery");
+      el("text", { x: 160, y: 76, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, s.sw === "on" ? "switch: on" : "switch: off");
+      el("text", { x: 234, y: 120, "text-anchor": "end", class: s.bulb === "ok" ? "t-ink" : "t-bad", "font-size": 13, "font-weight": s.bulb === "ok" ? 400 : 700 }, svg, s.bulb === "ok" ? "bulb" : "broken bulb");
+      if (s.wire === "gap" && o.gapLabel) el("text", { x: 162, y: 206, "text-anchor": "middle", class: "t-bad", "font-size": 13, "font-weight": 700 }, svg, "gap");
+    }
+    // arrows: which way the current (or the electrons) goes
+    if (on && o.arrows) {
+      const g = el("g", {}, svg), f = s.dir === "elec" ? -1 : 1;
+      arrow(g, 100, T, f, 0); arrow(g, R, 160, 0, f); arrow(g, 110, B, -f, 0); arrow(g, L, 76, 0, -f);
+    }
+    return svg;
+  }
+  // Points along the loop, for the moving charges (from the + plate, clockwise).
+  const loop = [[L, 105], [L, T], [R, T], [R, B], [L, B], [L, 125]];
+  const seglen = loop.slice(1).map((p, i) => Math.hypot(p[0] - loop[i][0], p[1] - loop[i][1]));
+  const total = seglen.reduce((a, b) => a + b, 0);
+  function pointAt(d) {
+    d = ((d % total) + total) % total;
+    for (let i = 0; i < seglen.length; i++) {
+      if (d <= seglen[i]) { const t = d / seglen[i]; return [loop[i][0] + (loop[i + 1][0] - loop[i][0]) * t, loop[i][1] + (loop[i + 1][1] - loop[i][1]) * t]; }
+      d -= seglen[i];
+    }
+    return loop[0];
+  }
+
+  /* ---------- Step figures ---------- */
+  drawCircuit($("figOpen"), { sw: "off", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" });
+  drawCircuit($("figClosed"), { sw: "on", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" });
+  drawCircuit($("figDir"), { sw: "on", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" });
+
+  /* ---------- Lab ---------- */
+  const lab = { sw: "on", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" };
+  const WHY = {
+    sw: "The switch is off, so the loop is open. Like a closed tap: nothing can get round.",
+    wire: "The wire is cut, so there's a gap in the loop. Like a broken pipe: the flow stops everywhere.",
+    bat: "The battery is flat. There's no difference in push between its ends, like two tanks at the same level.",
+    bulb: "The bulb's thin wire (the filament) has snapped. That's a gap in the loop, so no current flows anywhere.",
+  };
+  const faultsOf = (s) => [s.sw === "off" && "sw", s.wire === "gap" && "wire", s.bat === "flat" && "bat", s.bulb === "broken" && "bulb"].filter(Boolean);
+  let raf = 0, phase = 0, last = 0;
+  function renderLab() {
+    const svg = drawCircuit($("lab"), lab);
+    document.querySelectorAll(".toggles .seg").forEach((g) => g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(lab[g.dataset.k] === b.dataset.v))));
+    const st = $("labStatus"), f = faultsOf(lab);
+    if (!f.length) {
+      st.className = "status on";
+      st.innerHTML = `<b>The bulb is lit.</b><p>There's a push (a new battery) and a closed loop, so charges flow all the way round. ${lab.dir === "conv" ? "The arrows show the current: out of +, round the loop, into −." : "The arrows show the electrons: out of −, round the loop, into +. Same flow, described the other way."}</p>`;
+    } else {
+      st.className = "status off";
+      st.innerHTML = `<b>No current. The bulb is dark.</b>${f.map((k) => `<p>${WHY[k]}</p>`).join("")}`;
+    }
+    cancelAnimationFrame(raf);
+    if (!f.length && !reduced()) {
+      const dots = Array.from({ length: 14 }, () => el("circle", { r: 4, class: "f-charge" }, svg));
+      const step = (t) => {
+        if (last) phase += (t - last) * 0.05 * (lab.dir === "elec" ? -1 : 1);
+        last = t;
+        dots.forEach((d, i) => {
+          const [x, y] = pointAt(phase + (i * total) / dots.length);
+          d.setAttribute("cx", x); d.setAttribute("cy", y);
+          d.setAttribute("opacity", x === L && y > 103 && y < 127 ? 0 : 1);
+        });
+        raf = requestAnimationFrame(step);
+      };
+      last = 0;
+      raf = requestAnimationFrame(step);
+    }
+  }
+  document.querySelectorAll(".toggles .seg").forEach((g) => g.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    lab[g.dataset.k] = b.dataset.v;
+    renderLab();
+  }));
+  renderLab();
+
+  /* ---------- Practice: will it light? ---------- */
+  const LIGHT_OPTS = [["none", "Yes, the bulb lights"], ["sw", "No: the switch is off"], ["wire", "No: there's a gap in the wire"], ["bat", "No: the battery is flat"], ["bulb", "No: the bulb is broken"]];
+  const FIX_OPTS = [["sw", "Turn the switch on"], ["wire", "Join the cut wire"], ["bat", "Put in a new battery"], ["bulb", "Put in a new bulb"], ["flip", "Turn the battery the other way round"]];
+  const SHORT = { sw: "the switch is off, so the loop is open", wire: "there's a gap in the wire, so the loop isn't closed", bat: "the battery is flat, so there's no push", bulb: "the bulb's filament has snapped, which leaves a gap in the loop" };
+  let p = null, streak = 0;
+  function newProblem(f) {
+    const fault = f ? f.fault : pickOne(["none", "none", "sw", "wire", "bat", "bulb"]);
+    const kind = f ? f.kind : fault === "none" ? "light" : pickOne(["light", "fix"]);
+    const s = { sw: "on", bat: "ok", wire: "ok", bulb: "ok", dir: "conv" };
+    if (fault === "sw") s.sw = "off"; if (fault === "wire") s.wire = "gap"; if (fault === "bat") s.bat = "flat"; if (fault === "bulb") s.bulb = "broken";
+    p = { fault, kind, s: { ...s, sw: s.sw }, done: false };
+    // Before answering, the bulb is drawn unlit and without arrows: working it out is the skill.
+    drawCircuit($("pfig"), { ...s, sw: s.sw, bat: s.bat }, { gapLabel: false, arrows: false });
+    if (fault === "none") $("pfig").querySelector(".f-glow")?.remove();
+    $("pq").textContent = kind === "light" ? "Will the bulb light? If not, why not?" : "The bulb doesn't light. What one change would make it light?";
+    const opts = kind === "light" ? LIGHT_OPTS : FIX_OPTS;
+    $("popts").innerHTML = opts.map(([k, t]) => `<button type="button" data-k="${k}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.fault;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.fault) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    drawCircuit($("pfig"), p.s, { gapLabel: true });
+    let msg;
+    if (ok) msg = p.fault === "none" ? "Right! New battery, switch on, no gaps: a closed loop with a push. Current flows." : `Right! ${SHORT[p.fault][0].toUpperCase() + SHORT[p.fault].slice(1)}.`;
+    else if (p.fault === "none") msg = "Look again: the switch is on, the battery is new, the wire is joined and the bulb is fine. It's a closed loop with a push, so it lights.";
+    else if (k === "none") msg = `Not quite. Look again: ${SHORT[p.fault]}. One gap or no push, and nothing flows.`;
+    else if (k === "flip") msg = `A bulb lights either way round, so that won't help. The problem is: ${SHORT[p.fault]}.`;
+    else msg = `That part is fine. The problem is: ${SHORT[p.fault]}.`;
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = msg + (ok ? "" : ' <a class="kb-link" data-concept="e1-conditions" href="#">Show me where this is explained →</a>');
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "A torch has a new battery and a good bulb, but the button is off. Does it light?", correct: 1, ok: "Right. The battery and bulb are fine, but something is still missing. Let's find out what.",
+       options: [["Yes, because the battery is new", "A new battery isn't enough on its own. The torch is off, and it stays dark."], ["No", null]] }],
+    [{ type: "choice", q: "In the water model, what is the battery like?", correct: 0, ok: "Right. The pump pushes water round; the battery pushes charges round.", see: "e1-loop",
+       options: [["The pump", null], ["The water", "The water is like the charges, the thing that moves."], ["The pipes", "The pipes are like the wires, the path."]] }],
+    [{ type: "choice", q: "Which one can carry a current?", correct: 2, ok: "Right. It needs both a push and a complete loop.", see: "e1-conditions",
+       options: [["A battery with one wire to a bulb, and no way back", "There's no path back to the battery, so the loop isn't closed."], ["A complete loop of wire with a bulb, but no battery", "There's a path, but nothing pushes the charges."], ["A battery and a bulb in a complete loop", null]] },
+     { type: "choice", q: "The switch is off. Where does current flow?", correct: 1, ok: "Right. One gap stops the current everywhere in the loop.", see: "e1-open-closed",
+       options: [["Up to the switch, then it stops", "It doesn't flow at all. With the loop open, the charges can't go round, so none of them move."], ["Nowhere", null], ["Everywhere except the bulb", "An open loop stops the current everywhere, not just in one part."]] }],
+    [{ type: "choice", q: "Two tanks have the same water level. You open the tap between them. What happens?", correct: 2, ok: "Right. No difference, no flow. Charges are the same.", see: "e1-push",
+       options: [["Water flows from the first tank to the second", "There's no difference in level, so nothing pushes the water either way."], ["The water flows back and forth", "With equal levels, there's no push at all."], ["Nothing: the water doesn't flow", null]] }],
+    [{ type: "choice", q: "In diagrams, which way do we say current flows round the outside of the battery?", correct: 0, ok: "Right. From + to −, by scientific convention.", see: "e1-direction",
+       options: [["From + to −", null], ["From − to +", "That's the way the electrons really move. For current, we always use + to −."]] },
+     { type: "choice", q: "Which way do the electrons really move?", correct: 1, ok: "Right. Electrons are negative and move from − to +. Same flow, described the other way.", see: "e1-direction",
+       options: [["From + to −", "That's the direction we draw for current. Electrons go the other way."], ["From − to +", null]] }],
+    [{ type: "choice", q: "The socket in your wall gives…", correct: 1, ok: "Right. Generators at power stations make alternating current.", see: "e1-dc-ac",
+       options: [["Direct current (DC)", "DC comes from cells and batteries. The socket's current keeps changing direction."], ["Alternating current (AC)", null]] }],
+    [{ type: "choice", q: "What does the torch button actually do?", correct: 2, ok: "Right. A switch closes the loop (on) or opens it (off).", see: "e1-torch",
+       options: [["It fills the battery up", "A button can't add energy to a battery."], ["It sends charges into the wire", "The wire is already full of charges. The button only lets them move round."], ["It closes or opens the loop", null]] }],
+  ];
+  const AR = [
+    "البطارية الجديدة جنب لمبة سليمة مش بتنور. زرار الكشاف مش بيضيف حاجة، ومع ذلك بيشغّل وبيطفي النور. الدرس ده بيشرح ليه.",
+    "البطارية بتدفع <b>الشحنات الكهربية</b> في دايرة من السلك، زي المضخة اللي بتلف المية في مواسير. سريان الشحنات اسمه <b>التيار الكهربي</b>.",
+    "عشان التيار يمشي لازم: (١) <b>مصدر</b> زي البطارية يدفع الشحنات، و(٢) <b>دائرة مغلقة</b> من غير أي فتحة. المفتاح مقفول = الدائرة مفتوحة = مفيش تيار في أي حتة.",
+    "المية بتنزل من الخزان العالي للواطي، وبتقف لما المستوى يتساوى. الشحنات كمان محتاجة <b>فرق</b> بين نقطتين عشان تتحرك، وده اسمه <b>فرق الجهد</b>. البطارية الفاضية مفيهاش فرق.",
+    "في الرسومات، التيار بيمشي من <b>الموجب (+)</b> للسالب (−) برّه البطارية. الإلكترونات نفسها بتتحرك العكس، من − لـ +.",
+    "<b>التيار المستمر</b> بيمشي في اتجاه واحد (البطاريات). <b>التيار المتردد</b> بيغيّر اتجاهه كتير في الثانية (المولّدات وبريزة البيت).",
+    "زرار الكشاف مفتاح: بيقفل الدائرة (نور) أو يفتحها (ضلمة). البطارية على الترابيزة جنب اللمبة مفيش بينهم دائرة مقفولة، فمفيش تيار.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-1-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const PAIRS = [["pump", "the battery", ["the bulb", "the switch", "the wire"]], ["pipes", "the wires", ["the battery", "the bulb", "the switch"]], ["water", "the electric charges", ["the battery", "the wires", "the switch"]], ["tap", "the switch", ["the battery", "the bulb", "the charges"]], ["water wheel", "the bulb", ["the battery", "the switch", "the wires"]]];
+  const E1_BANK = [
+    { id: "conditions", concept: "e1-conditions",
+      make: () => Q.mc("What does a circuit need for current to flow?", "A source to push the charges, and a closed loop", ["A source only", "A closed loop only", "A bulb and a switch"], "Both are needed: a source (like a battery) to push, and a complete loop with no gaps for the charges to go round.") },
+    { id: "open-switch", concept: "e1-open-closed",
+      make: () => Q.mc("A circuit's switch is turned off. What happens to the current?", "It stops everywhere in the loop", ["It flows up to the switch, then stops", "It still flows, but more slowly", "It flows backwards"], "An open switch makes a gap. With the loop broken, no charges can go round, so the current stops everywhere.") },
+    { id: "water-map", concept: "e1-loop",
+      make: () => { const [w, right, wrongs] = pickOne(PAIRS); return Q.mc(`In the water model of a circuit, the ${w} is like…`, right, wrongs, `Pump → battery, pipes → wires, water → charges, tap → switch, water wheel → bulb. So the ${w} is like ${right}.`); } },
+    { id: "used-up", concept: "e1-loop",
+      make: () => Q.mc("What happens to the electric charges after they go through the bulb?", "They carry on round the loop, back to the battery", ["The bulb uses them up", "They stay inside the bulb", "They leak out into the air"], "Charges aren't used up, just like water going through a water wheel. What the bulb uses is their energy.") },
+    { id: "tanks-stop", concept: "e1-push",
+      make: () => Q.mc("Water flows from a higher tank to a lower one. When does it stop?", "When the two water levels are equal", ["When the higher tank is empty", "It never stops", "When the lower tank is full"], "Water flows only while there's a difference in level. When the levels are equal, the push is gone.") },
+    { id: "flat-battery", concept: "e1-push",
+      make: () => Q.mc("Why doesn't a flat battery light a bulb, even in a closed loop?", "There's no difference in push left between its ends", ["The charges inside it have been used up", "The wire gets too hot", "A flat battery opens the loop"], "A battery works by keeping a difference (a potential difference) between its ends. A flat battery has no difference left, so nothing pushes the charges.") },
+    { id: "pump-keeps", concept: "e1-push", also: "e1-loop",
+      make: () => Q.mc("In the water model, what is the pump's job?", "To keep one level higher than the other, so the flow doesn't stop", ["To make new water", "To slow the water down", "To open and close the pipe"], "Without a pump, the levels even out and the flow stops. The pump keeps the difference going, like a battery does for charges.") },
+    { id: "current-dir", concept: "e1-direction",
+      make: () => Q.mc("By scientific convention, current flows round a circuit from…", "+ to −", ["− to +", "the bulb to the battery", "either end, it changes"], "We draw current from the positive end (+), round the circuit, to the negative end (−).") },
+    { id: "electron-dir", concept: "e1-direction",
+      make: () => Q.mc("Which way do electrons actually move through the wire?", "From − to +", ["From + to −", "They don't move", "Back and forth"], "Electrons are negative charges. They move from − to +, the opposite of the direction we draw for current.") },
+    { id: "dc-ac", concept: "e1-dc-ac",
+      make: () => { const [src, right] = pickOne([["a car battery", "Direct current (DC)"], ["a torch cell", "Direct current (DC)"], ["a power bank", "Direct current (DC)"], ["a power station generator", "Alternating current (AC)"], ["the socket at home", "Alternating current (AC)"]]);
+        return Q.mc(`What kind of current does ${src} give?`, right, [right.startsWith("D") ? "Alternating current (AC)" : "Direct current (DC)"], right.startsWith("D") ? "Cells and batteries give direct current: one direction, steady." : "Generators, and the sockets they supply, give alternating current, which keeps changing direction."); } },
+    { id: "dc-meaning", concept: "e1-dc-ac",
+      make: () => Q.mc("What does \"direct current\" mean?", "It flows in one direction, at a steady strength", ["It changes direction many times a second", "It flows straight, with no bends in the wire", "It comes directly from a power station"], "Direct current flows one way only, at a steady strength. Alternating current keeps changing direction.") },
+    { id: "fault", concept: "e1-conditions", also: "e1-open-closed",
+      make: () => { const [fault, right] = pickOne([["the wire is cut in one place", "No: the gap breaks the loop"], ["the bulb's filament has snapped", "No: the broken filament is a gap in the loop"], ["the switch is off", "No: the open switch breaks the loop"]]);
+        return Q.mc(`A circuit has a new battery, but ${fault}. Does the bulb light?`, right, ["Yes, because the battery is new", "Yes, but more dimly"], "Any gap breaks the loop, and then no current flows anywhere, however good the battery is."); } },
+    { id: "quantities", concept: "e1-quantities",
+      make: () => { const [desc, right] = pickOne([["how much charge flows each second", "Current"], ["how hard the charges are pushed", "Potential difference"], ["what slows the flow down", "Resistance"]]);
+        return Q.mc(`Which quantity tells you ${desc}?`, right, ["Current", "Potential difference", "Resistance", "Energy"].filter((x) => x !== right).slice(0, 3), `${right} is ${desc}. Each one gets its own level next.`); } },
+    { id: "torch-fault", concept: "e1-torch", also: "e1-conditions",
+      make: () => Q.mc("A torch has new batteries and a good bulb, but it won't light when switched on. What's the most likely problem?", "Something leaves a gap in the loop, like a loose contact", ["The batteries are too full", "The bulb needs more charges", "Current only flows in daylight"], "With a push and a good bulb, the only thing left is the loop: a loose spring or dirty contact leaves a gap.") },
+    { id: "switch-job", concept: "e1-torch",
+      make: () => Q.mc("Why do we put a switch in a circuit?", "To open and close the loop, turning the current off and on", ["To store charges", "To push the charges harder", "To change DC into AC"], "A switch is a gap you can close and open on purpose. Closed: current flows. Open: everything stops.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E1_BANK, count: 10, storageKey: "elec-1-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-1-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e1" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e1", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-1-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig"],
+    prepare() { steps.prepare(); },
+    quizBank: E1_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e1",
+    cases() {
+      const out = [];
+      for (const sw of ["on", "off"]) for (const bat of ["ok", "flat"]) for (const wire of ["ok", "gap"]) for (const bulb of ["ok", "broken"]) for (const dir of ["conv", "elec"])
+        out.push({ kind: "lab", s: { sw, bat, wire, bulb, dir }, name: `lab ${sw} ${bat} ${wire} ${bulb} ${dir}` });
+      for (const fault of ["none", "sw", "wire", "bat", "bulb"]) for (const kind of fault === "none" ? ["light"] : ["light", "fix"]) for (const answered of [false, true])
+        out.push({ kind: "practice", f: { fault, kind }, answered, name: `practice ${fault} ${kind} ${answered ? "after" : "before"}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(c.f.fault); }
+    },
+  };
+})();
+</script>
