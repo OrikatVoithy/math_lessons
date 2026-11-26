@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -50,6 +50,16 @@
     "e3-voltmeter": ["e3", 5, ".stepbody", "the voltmeter, connected in parallel"],
     "e3-compare": ["e3", 5, ".meters", "ammeter vs voltmeter"],
     "e3-socket": ["e3", 6, ".checks", "energy per coulomb: socket vs battery"],
+    // Electricity 4: Resistance
+    "e4-why": ["e4", 0, ".stepbody", "why the filament glows but the wires don't"],
+    "e4-def": ["e4", 1, ".defbox", "what resistance is (ohms, ohmmeter)"],
+    "e4-factors": ["e4", 2, ".factors", "the three factors: length, thickness, material"],
+    "e4-resistivity": ["e4", 2, ".defbox", "resistivity"],
+    "e4-compare": ["e4", 3, ".pair", "comparing the resistance of two wires"],
+    "e4-materials": ["e4", 4, ".materials", "copper, tungsten and nichrome"],
+    "e4-temp": ["e4", 4, ".stepbody", "temperature raises resistance"],
+    "e4-rheostat": ["e4", 5, ".stepbody", "the sliding rheostat"],
+    "e4-heat": ["e4", 6, ".checks", "why high resistance makes heat"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
