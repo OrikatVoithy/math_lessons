@@ -1,0 +1,999 @@
+<title>Potential Difference</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 3 additions */
+.meters { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.meters th, .meters td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.meters th { background: var(--paper); }
+.defbox { border: 2px solid var(--opp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.voltlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.voltlist li { background: var(--paper); border-radius: 10px; padding: 10px 8px; display: grid; gap: 2px; text-align: center; font-size: 0.85rem; }
+.voltlist b { font-family: var(--mono); font-size: 1.05rem; color: var(--opp); }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 560px) { .voltlist { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-2/">← Electricity 2: Current</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 3 of 8</div>
+    <h1>How hard are the charges pushed? (Potential difference)</h1>
+    <p class="lede">Level 2 measured how much charge flows. Now we measure the push behind it: the energy each coulomb gets. Go through the 7 short steps, then try the voltmeter lab and the practice.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The problem</div>
+        <h2>Why can you hold a battery, but never touch a socket?</h2>
+        <div class="in-short">Batteries, chargers and sockets are labelled in volts (V): 1.5 V, 5 V, 220 V. The volt measures how hard the charges are pushed: how much energy each coulomb gets. A socket's push is about 150 times a small battery's.</div>
+        <p>Look at the labels on things that use electricity. Each one has a number of <b class="k-v">volts (V)</b>:</p>
+        <ul class="voltlist">
+          <li><b>1.5 V</b>torch cell</li>
+          <li><b>3.7 V</b>phone battery</li>
+          <li><b>5 V</b>phone charger</li>
+          <li><b>12 V</b>car battery</li>
+          <li><b>220 V</b>home socket</li>
+        </ul>
+        <p>You can hold a 1.5 V cell in your hand all day. But touching the inside of a 220 V socket can kill. What is a volt, and why does a bigger number make it so much more dangerous?</p>
+        <div class="more">
+          <h3>Volts and amperes are different things</h3>
+          <p>Amperes (Level 2) say how much charge flows each second. Volts say how hard each bit of charge is pushed. A lazy river can carry a lot of water slowly; a thin jet from a hose can push hard. Both matter, and they're measured separately.</p>
+          <h3>Who was Volta?</h3>
+          <p>Alessandro Volta, an Italian scientist, built the first battery in 1800 by stacking discs of two metals with salty cloth between them. The volt is named after him.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big idea</div>
+        <h2>Charges flow from a higher "electric level" to a lower one</h2>
+        <div class="in-short">Every point in a circuit has an electric level, called its potential. Charges flow from the higher level to the lower one, like water from a higher tank to a lower one. The difference between two levels is the potential difference, or voltage.</div>
+        <p>Remember the <a data-concept="e1-push" href="#">two water tanks from Level 1</a>: water flows from the higher tank to the lower one, and stops when the levels are equal.</p>
+        <p>Every point in a circuit has an "electric level" too. Scientists call it the <b>electric potential</b>. Current flows from the point with the <b>higher</b> potential (the battery's +) to the point with the <b>lower</b> potential (the −).</p>
+        <p>The <b class="k-v">difference</b> between the two levels is the <b class="k-v">potential difference</b><span class="ar" lang="ar"> فرق الجهد</span>, also called the <b class="k-v">voltage</b>. A bigger difference means a harder push, like water falling from a taller tank.</p>
+        <div class="more">
+          <h3>Why "potential"?</h3>
+          <p>Water at the top of a tank has potential: it <b>could</b> fall and do work, like turning a wheel. Charge at a high electric level could also flow and do work, like lighting a bulb. "Potential" means "could do work".</p>
+          <h3>How your book says it</h3>
+          <p>"Electric charges flow through a conductor from the point of higher electric potential (the positive pole) to the point of lower electric potential (the negative pole), according to scientific convention." That's the same + to − rule from <a data-concept="e1-direction" href="#">Level 1</a>.</p>
+          <p><b>Cause and effect:</b> "The presence of a potential difference between the terminals of a conductor (cause) makes an electric current pass through it (effect)." The current depends on the potential difference, <b>not</b> on how much charge there is. A wire is full of charge, but with no difference in level, nothing flows.</p>
+          <p><b>Give reason:</b> "Current does not pass from a conductor at 20 V to one at 30 V." <i>Because current flows from the higher potential to the lower one, so it goes from 30 V to 20 V.</i></p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 190" role="img" aria-label="Two water tanks at different heights. The water level difference between them is labelled potential difference.">
+          <rect x="24" y="30" width="70" height="120" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="25" y="48" width="68" height="101" class="f-water"/>
+          <rect x="190" y="30" width="60" height="120" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="191" y="118" width="58" height="31" class="f-water"/>
+          <rect x="94" y="132" width="96" height="10" class="f-water" stroke="var(--ink)" stroke-width="1.5"/>
+          <path d="M160,137 L148,131 L148,143 Z" fill="var(--adj)"/>
+          <rect x="112" y="48" width="4" height="70" fill="var(--opp)"/>
+          <path d="M114,44 L108,54 L120,54 Z" fill="var(--opp)"/>
+          <path d="M114,122 L108,112 L120,112 Z" fill="var(--opp)"/>
+          <text x="124" y="80" class="t-opp" font-size="12" font-weight="700">difference</text>
+          <text x="124" y="95" class="t-opp" font-size="12" font-weight="700">in level</text>
+          <text x="59" y="22" text-anchor="middle" class="t-ink" font-size="12">higher (+)</text>
+          <text x="220" y="22" text-anchor="middle" class="t-ink" font-size="12">lower (−)</text>
+          <text x="140" y="172" text-anchor="middle" class="t-adj" font-size="12">flow: higher → lower</text>
+        </svg>
+        <figcaption>The bigger the difference in level, the harder the push.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The rule</div>
+        <h2>Potential difference = work ÷ charge</h2>
+        <div class="in-short">Potential difference is the work (energy) needed to move one coulomb between two points: V = W ÷ Q. Work is in joules (J). 1 volt = 1 joule per coulomb.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-v">Potential difference</b> between two points: the <b class="k-e">work done</b> to move <b>one coulomb</b> of electric charge between those two points.</p></div>
+        <div class="bigeq"><span class="k-v">V</span> = <span class="frac"><span class="k-e">W</span><span>Q</span></span><span style="font-size:1rem;font-weight:400">potential difference = work ÷ charge</span></div>
+        <p>Think of each coulomb as a delivery bag. The battery fills every bag with energy, and the bulb empties it. The voltage tells you <b>how much energy is in each bag</b>.</p>
+        <p class="unitbox">Work is measured in <b class="k-e">joules (J)</b><span class="ar" lang="ar"> جول</span>, so <b>1 volt = 1 joule per coulomb</b> (1 V = 1 J/C). "The potential difference is 20 V" means 20 J of work is done to move each coulomb.</p>
+        <div class="example">
+          <div class="eyebrow">Example from your book</div>
+          <p><b>The work done to move 300 C of charge between two points is 33,300 J. What is the potential difference?</b></p>
+          <ol class="recipe compact">
+            <li>Know: W = 33,300 J, Q = 300 C. Want: V.</li>
+            <li><span class="num"><span class="k-v">V</span> = W ÷ Q = 33,300 ÷ 300 = <span class="k-v">111 V</span></span>.</li>
+          </ol>
+        </div>
+        <div class="more">
+          <h3>Work and energy are the same thing here</h3>
+          <p>"Work done" means energy used to do something. Moving a coulomb through the circuit takes energy, and the battery supplies it. Both are measured in joules.</p>
+          <h3>How your book defines the volt</h3>
+          <p>"The volt: the potential difference between two points when the work done to transfer a quantity of electric charge of one coulomb between them equals one joule."</p>
+          <h3>"What is meant by…?" with numbers</h3>
+          <p>"The work needed to move 8 C between the ends of a conductor is 64 J." <i>It means V = W ÷ Q = 64 ÷ 8 = 8 V: the potential difference across the conductor is 8 V.</i></p>
+          <h3>What's a joule?</h3>
+          <p>About the energy needed to lift an apple (100 g) by 1 metre. A 1.5 V cell gives each coulomb 1.5 J, a bit more than one apple lift.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Turn it around</div>
+        <h2>Finding the work or the charge</h2>
+        <div class="in-short">Same cover-up triangle, with W on top: V = W ÷ Q, W = V × Q, Q = W ÷ V. If you want W (on top), multiply. If you want V or Q, divide.</div>
+        <p>It's the <a data-concept="e2-triangle" href="#">same triangle as Level 2</a>, with <b class="k-e">W</b> on top and <b class="k-v">V</b> and <b>Q</b> on the bottom. Cover the one you want (shaded).</p>
+        <div class="cover">
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="28,58 60,58 60,94 6,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-angle" font-size="20" font-weight="700">W</text><text x="40" y="84" text-anchor="middle" class="t-opp" font-size="18" font-weight="700">V</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">Q</text></svg><figcaption>Want V? V = W ÷ Q</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,6 92,58 28,58" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">W</text><text x="40" y="84" text-anchor="middle" class="t-opp" font-size="18" font-weight="700">V</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">Q</text></svg><figcaption>Want W? W = V × Q</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,58 92,58 114,94 60,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-angle" font-size="20" font-weight="700">W</text><text x="40" y="84" text-anchor="middle" class="t-opp" font-size="18" font-weight="700">V</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">Q</text></svg><figcaption>Want Q? Q = W ÷ V</figcaption></figure>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Find the work (book)</div><p><b>3000 C of charge moves between two points with a potential difference of 3 V. How much work is done?</b></p><ol class="recipe compact"><li>Want W, on top: multiply.</li><li><span class="num">W = V × Q = 3 × 3000 = 9000 J</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find the charge (book)</div><p><b>The potential difference is 15 V and the work done is 510 J. How much charge moved?</b></p><ol class="recipe compact"><li>Want Q: divide.</li><li><span class="num">Q = W ÷ V = 510 ÷ 15 = 34 C</span>.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>Units check</h3>
+          <p>Volts × coulombs = joules (V × C = J). Joules ÷ volts = coulombs (J ÷ V = C). If the units come out right, you probably used the right rule.</p>
+          <h3>Sense check</h3>
+          <p>A bigger voltage moving the same charge needs more work. If your answer gets smaller when the voltage grows, you've divided when you should have multiplied.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">What happens if…?</div>
+        <h2>Change the work or the charge, and the voltage changes</h2>
+        <div class="in-short">More work for the same charge → higher voltage (direct). The same work shared by more charge → lower voltage (inverse). Double the work and halve the charge → 4 times the voltage.</div>
+        <p>Write <b>V = W ÷ Q</b>: anything that grows on top makes V bigger, and anything that grows on the bottom makes V smaller. Just like <a data-concept="e2-what-if" href="#">current in Level 2</a>.</p>
+        <div class="tablewrap">
+          <table class="whatif">
+            <thead><tr><th scope="col">If…</th><th scope="col">Example (start: 100 J for 50 C = 2 V)</th><th scope="col">Voltage</th></tr></thead>
+            <tbody>
+              <tr><td>Work halves, same charge</td><td class="num">50 ÷ 50 = 1 V</td><td class="res">÷ 2</td></tr>
+              <tr><td>Charge halves, same work</td><td class="num">100 ÷ 25 = 4 V</td><td class="res">× 2</td></tr>
+              <tr><td>Work doubles and charge halves</td><td class="num">200 ÷ 25 = 8 V</td><td class="res">× 4</td></tr>
+              <tr><td>Work and charge both double</td><td class="num">200 ÷ 100 = 2 V</td><td class="res">same</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Your book's words: at constant charge, voltage and work have a <b>direct relationship</b>. At constant work, voltage and charge have an <b>inverse relationship</b>.</p>
+        <div class="more">
+          <h3>Why does sharing work among more charge lower the voltage?</h3>
+          <p>Voltage is energy <b>per coulomb</b>. Share the same 100 J among twice as many coulombs, and each one gets half as much.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody">
+        <div class="eyebrow">Measuring it</div>
+        <h2>The voltmeter goes across (in parallel)</h2>
+        <div class="in-short">A voltmeter measures potential difference in volts. It's connected in parallel: across the two points you're comparing, not inside the loop. Red (+) goes to the side nearer the battery's +.</div>
+        <p>A <b class="k-v">voltmeter</b><span class="ar" lang="ar"> الفولتميتر</span> measures the potential difference between two points, in volts. In diagrams it's a circle with a V inside.</p>
+        <p>It compares two points, so it's connected <b>across</b> them, one wire to each side of the part you're measuring. This is called <b>in parallel</b><span class="ar" lang="ar"> على التوازي</span>. The loop isn't opened.</p>
+        <p>Its <b>red (+)</b> terminal goes to the point nearer the battery's <b>+</b>, and its <b>black (−)</b> terminal to the point nearer the <b>−</b>.</p>
+        <div class="tablewrap">
+          <table class="meters">
+            <thead><tr><th scope="col"></th><th scope="col" class="k-i">Ammeter (Level 2)</th><th scope="col" class="k-v">Voltmeter</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Measures</th><td>Current, in amperes</td><td>Potential difference, in volts</td></tr>
+              <tr><th scope="row">Connected</th><td>In series: inside the loop</td><td>In parallel: across two points</td></tr>
+              <tr><th scope="row">Water idea</th><td>A meter in the pipe, counting the flow</td><td>A ruler comparing two water levels</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>Why across, and not in the loop?</h3>
+          <p>To compare the levels of two tanks, you measure at both tanks. A voltmeter needs to touch both points at the same time. Put it inside the loop instead and it blocks most of the current, so the bulb goes dark.</p>
+          <h3>Across a battery</h3>
+          <p>Put the voltmeter across the battery's two ends and it shows the battery's voltage. That's how you test whether a cell is flat. Level 6 explains why the reading changes a little when the circuit is switched on.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figVolt" viewBox="0 0 320 250" role="img" aria-label="A circuit with a battery and a bulb. A voltmeter is connected across the bulb, with one wire on each side of it."></svg>
+        <figcaption>The voltmeter connects across the bulb: one wire to each side.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the socket</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">A 1.5 V cell gives each coulomb 1.5 J. A 220 V socket gives each coulomb 220 J, about 150 times as much. That much energy per coulomb can push a dangerous current through your body.</div>
+        <ul class="checks">
+          <li>A <b class="k-v">1.5 V</b> cell gives each coulomb <b class="k-e">1.5 J</b> of energy. That's too little to push much current through your skin.</li>
+          <li>A <b class="k-v">220 V</b> socket gives each coulomb <b class="k-e">220 J</b>: <span class="num">220 ÷ 1.5 ≈ 147</span> times as much. It can push a dangerous current through your body.</li>
+        </ul>
+        <div class="example">
+          <div class="eyebrow">Putting Levels 2 and 3 together (book)</div>
+          <p><b>The work done to move a charge is 20 J, it takes 2 s, and the potential difference is 5 V. What is the current?</b></p>
+          <ol class="recipe compact">
+            <li>First the charge: <span class="num">Q = W ÷ V = 20 ÷ 5 = 4 C</span>.</li>
+            <li>Then the <a data-concept="e2-formula" href="#">current from Level 2</a>: <span class="num">I = Q ÷ t = 4 ÷ 2 = 2 A</span>.</li>
+          </ol>
+        </div>
+        <ul class="uses d-extra">
+          <li><h3>Electricians</h3><p>Use voltmeters to check whether a wire is "live" before touching it.</p></li>
+          <li><h3>Drivers</h3><p>A car battery reading well below 12 V needs charging.</p></li>
+          <li><h3>Power companies</h3><p>Send electricity across the country at very high voltages, then step it down to 220 V for homes.</p></li>
+        </ul>
+        <div class="more">
+          <h3>Is it the volts or the amps that hurt?</h3>
+          <p>What harms you is the current through your body. But your body resists current (Level 4), so only a high voltage can push a big current through it. That's why high voltage is the warning sign, and why wet hands are extra dangerous: water lets current through more easily.</p>
+          <h3>Birds on power lines</h3>
+          <p>A bird sits on one wire with both feet. Both feet are at the same electric level, so there's no potential difference across the bird, and no current flows through it.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: energy per coulomb</h2>
+    <p class="lede" style="margin-top:8px">Set how much work is done and how much charge moves. Guess what the voltmeter will show before you move a slider.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Voltmeter lab">
+    <div class="stage dialwrap">
+      <svg id="dial" class="circfig" viewBox="0 0 320 200" role="img" aria-label="A voltmeter dial from 0 to 50 volts."></svg>
+      <svg id="tanks" class="circfig" viewBox="0 0 320 130" role="img" aria-label="Two water tanks. The difference in their levels shows the potential difference."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="wIn">Work W</label><input type="range" id="wIn" min="2" max="120" step="2" value="24"><output id="wOut"></output></div>
+      <div class="slider-row"><label for="qIn">Charge Q</label><input type="range" id="qIn" min="1" max="20" step="1" value="2"><output id="qOut"></output></div>
+      <div class="calc" id="calc" aria-live="polite"></div>
+      <div class="row"><span class="label">What if…</span><button type="button" data-ch="w2">Double the work</button><button type="button" data-ch="q2">Double the charge</button><button type="button" data-ch="qh">Halve the charge</button></div>
+      <p class="changemsg" id="changeMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">New numbers each time, including some two-step problems that use Level 2. Use a hint if you're stuck.</p>
+    </div>
+    <div class="panel pcard">
+      <p class="qtext" id="pq"></p>
+      <div class="answer-row"><label class="sr" for="pin">Your answer</label><input id="pin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 12"><span id="punit"></span><button type="button" class="primary" id="pcheck">Check</button><button type="button" id="phint">Hint</button></div>
+      <div class="hintbox" id="phintbox" aria-live="polite"></div>
+      <div class="feedback" id="pfb" aria-live="polite"></div>
+      <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next problem</button></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on potential difference</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, plus a little of Levels 1 and 2. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel now"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  const big = (x) => Number(x).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const close = (a, b) => Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.01);
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+
+  /* ---------- Step 6: a voltmeter across the bulb ---------- */
+  (function drawVoltCircuit() {
+    const svg = $("figVolt"), L = 50, R = 270, T = 90, B = 210;
+    const w = (x1, y1, x2, y2, c = "c-wire") => el("line", { x1, y1, x2, y2, class: c, "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    w(L, T, L, 140); w(L, 160, L, B);
+    el("line", { x1: L - 20, y1: 140, x2: L + 20, y2: 140, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: L - 10, y1: 160, x2: L + 10, y2: 160, stroke: "var(--ink)", "stroke-width": 7 }, svg);
+    w(L, T, 144, T); w(176, T, R, T); w(R, T, R, B); w(L, B, R, B);
+    el("circle", { cx: 160, cy: T, r: 26, class: "f-glow" }, svg);
+    el("circle", { cx: 160, cy: T, r: 16, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+    el("line", { x1: 151, y1: 81, x2: 169, y2: 99, stroke: "var(--angle)", "stroke-width": 2 }, svg);
+    el("line", { x1: 169, y1: 81, x2: 151, y2: 99, stroke: "var(--angle)", "stroke-width": 2 }, svg);
+    // the voltmeter, joined to both sides of the bulb
+    const vw = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, stroke: "var(--opp)", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+    vw(120, T, 120, 32); vw(120, 32, 142, 32); vw(178, 32, 200, 32); vw(200, 32, 200, T);
+    el("circle", { cx: 120, cy: T, r: 4, fill: "var(--opp)" }, svg);
+    el("circle", { cx: 200, cy: T, r: 4, fill: "var(--opp)" }, svg);
+    el("circle", { cx: 160, cy: 32, r: 18, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 3 }, svg);
+    el("text", { x: 160, y: 38, "text-anchor": "middle", class: "t-opp", "font-size": 17, "font-weight": 700 }, svg, "V");
+    el("text", { x: 132, y: 22, "text-anchor": "middle", class: "t-bad", "font-size": 13, "font-weight": 700 }, svg, "+");
+    el("text", { x: 188, y: 22, "text-anchor": "middle", class: "t-ink", "font-size": 13, "font-weight": 700 }, svg, "−");
+    el("text", { x: 212, y: 50, class: "t-opp", "font-size": 13, "font-weight": 700 }, svg, "voltmeter");
+    el("text", { x: 160, y: 128, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "bulb");
+    el("text", { x: 78, y: 155, class: "t-ink", "font-size": 13 }, svg, "battery");
+    el("text", { x: 16, y: 145, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "+");
+    el("text", { x: 18, y: 171, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "−");
+    const arrow = (x, y, dx, dy) => { const k = 7; el("path", { d: `M${x + dx * k},${y + dy * k} L${x - dx * k - dy * k * 0.8},${y - dy * k + dx * k * 0.8} L${x - dx * k + dy * k * 0.8},${y - dy * k - dx * k * 0.8} Z`, fill: "var(--adj)" }, svg); };
+    arrow(85, T, 1, 0); arrow(R, 150, 0, 1); arrow(160, B, -1, 0); arrow(L, 112, 0, -1);
+  })();
+
+  /* ---------- Lab: energy per coulomb ---------- */
+  const lab = { w: 24, q: 2 };
+  const MAXV = 50;
+  function drawDial(v) {
+    const svg = $("dial");
+    svg.replaceChildren();
+    const cx = 160, cy = 150;
+    el("path", { d: `M${cx - 106},${cy} A106,106 0 0 1 ${cx + 106},${cy}`, fill: "none", stroke: "var(--line)", "stroke-width": 8 }, svg);
+    for (let k = 0; k <= 10; k++) {
+      const a = Math.PI - (k / 10) * Math.PI, r2 = k % 2 ? 110 : 116;
+      el("line", { x1: cx + 100 * Math.cos(a), y1: cy - 100 * Math.sin(a), x2: cx + r2 * Math.cos(a), y2: cy - r2 * Math.sin(a), class: "s-ink", "stroke-width": k % 2 ? 1.5 : 2.5 }, svg);
+      if (k % 2 === 0) el("text", { x: cx + 132 * Math.cos(a), y: cy - 132 * Math.sin(a) + 5, "text-anchor": "middle", class: "t-ink num", "font-size": 13 }, svg, String((k * MAXV) / 10));
+    }
+    const a = Math.PI - (Math.min(v, MAXV) / MAXV) * Math.PI;
+    el("line", { x1: cx, y1: cy, x2: cx + 88 * Math.cos(a), y2: cy - 88 * Math.sin(a), stroke: "var(--opp)", "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    el("circle", { cx, cy, r: 7, fill: "var(--ink)" }, svg);
+    el("text", { x: cx, y: 180, "text-anchor": "middle", class: "t-opp num", "font-size": 20 }, svg, v > MAXV ? "off the scale" : `${fmt(v)} V`);
+    el("text", { x: cx, y: 197, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "voltmeter");
+  }
+  function drawTanks(v) {
+    const svg = $("tanks");
+    svg.replaceChildren();
+    const base = 104, low = 8, high = low + (Math.min(v, MAXV) / MAXV) * 80;
+    el("rect", { x: 30, y: 14, width: 80, height: 90, fill: "none", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("rect", { x: 31, y: base - high, width: 78, height: high - 1, class: "f-water" }, svg);
+    el("rect", { x: 210, y: 14, width: 80, height: 90, fill: "none", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("rect", { x: 211, y: base - low, width: 78, height: low - 1, class: "f-water" }, svg);
+    if (high - low > 6) {
+      el("rect", { x: 136, y: base - high, width: 4, height: high - low, fill: "var(--opp)" }, svg);
+      el("text", { x: 146, y: base - (high + low) / 2 + 5, class: "t-opp num", "font-size": 14 }, svg, `${fmt(v)} V`);
+    }
+    el("text", { x: 70, y: 122, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "+ side");
+    el("text", { x: 250, y: 122, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "− side");
+  }
+  function renderLab(msg = "") {
+    const v = lab.w / lab.q;
+    $("wIn").value = lab.w; $("qIn").value = lab.q;
+    $("wOut").textContent = `${lab.w} J`; $("qOut").textContent = `${lab.q} C`;
+    $("calc").innerHTML = `<span class="k-v">V</span> = W ÷ Q = ${lab.w} ÷ ${lab.q} = <b class="k-v">${fmt(v)} V</b><br><span style="font-size:0.9rem;font-family:var(--body)">Each coulomb gets ${fmt(v)} J of energy.</span>`;
+    $("changeMsg").textContent = msg;
+    drawDial(v);
+    drawTanks(v);
+  }
+  $("wIn").addEventListener("input", () => { lab.w = +$("wIn").value; renderLab(); });
+  $("qIn").addEventListener("input", () => { lab.q = +$("qIn").value; renderLab(); });
+  document.querySelectorAll("[data-ch]").forEach((b) => b.addEventListener("click", () => {
+    const before = lab.w / lab.q, kind = b.dataset.ch;
+    if (kind === "w2" && lab.w * 2 > 120) return renderLab("The work slider only goes up to 120 J. Make the work smaller first.");
+    if (kind === "q2" && lab.q * 2 > 20) return renderLab("The charge slider only goes up to 20 C. Make the charge smaller first.");
+    if (kind === "qh" && lab.q % 2) return renderLab(`Half of ${lab.q} C is ${lab.q / 2} C, which the slider can't show. Pick an even charge first.`);
+    if (kind === "w2") lab.w *= 2; if (kind === "q2") lab.q *= 2; if (kind === "qh") lab.q /= 2;
+    const word = { w2: "More work for the same charge: the voltage doubled.", q2: "The same work shared by twice the charge: the voltage halved.", qh: "The same work for half the charge: the voltage doubled." }[kind];
+    renderLab(`${fmt(before)} V → ${fmt(lab.w / lab.q)} V. ${word}`);
+  }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const VS = [1.5, 3, 4.5, 6, 9, 12, 20, 24, 110, 220];
+  const QS = [2, 4, 5, 10, 20, 25, 50, 100, 300];
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const type = f.type || pickOne(["V", "V", "W", "Q", "I"]);
+    const V = f.V ?? pickOne(VS), q = f.q ?? pickOne(QS), w = +(V * q).toFixed(2);
+    const kj = f.kj ?? (type !== "W" && type !== "I" && w >= 1000 && Number.isInteger(w / 100) && Math.random() < 0.4);
+    const t = f.t ?? pickOne([2, 4, 5, 10, 20]);
+    p = { type, V, q, w, kj, t, hints: 0, done: false };
+    const wTxt = kj ? `${fmt(w / 1000)} kJ` : `${big(w)} J`;
+    p.ans = type === "V" ? V : type === "W" ? w : type === "Q" ? q : q / t;
+    p.unit = { V: "V", W: "J", Q: "C", I: "A" }[type];
+    $("pq").textContent = type === "V" ? `The work done to move ${big(q)} C of charge between two points is ${wTxt}. What is the potential difference?`
+      : type === "W" ? `${big(q)} C of charge moves between two points with a potential difference of ${V} V. How much work is done?`
+      : type === "Q" ? `The potential difference between two points is ${V} V, and the work done is ${wTxt}. How much charge moved?`
+      : `The work done to move a charge is ${big(w)} J, it takes ${t} s, and the potential difference is ${V} V. What is the current?`;
+    $("punit").textContent = p.unit;
+    $("pin").value = ""; $("pin").disabled = false; $("pcheck").disabled = false; $("phint").disabled = false;
+    $("phintbox").textContent = ""; $("pfb").className = "feedback"; $("pfb").textContent = "";
+  }
+  const kjLine = (p) => (p.kj ? `Change kJ to joules: ${fmt(p.w / 1000)} × 1000 = ${big(p.w)} J.` : "");
+  function workLines(p) {
+    if (p.type === "V") return [kjLine(p), `V = W ÷ Q = ${big(p.w)} ÷ ${big(p.q)} = <b>${fmt(p.V)} V</b>.`];
+    if (p.type === "W") return [`W = V × Q = ${p.V} × ${big(p.q)} = <b>${big(p.w)} J</b>.`];
+    if (p.type === "Q") return [kjLine(p), `Q = W ÷ V = ${big(p.w)} ÷ ${p.V} = <b>${big(p.q)} C</b>.`];
+    return [`First the charge: Q = W ÷ V = ${big(p.w)} ÷ ${p.V} = ${big(p.q)} C.`, `Then the current: I = Q ÷ t = ${big(p.q)} ÷ ${p.t} = <b>${fmt(p.q / p.t)} A</b>.`];
+  }
+  function hint() {
+    if (!p || p.done) return;
+    p.hints = Math.min(3, p.hints + 1);
+    const rule = { V: "V = W ÷ Q", W: "W = V × Q", Q: "Q = W ÷ V", I: "Q = W ÷ V, then I = Q ÷ t" }[p.type];
+    const lines = [
+      p.type === "I" ? "This takes two steps. You can't get the current straight from the work. First find the charge." : `Write what you know and what you want. You want ${{ V: "the potential difference V", W: "the work W", Q: "the charge Q" }[p.type]}.`,
+      `Use ${rule}.${p.kj ? " First change kilojoules to joules (× 1000)." : ""}`,
+      workLines(p).filter(Boolean).map((x) => x.replace(/<\/?b>/g, "").replace(/= [\d.,]+ [VJCA]\.$/, "= ?")).join(" "),
+    ];
+    $("phintbox").textContent = lines.slice(0, p.hints).join(" ");
+    if (p.hints === 3) $("phint").disabled = true;
+  }
+  const readNum = (s) => parseFloat(String(s).replace(/,/g, "").replace(/[^\d.\-]/g, ""));
+  function check(raw) {
+    if (!p || p.done) return;
+    const v = readNum(raw);
+    if (!isFinite(v)) { $("pfb").className = "feedback bad"; $("pfb").textContent = "Type a number, like 12."; return; }
+    p.done = true;
+    $("pin").disabled = true; $("pcheck").disabled = true; $("phint").disabled = true;
+    const ok = close(v, p.ans);
+    let why = "", see = "";
+    if (!ok) {
+      if (p.type === "V") {
+        if (close(v, p.w * p.q)) { why = "You multiplied. Potential difference is work <b>divided</b> by charge."; see = "e3-formula"; }
+        else if (close(v, p.q / p.w)) { why = "That's charge ÷ work, upside down. V = W ÷ Q."; see = "e3-formula"; }
+        else if (p.kj && close(v, p.w / 1000 / p.q)) { why = "You used kilojoules. Change them to joules first (× 1000)."; see = "e3-units"; }
+      } else if (p.type === "W") {
+        if (close(v, p.V / p.q) || close(v, p.q / p.V)) { why = "You divided. W is on top of the triangle, so to find it you <b>multiply</b>: W = V × Q."; see = "e3-triangle"; }
+      } else if (p.type === "Q") {
+        if (close(v, p.w * p.V)) { why = "You multiplied. To find Q, divide: Q = W ÷ V."; see = "e3-triangle"; }
+        else if (close(v, p.V / p.w)) { why = "That's V ÷ W, upside down. Q = W ÷ V."; see = "e3-triangle"; }
+        else if (p.kj && close(v, p.w / 1000 / p.V)) { why = "You used kilojoules. Change them to joules first (× 1000)."; see = "e3-units"; }
+      } else {
+        if (close(v, p.q)) { why = "That's the charge, the first step. Now divide it by the time to get the current."; see = "e2-formula"; }
+        else if (close(v, p.w / p.t)) { why = "Work ÷ time isn't the current. First find the charge: Q = W ÷ V. Then I = Q ÷ t."; see = "e3-socket"; }
+      }
+      if (!why) { why = "Check each step below."; see = p.type === "I" ? "e3-socket" : p.type === "V" ? "e3-formula" : "e3-triangle"; }
+    }
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = (ok ? "<b>Right!</b>" : `<b>Not quite.</b> The answer is ${fmt(p.ans)} ${p.unit}. ${why} <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`)
+      + `<ol class="work">${workLines(p).filter(Boolean).map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pcheck").addEventListener("click", () => check($("pin").value));
+  $("pin").addEventListener("keydown", (e) => { if (e.key === "Enter") check($("pin").value); });
+  $("phint").addEventListener("click", hint);
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "A phone charger is labelled 5 V. What does the V stand for?", correct: 0, ok: "Right. Volts, the unit of potential difference.",
+       options: [["Volts", null], ["Very strong", "It's a unit, written on every charger."], ["Amperes", "Amperes are written A. V is volts."]] }],
+    [{ type: "choice", q: "Which way does current flow through a circuit?", correct: 1, ok: "Right. From the higher potential (+) to the lower potential (−).", see: "e3-level",
+       options: [["From the lower potential to the higher", "Like water, charges flow from the higher level to the lower one."], ["From the higher potential to the lower", null]] }],
+    [{ type: "choice", q: "60 J of work moves 12 C of charge. What is the potential difference?", correct: 0, ok: "Right. 60 ÷ 12 = 5 V.", see: "e3-formula",
+       options: [["5 V", null], ["720 V", "You multiplied. V = W ÷ Q."], ["0.2 V", "That's 12 ÷ 60, upside down. Work goes on top."]] },
+     { type: "choice", q: "\"The potential difference is 6 V\" means…", correct: 1, ok: "Right. 1 V = 1 J per coulomb.", see: "e3-units",
+       options: [["6 C of charge flows each second", "That would be a current of 6 A."], ["6 J of work moves each coulomb", null], ["the battery holds 6 J in total", "Volts are energy per coulomb, not the total."]] }],
+    [{ type: "choice", q: "A potential difference of 4 V moves 10 C of charge. How much work is done?", correct: 2, ok: "Right. W = V × Q = 4 × 10 = 40 J.", see: "e3-triangle",
+       options: [["2.5 J", "That's 10 ÷ 4. W is on top, so multiply."], ["0.4 J", "That's 4 ÷ 10. W is on top, so multiply."], ["40 J", null]] }],
+    [{ type: "choice", q: "The work doubles, but the charge stays the same. The potential difference…", correct: 0, ok: "Right. Work is on top: more work, more volts.", see: "e3-what-if",
+       options: [["doubles", null], ["halves", "Work is on top of V = W ÷ Q, so more work makes V bigger."], ["stays the same", "Each coulomb now gets twice the energy."]] },
+     { type: "choice", q: "The same work is shared by twice as much charge. The potential difference…", correct: 1, ok: "Right. Each coulomb gets half as much energy.", see: "e3-what-if",
+       options: [["doubles", "Charge is on the bottom: more charge makes V smaller."], ["halves", null], ["stays the same", "The same energy shared by twice the coulombs means half each."]] }],
+    [{ type: "choice", q: "How is a voltmeter connected?", correct: 1, ok: "Right. Across the two points, in parallel.", see: "e3-voltmeter",
+       options: [["In series, inside the loop", "That's the ammeter. A voltmeter compares two points, so it goes across them."], ["In parallel, across the two points", null]] }],
+    [{ type: "choice", q: "How much energy does each coulomb get from a 220 V socket?", correct: 0, ok: "Right. 220 V = 220 J per coulomb.", see: "e3-socket",
+       options: [["220 J", null], ["1.5 J", "That's a torch cell (1.5 V)."], ["220 C", "Coulombs measure charge, not energy."]] }],
+  ];
+  const AR = [
+    "البطاريات والشواحن والبرايز مكتوب عليها رقم بـ<b>الفولت</b>: 1.5 V و 5 V و 220 V. الفولت بيقيس الشحنات بتتزق قد إيه، يعني كل كولوم بياخد طاقة قد إيه.",
+    "كل نقطة في الدائرة ليها مستوى كهربي اسمه <b>الجهد</b>. التيار بيمشي من الجهد الأعلى للأقل، زي المية من الخزان العالي للواطي. الفرق بينهم اسمه <b>فرق الجهد</b>.",
+    "<b>فرق الجهد</b> = الشغل المبذول لنقل ١ كولوم بين نقطتين: <b>V = W ÷ Q</b>. الشغل بالجول، و ١ فولت = ١ جول لكل كولوم.",
+    "نفس المثلث، و W فوق: <b>W = V × Q</b> و <b>Q = W ÷ V</b>. لو عايز W اضرب، ولو عايز V أو Q اقسم.",
+    "لو الشغل زاد والشحنة ثابتة، فرق الجهد يزيد (<b>طردية</b>). لو الشحنة زادت والشغل ثابت، فرق الجهد يقل (<b>عكسية</b>).",
+    "<b>الفولتميتر</b> بيقيس فرق الجهد بالفولت، وبيتوصل <b>على التوازي</b> بين النقطتين. الأميتر بيتوصل على التوالي.",
+    "خلية 1.5 فولت بتدي كل كولوم 1.5 جول. بريزة 220 فولت بتدي كل كولوم 220 جول، حوالي ١٥٠ ضعف، وده خطر جدًا.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-3-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const WHATIF = [
+    ["the work doubles while the charge stays the same", "it doubles", ["it halves", "it stays the same", "it becomes 4 times as big"], "Work is on top of V = W ÷ Q, so doubling it doubles V."],
+    ["the charge doubles while the work stays the same", "it halves", ["it doubles", "it stays the same", "it becomes 4 times as big"], "Charge is on the bottom, so doubling it halves V."],
+    ["the work doubles and the charge halves", "it becomes 4 times as big", ["it doubles", "it stays the same", "it halves"], "Twice the top (× 2) and half the bottom (another × 2): × 4."],
+    ["the work halves while the charge stays the same", "it halves", ["it doubles", "it stays the same", "it becomes 4 times as big"], "Half the top, so half the voltage."],
+    ["the work and the charge both double", "it stays the same", ["it doubles", "it becomes 4 times as big", "it halves"], "2W ÷ 2Q = W ÷ Q: no change."],
+  ];
+  const E3_BANK = [
+    { id: "pd-is", concept: "e3-def",
+      make: () => Q.mc("What is the potential difference between two points?", "The work done to move one coulomb of charge between them", ["The charge that passes each second", "The total charge in the wire", "How fast the charges move"], "Potential difference = work per coulomb: V = W ÷ Q.") },
+    { id: "unit-volt", concept: "e3-units",
+      make: () => Q.mc("What is the unit of potential difference?", "The volt (V)", ["The ampere (A)", "The joule (J)", "The coulomb (C)"], "Potential difference is measured in volts. Work is in joules, charge in coulombs, current in amperes.") },
+    { id: "volt-equals", concept: "e3-units",
+      make: () => Q.mc("1 volt is the same as…", "1 joule per coulomb", ["1 coulomb per second", "1 coulomb per joule", "1 joule per second"], "V = W ÷ Q, so volts = joules ÷ coulombs. (1 coulomb per second is the ampere.)") },
+    { id: "meaning", concept: "e3-units",
+      make: () => { const v = pickOne([3, 6, 12, 20, 220]); return Q.mc(`"The potential difference across a conductor is ${v} V." What does this mean?`, `${v} J of work is done to move each coulomb through it`, [`${v} C of charge passes each second`, `The conductor stores ${v} J in total`, `The charges move ${v} metres each second`], `${v} V = ${v} joules per coulomb.`); } },
+    { id: "unit-work", concept: "e3-units",
+      make: () => Q.mc("What is the unit of work (energy)?", "The joule (J)", ["The volt (V)", "The ampere (A)", "The coulomb (C)"], "Work and energy are measured in joules.") },
+    { id: "flow-dir", concept: "e3-level", also: "e1-direction",
+      make: () => Q.mc("By convention, current flows from…", "higher potential to lower potential", ["lower potential to higher potential", "the bulb to the battery's +", "wherever the wire is thickest"], "Like water from a higher tank to a lower one: from the higher potential (+) to the lower potential (−).") },
+    { id: "find-v", concept: "e3-formula",
+      make: () => { const v = pickOne([3, 4, 5, 6, 12]), q = pickOne([5, 10, 20, 50]), w = v * q; return Q.mc(`${w} J of work moves ${q} C of charge between two points. What is the potential difference?`, `${v} V`, [`${w * q} V`, `${fmt(q / w)} V`, `${w + q} V`], `V = W ÷ Q = ${w} ÷ ${q} = ${v} V.`); } },
+    { id: "find-w", concept: "e3-triangle",
+      make: () => { const v = pickOne([2, 3, 6, 12, 220]), q = pickOne([5, 10, 50, 100]); return Q.mc(`${q} C of charge moves through a potential difference of ${v} V. How much work is done?`, `${big(v * q)} J`, [`${fmt(v / q)} J`, `${fmt(q / v)} J`, `${v + q} J`], `W is on top, so multiply: W = V × Q = ${v} × ${q} = ${big(v * q)} J.`); } },
+    { id: "find-q", concept: "e3-triangle",
+      make: () => { const v = pickOne([5, 10, 12, 15, 20]), q = pickOne([4, 6, 8, 34]), w = v * q; return Q.mc(`The potential difference is ${v} V and the work done is ${w} J. How much charge moved?`, `${q} C`, [`${w * v} C`, `${fmt(v / w)} C`, `${w - v} C`], `Q = W ÷ V = ${w} ÷ ${v} = ${q} C.`); } },
+    { id: "what-if", concept: "e3-what-if",
+      make: () => { const [cond, right, wrongs, why] = pickOne(WHATIF); return Q.mc(`What happens to the potential difference if ${cond}?`, right, wrongs, why); } },
+    { id: "direct", concept: "e3-what-if",
+      make: () => Q.mc("At constant charge, how are potential difference and work related?", "Directly: more work, more volts", ["Inversely: more work, fewer volts", "They aren't related", "They're always equal"], "With the same charge, V = W ÷ Q grows when W grows: a direct relationship.") },
+    { id: "inverse", concept: "e3-what-if",
+      make: () => Q.mc("At constant work, how are potential difference and charge related?", "Inversely: more charge, fewer volts", ["Directly: more charge, more volts", "They aren't related", "They're always equal"], "The same work shared by more coulombs gives each one less: an inverse relationship.") },
+    { id: "voltmeter-par", concept: "e3-voltmeter",
+      make: () => Q.mc("How is a voltmeter connected in a circuit?", "In parallel, across the two points being compared", ["In series, inside the loop", "To the battery's + end only", "It doesn't need wires"], "A voltmeter compares two points, so one wire goes to each point: a parallel connection.") },
+    { id: "meters", concept: "e3-compare", also: "e2-ammeter",
+      make: () => { const ask = pickOne(["series", "parallel"]); return Q.mc(`Which meter is connected in ${ask}?`, ask === "series" ? "The ammeter" : "The voltmeter", [ask === "series" ? "The voltmeter" : "The ammeter", "Both", "Neither"], "Ammeter: in series (in the loop). Voltmeter: in parallel (across two points)."); } },
+    { id: "voltmeter-does", concept: "e3-voltmeter",
+      make: () => Q.mc("What does a voltmeter measure?", "Potential difference, in volts", ["Current, in amperes", "Charge, in coulombs", "Time, in seconds"], "Voltmeter = volt meter. It measures potential difference.") },
+    { id: "two-step", concept: "e3-socket", also: "e2-formula",
+      make: () => { const v = pickOne([2, 4, 5, 10]), q = pickOne([4, 6, 8, 10]), t = pickOne([2, 4]), w = v * q; return Q.mc(`The work done to move a charge is ${w} J, it takes ${t} s, and the potential difference is ${v} V. What is the current?`, `${fmt(q / t)} A`, [`${q} A`, `${fmt(w / t)} A`, `${w * t} A`], `First Q = W ÷ V = ${w} ÷ ${v} = ${q} C. Then I = Q ÷ t = ${q} ÷ ${t} = ${fmt(q / t)} A.`); } },
+    { id: "socket", concept: "e3-socket",
+      make: () => Q.mc("Why is a 220 V socket far more dangerous than a 1.5 V cell?", "It gives each coulomb about 150 times as much energy", ["It has more coulombs inside it", "Its current flows the other way", "Sockets use a different kind of charge"], "220 V = 220 J per coulomb, against 1.5 J per coulomb for the cell. That can push a dangerous current through your body.") },
+    { id: "gr-20-30", concept: "e3-level",
+      make: () => { const [a, b] = pickOne([[20, 30], [6, 12], [50, 80]]); return Q.mc(`Give reason: current does not pass from a conductor at ${a} V to one at ${b} V.`, `Current flows from higher to lower potential, so it goes from ${b} V to ${a} V`, [`${a} V is too small to carry current`, "Current only flows between equal potentials", "Current flows from lower to higher potential"], `Like water from a higher tank to a lower one: from ${b} V (higher) to ${a} V (lower).`); } },
+    { id: "cause", concept: "e3-level",
+      make: () => Q.mc("What makes an electric current pass through a conductor?", "A potential difference between its two ends", ["A large amount of charge inside it", "Its length", "Its colour"], "Cause: a potential difference between the ends. Effect: a current. It doesn't depend on how much charge is in the conductor.") },
+    { id: "meant-numbers", concept: "e3-units",
+      make: () => { const [w, q] = pickOne([[64, 8], [60, 5], [90, 10], [36, 3]]); return Q.mc(`"The work needed to move ${q} C between the ends of a conductor is ${w} J." What does this mean?`, `The potential difference across it is ${w / q} V`, [`The current is ${w / q} A`, `The potential difference is ${w * q} V`, `The charge is ${w} C`], `V = W ÷ Q = ${w} ÷ ${q} = ${w / q} V.`); } },
+    { id: "term", concept: "e3-def",
+      make: () => { const [d, right, wrongs] = pickOne([
+        ["The work done to move one coulomb of electric charge between two points.", "Electric potential difference", ["Electric current", "The coulomb", "The ampere"]],
+        ["The potential difference between two points when the work done to move one coulomb between them is one joule.", "The volt", ["The ampere", "The joule", "The coulomb"]],
+        ["A device used to measure the potential difference between two points in a circuit.", "The voltmeter", ["The ammeter", "The battery", "The switch"]]]);
+        return Q.mc(`Write the scientific term: "${d}"`, right, wrongs, `${right}: ${d}`); } },
+    { id: "exam-222", concept: "e3-formula",
+      make: () => Q.mc("The work done to move 400 C of charge between two points is 88,800 J. What is the potential difference?", "222 V", ["35,520,000 V", "0.0045 V", "89,200 V"], "V = W ÷ Q = 88,800 ÷ 400 = 222 V.") },
+    { id: "recap-tanks", concept: "e1-push",
+      make: () => Q.mc("Two points in a circuit are at the same potential. What happens between them?", "No current flows: there's no difference to push the charges", ["A big current flows", "The current flows backwards", "The charges speed up"], "No difference in level, no flow, just like two tanks with equal water levels (Level 1).") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E3_BANK, count: 10, storageKey: "elec-3-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-3-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e3" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e3", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-3-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["dial", "tanks", "figVolt"],
+    prepare() { steps.prepare(); },
+    quizBank: E3_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e3",
+    cases() {
+      const out = [];
+      for (const [w, q] of [[2, 20], [120, 1], [24, 2], [100, 10], [60, 4], [2, 1], [50, 1], [120, 20], [46, 1]]) out.push({ kind: "lab", w, q, name: `lab W=${w} Q=${q}` });
+      for (const type of ["V", "W", "Q", "I"]) for (const kj of type === "V" || type === "Q" ? [false, true] : [false]) for (const answered of ["no", "right", "wrong"])
+        out.push({ kind: "practice", f: { type, V: 220, q: 50, kj, t: 5 }, answered, name: `practice ${type} kj=${kj} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { lab.w = c.w; lab.q = c.q; renderLab(); }
+      else { newProblem(c.f); if (c.answered === "right") check(String(p.ans)); if (c.answered === "wrong") check(String(p.ans * 7)); }
+    },
+    practice: () => p, check, newProblem,
+  };
+})();
+</script>

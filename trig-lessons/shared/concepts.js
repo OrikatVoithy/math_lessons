@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -39,6 +39,17 @@
     "e2-what-if": ["e2", 4, ".whatif", "what happens when the charge or time changes"],
     "e2-ammeter": ["e2", 5, ".stepbody", "the ammeter, connected in series"],
     "e2-chargers": ["e2", 6, ".checks", "why a 2 A charger is faster"],
+    // Electricity 3: Potential difference
+    "e3-why": ["e3", 0, ".stepbody", "why a socket is more dangerous than a battery"],
+    "e3-level": ["e3", 1, ".stepbody", "electric potential: charges flow from higher to lower"],
+    "e3-def": ["e3", 2, ".defbox", "what potential difference is"],
+    "e3-formula": ["e3", 2, ".bigeq", "potential difference = work ÷ charge (V = W ÷ Q)"],
+    "e3-units": ["e3", 2, ".unitbox", "1 volt = 1 joule per coulomb"],
+    "e3-triangle": ["e3", 3, ".cover", "finding the work or the charge"],
+    "e3-what-if": ["e3", 4, ".whatif", "what happens when the work or charge changes"],
+    "e3-voltmeter": ["e3", 5, ".stepbody", "the voltmeter, connected in parallel"],
+    "e3-compare": ["e3", 5, ".meters", "ammeter vs voltmeter"],
+    "e3-socket": ["e3", 6, ".checks", "energy per coulomb: socket vs battery"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
