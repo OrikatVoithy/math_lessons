@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -29,6 +29,16 @@
     "e1-dc-ac": ["e1", 5, ".srcgrid", "direct and alternating current"],
     "e1-quantities": ["e1", 5, ".roadmap", "the four things we measure in a circuit"],
     "e1-torch": ["e1", 6, ".checks", "solving the torch problem"],
+    // Electricity 2: Current
+    "e2-why": ["e2", 0, ".stepbody", "which phone charger is faster"],
+    "e2-idea": ["e2", 1, ".defs", "what current is: charge passing each second"],
+    "e2-formula": ["e2", 2, ".bigeq", "current = charge ÷ time (I = Q ÷ t)"],
+    "e2-units": ["e2", 2, ".unitbox", "1 ampere = 1 coulomb per second"],
+    "e2-convert": ["e2", 2, ".example", "changing the time to seconds"],
+    "e2-triangle": ["e2", 3, ".cover", "finding the charge or the time"],
+    "e2-what-if": ["e2", 4, ".whatif", "what happens when the charge or time changes"],
+    "e2-ammeter": ["e2", 5, ".stepbody", "the ammeter, connected in series"],
+    "e2-chargers": ["e2", 6, ".checks", "why a 2 A charger is faster"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
