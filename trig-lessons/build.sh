@@ -6,7 +6,7 @@
 # which is replaced by the contents of shared/quiz.js (or .css), so every built page is one
 # self-contained file.
 #
-#   dist/      full HTML documents for hosting (GitHub Pages, Netlify)
+#   dist/      full HTML documents for hosting (GitHub Pages)
 #                index.html   -> dist/index.html          (Level 1, the site's front page)
 #                level-2.html -> dist/level-2/index.html  (so the address is .../level-2/)
 #   preview/   the same pages without the document wrapper, for Claude artifact previews
