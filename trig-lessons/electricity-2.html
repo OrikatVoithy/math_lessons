@@ -1,0 +1,955 @@
+<title>Electric Current</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity/">← Electricity 1: What makes it flow</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 2 of 8</div>
+    <h1>How much electricity flows? (Current)</h1>
+    <p class="lede">Level 1 showed that charges flow round a closed loop. Now we measure how much flows each second. Go through the 7 short steps, then try the current meter and the practice.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Which charger fills your phone faster?</h2>
+        <div class="in-short">A charger marked 2 A fills a phone faster than one marked 1 A. "A" means amperes: how much electricity flows each second. That flow is called the current.</div>
+        <p>Look at the small print on two phone chargers. One says <b class="k-i">1 A</b>. The other says <b class="k-i">2 A</b>.</p>
+        <p>Plug the same empty phone into each one. The 2 A charger fills it much faster.</p>
+        <p>What does the "A" mean? And why does a bigger number fill the phone faster? By the end of this level, you'll be able to work out exactly how much faster.</p>
+        <div class="more">
+          <h3>Where else you'll see amperes</h3>
+          <p>On plugs, extension leads and circuit breakers, which say how much current they can safely carry. A small LED lamp uses well under 1 A. A car's starter motor needs a huge current, over 100 A, for a few seconds.</p>
+          <h3>Why it matters</h3>
+          <p>Too much current makes wires hot. Knowing the current tells you if a cable, a plug or a charger is safe. Level 4 explains why wires heat up.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 170" role="img" aria-label="Two phone chargers. One is labelled 1 A, the other 2 A.">
+          <rect x="30" y="40" width="70" height="80" rx="10" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="44" y="26" width="10" height="16" rx="2" fill="var(--muted)"/>
+          <rect x="76" y="26" width="10" height="16" rx="2" fill="var(--muted)"/>
+          <text x="65" y="88" text-anchor="middle" class="t-adj num" font-size="22">1 A</text>
+          <rect x="160" y="40" width="70" height="80" rx="10" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="174" y="26" width="10" height="16" rx="2" fill="var(--muted)"/>
+          <rect x="206" y="26" width="10" height="16" rx="2" fill="var(--muted)"/>
+          <text x="195" y="88" text-anchor="middle" class="t-adj num" font-size="22">2 A</text>
+          <text x="65" y="146" text-anchor="middle" class="t-ink" font-size="13">charger 1</text>
+          <text x="195" y="146" text-anchor="middle" class="t-ink" font-size="13">charger 2</text>
+          <text x="130" y="86" text-anchor="middle" class="t-angle" font-size="22" font-weight="700">?</text>
+        </svg>
+        <figcaption>Same phone, two chargers. Which is faster, and by how much?</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big idea</div>
+        <h2>Current is how much charge passes each second</h2>
+        <div class="in-short">Electric current (I) is the amount of electric charge that passes one point in a wire each second. Charge is measured in coulombs (C). Current is measured in amperes (A).</div>
+        <p>In Level 1, <a data-concept="e1-loop" href="#">charges flow round the loop like water in pipes</a>. Now we ask: how much?</p>
+        <p>Stand at one point of a water pipe with a stopwatch. Count the litres that pass you each second. A strong pump and a wide pipe: lots of water each second. A weak pump: only a little.</p>
+        <p>Do the same at one point in a wire, but count electric charge. The amount of charge that passes each second is the <b class="k-i">current</b><span class="ar" lang="ar"> شدة التيار</span>.</p>
+        <dl class="defs">
+          <div><dt>Charge <b>Q</b></dt><dd>How much electricity. Measured in <b>coulombs (C)</b><span class="ar" lang="ar"> كولوم</span>.</dd></div>
+          <div><dt>Time <b>t</b></dt><dd>Measured in <b>seconds (s)</b>.</dd></div>
+          <div><dt class="k-i">Current <b>I</b></dt><dd>Charge passing each second. Measured in <b>amperes (A)</b><span class="ar" lang="ar"> أمبير</span>, or "amps" for short.</dd></div>
+        </dl>
+        <div class="more">
+          <h3>Why count at just one point?</h3>
+          <p>In a single loop, the current is the same everywhere. Charges can't pile up anywhere, so whatever passes one point must also pass every other point. It's like cars on a one-lane roundabout: the same number pass every spot each minute.</p>
+          <h3>Why the letter I?</h3>
+          <p>It comes from "intensity". Your book calls it the <b>electric current intensity</b>: "the quantity of electric charge that passes through a cross-section of a conductor in one second."</p>
+          <h3>Who were Coulomb and Ampère?</h3>
+          <p>Two French scientists from the 1700s and 1800s. The units of charge and current are named after them.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 150" role="img" aria-label="A wire with charges flowing along it, and one point marked where we count how many pass each second.">
+          <rect x="10" y="62" width="240" height="26" rx="13" fill="var(--adj)" fill-opacity="0.14" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="122" y="54" width="16" height="42" rx="3" fill="none" stroke="var(--angle)" stroke-width="3"/>
+          <circle cx="40" cy="75" r="5" class="f-charge"/><circle cx="70" cy="75" r="5" class="f-charge"/><circle cx="100" cy="75" r="5" class="f-charge"/>
+          <circle cx="160" cy="75" r="5" class="f-charge"/><circle cx="190" cy="75" r="5" class="f-charge"/><circle cx="220" cy="75" r="5" class="f-charge"/>
+          <path d="M236,118 L250,124 L236,130 Z" fill="var(--adj)"/>
+          <text x="130" y="38" text-anchor="middle" class="t-angle" font-size="13" font-weight="700">count here</text>
+          <text x="20" y="128" class="t-adj" font-size="13">charges flowing</text>
+        </svg>
+        <figcaption>Current = how much charge passes the marked point each second.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The rule</div>
+        <h2>Current = charge ÷ time</h2>
+        <div class="in-short">I = Q ÷ t. One ampere means one coulomb passes each second. Always change the time to seconds first.</div>
+        <div class="bigeq"><span class="k-i">I</span> = <span class="frac"><span>Q</span><span>t</span></span><span style="font-size:1rem;font-weight:400">current = charge ÷ time</span></div>
+        <p>Divide the charge by the time, and you get how much passes in each second.</p>
+        <p class="unitbox">So <b>1 ampere = 1 coulomb per second</b> (1 A = 1 C/s). "The current is 0.2 A" means 0.2 coulombs pass each second.</p>
+        <div class="example">
+          <div class="eyebrow">Example from your book</div>
+          <p><b>A charge of 5400 C passes through a wire in half an hour. What is the current?</b></p>
+          <ol class="recipe compact">
+            <li>Time in seconds: half an hour = 0.5 × 60 × 60 = <span class="num">1800 s</span>.</li>
+            <li><span class="num"><span class="k-i">I</span> = Q ÷ t = 5400 ÷ 1800 = <span class="k-i">3 A</span></span>.</li>
+          </ol>
+        </div>
+        <p class="tip">Time must be in seconds. Minutes × 60. Hours × 3600 (60 × 60).</p>
+        <div class="more">
+          <h3>Why seconds?</h3>
+          <p>An ampere is coulombs <b>per second</b>. If you divide by minutes, you get coulombs per minute, which is 60 times too big. In the example, 5400 ÷ 30 minutes = 180, which is far too big. The right answer is 3 A.</p>
+          <h3>How your book defines the units</h3>
+          <p><b>The ampere:</b> "the current intensity resulting from the passage of an electric charge of one coulomb through a cross-section of a conductor in one second."</p>
+          <p><b>The coulomb:</b> "the quantity of electric charge transferred by a steady current of one ampere in one second."</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Turn it around</div>
+        <h2>Finding the charge or the time</h2>
+        <div class="in-short">Cover the one you want: I = Q ÷ t, Q = I × t, t = Q ÷ I. If you want Q (on top), multiply. If you want I or t, divide.</div>
+        <p>It's the same <a data-concept="l2-cover" href="#">cover-up triangle from Trigonometry Level 2</a>. Put Q on top, and I and t on the bottom. Cover the one you want (shaded below), and the other two tell you what to do: side by side means multiply, one above the other means divide.</p>
+        <div class="cover">
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="28,58 60,58 60,94 6,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">Q</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want I? I = Q ÷ t</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,6 92,58 28,58" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">Q</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want Q? Q = I × t</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,58 92,58 114,94 60,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">Q</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want t? t = Q ÷ I</figcaption></figure>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Find the charge</div><p><b>A current of 6 A flows for 2 minutes. How much charge passes?</b></p><ol class="recipe compact"><li>Time in seconds: 2 × 60 = <span class="num">120 s</span>.</li><li><span class="num">Q = I × t = 6 × 120 = 720 C</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find the time</div><p><b>40 C of charge passes at a current of 5 A. How long does it take?</b></p><ol class="recipe compact"><li>Want t, so divide: <span class="num">t = Q ÷ I</span>.</li><li><span class="num">t = 40 ÷ 5 = 8 s</span>.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>Check that the answer makes sense</h3>
+          <p>A bigger current for the same time should move more charge. A bigger current should move the same charge in less time. If your answer goes the other way, you've multiplied when you should divide, or the other way round.</p>
+          <h3>The units check themselves</h3>
+          <p>Amperes × seconds = coulombs (A × s = C). Coulombs ÷ amperes = seconds (C ÷ A = s). If the units come out right, the formula is probably right too.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">What happens if…?</div>
+        <h2>Change the charge or the time, and the current changes</h2>
+        <div class="in-short">More charge in the same time → more current (direct relationship). The same charge over more time → less current (inverse relationship). Double the charge and halve the time → 4 times the current.</div>
+        <p>Your book often asks "what happens to the current if…?". Write <b>I = Q ÷ t</b> and think: anything that grows <b>on top</b> makes I bigger. Anything that grows <b>on the bottom</b> makes I smaller.</p>
+        <div class="tablewrap">
+          <table class="whatif">
+            <thead><tr><th scope="col">If…</th><th scope="col">Example (start: 100 C in 10 s = 10 A)</th><th scope="col">Current</th></tr></thead>
+            <tbody>
+              <tr><td>Charge doubles, same time</td><td class="num">200 ÷ 10 = 20 A</td><td class="res">× 2</td></tr>
+              <tr><td>Time doubles, same charge</td><td class="num">100 ÷ 20 = 5 A</td><td class="res">÷ 2</td></tr>
+              <tr><td>Charge doubles and time halves</td><td class="num">200 ÷ 5 = 40 A</td><td class="res">× 4</td></tr>
+              <tr><td>Charge triples and time halves</td><td class="num">300 ÷ 5 = 60 A</td><td class="res">× 6</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Your book's words: at constant time, current and charge have a <b>direct relationship</b> (one goes up, the other goes up). At constant charge, current and time have an <b>inverse relationship</b> (one goes up, the other goes down).</p>
+        <div class="more">
+          <h3>The graphs</h3>
+          <p>Current against charge (same time) is a straight line through zero: double one, double the other. Current against time (same charge) is a curve that falls: the longer it takes, the smaller the current.</p>
+          <h3>Watch the words</h3>
+          <p>"The charge increases by twice its value" means it goes up by 2 × Q, so it becomes <b>3 times</b> as much (Q + 2Q). That's the last row of the table.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody">
+        <div class="eyebrow">Measuring it</div>
+        <h2>The ammeter goes in the loop (in series)</h2>
+        <div class="in-short">An ammeter measures current in amperes. It's connected in series: inside the loop itself, so all the current flows through it. Its red (+) terminal goes towards the battery's +.</div>
+        <p>An <b class="k-i">ammeter</b><span class="ar" lang="ar"> الأميتر</span> measures current in amperes. In circuit diagrams it's a circle with an A inside.</p>
+        <p>It's connected <b>in series</b><span class="ar" lang="ar"> على التوالي</span>. You open the loop and put the ammeter in the gap, so every charge has to pass through it. It's like a water meter fitted into the pipe itself.</p>
+        <p>Connect its <b>red (+)</b> terminal to the side that leads to the battery's <b>+</b>, and its <b>black (−)</b> terminal to the side that leads to <b>−</b>. The other way round, the needle tries to move backwards.</p>
+        <div class="more">
+          <h3>Why not just beside the circuit?</h3>
+          <p>If the ammeter isn't in the loop, the current doesn't go through it, so it can't count anything. A water meter lying next to the pipe measures nothing.</p>
+          <h3>Where in the loop?</h3>
+          <p>Anywhere. In a single loop the current is the same everywhere (step 2), so the ammeter reads the same before or after the bulb.</p>
+          <h3>Coming in Level 3</h3>
+          <p>The voltmeter measures the push. It's connected the other way: across a part, not in the loop.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figAmm" viewBox="0 0 320 230" role="img" aria-label="A circuit with a battery, an ammeter in the top wire, and a bulb. The ammeter is part of the loop."></svg>
+        <figcaption>The ammeter is part of the loop, so all the current flows through it.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the chargers</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">A 2 A charger moves 2 C every second, twice as much as a 1 A charger. To move the same charge, it takes half the time: t = Q ÷ I.</div>
+        <ul class="checks">
+          <li>A <b class="k-i">1 A</b> charger moves 1 coulomb of charge into the phone every second. A <b class="k-i">2 A</b> charger moves 2 coulombs every second.</li>
+          <li>A typical phone battery holds about <span class="num">14,400 C</span>. With <span class="num">t = Q ÷ I</span>:</li>
+          <li>1 A: <span class="num">14,400 ÷ 1 = 14,400 s = 4 hours</span>. 2 A: <span class="num">14,400 ÷ 2 = 7,200 s = 2 hours</span>.</li>
+        </ul>
+        <p>Double the current, half the time. That's the inverse relationship from step 5.</p>
+        <ul class="uses d-extra">
+          <li><h3>Phone makers</h3><p>"Fast charging" just means a bigger current.</p></li>
+          <li><h3>Electricians</h3><p>Choose cables thick enough for the current they'll carry.</p></li>
+          <li><h3>Car mechanics</h3><p>Test that a battery can give the big current a starter motor needs.</p></li>
+        </ul>
+        <div class="more">
+          <h3>Where does 14,400 C come from?</h3>
+          <p>Phone batteries are labelled in mAh (milliamp-hours). A 4000 mAh battery can give 4000 milliamps (4 A) for 1 hour: 4 × 3600 = 14,400 C.</p>
+          <h3>Is a bigger current always better?</h3>
+          <p>No. Bigger currents make wires hotter. That's why fast chargers come with good cables, and why the phone controls the current near the end. Real charging also slows down as the battery gets full, so these times are a rough guide.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: the current meter</h2>
+    <p class="lede" style="margin-top:8px">Set how much charge passes and how long it takes. Before you move a slider, guess what the ammeter will show.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Current meter">
+    <div class="stage dialwrap">
+      <svg id="dial" class="circfig" viewBox="0 0 320 200" role="img" aria-label="An ammeter dial from 0 to 10 amperes."></svg>
+      <svg id="strip" class="circfig" viewBox="0 0 320 70" role="img" aria-label="Charges flowing along a wire past a counting point."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="qIn">Charge Q</label><input type="range" id="qIn" min="1" max="40" step="1" value="12"><output id="qOut"></output></div>
+      <div class="slider-row"><label for="tIn">Time t</label><input type="range" id="tIn" min="4" max="40" step="1" value="6"><output id="tOut"></output></div>
+      <div class="calc" id="calc" aria-live="polite"></div>
+      <div class="row"><span class="label">What if…</span><button type="button" data-ch="q2">Double the charge</button><button type="button" data-ch="t2">Double the time</button><button type="button" data-ch="th">Halve the time</button></div>
+      <p class="changemsg" id="changeMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">New numbers each time. Work it out on paper first. Use a hint if you're stuck.</p>
+    </div>
+    <div class="panel pcard">
+      <p class="qtext" id="pq"></p>
+      <div class="answer-row"><label class="sr" for="pin">Your answer</label><input id="pin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 2.5"><span id="punit"></span><button type="button" class="primary" id="pcheck">Check</button><button type="button" id="phint">Hint</button></div>
+      <div class="hintbox" id="phintbox" aria-live="polite"></div>
+      <div class="feedback" id="pfb" aria-live="polite"></div>
+      <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next problem</button></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on current</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, plus a little of Level 1. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel now"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  const big = (x) => Number(x).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const close = (a, b) => Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.01);
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Step 6: circuit with an ammeter in series ---------- */
+  (function drawAmmeterCircuit() {
+    const svg = $("figAmm"), L = 50, R = 270, T = 50, B = 180;
+    const w = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    w(L, T, L, 105); w(L, 125, L, B);
+    el("line", { x1: L - 20, y1: 105, x2: L + 20, y2: 105, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: L - 10, y1: 125, x2: L + 10, y2: 125, stroke: "var(--ink)", "stroke-width": 7 }, svg);
+    w(L, T, 142, T); w(178, T, R, T);
+    el("circle", { cx: 160, cy: T, r: 18, fill: "var(--surface)", stroke: "var(--adj)", "stroke-width": 3 }, svg);
+    el("text", { x: 160, y: 56, "text-anchor": "middle", class: "t-adj", "font-size": 17, "font-weight": 700 }, svg, "A");
+    el("circle", { cx: 142, cy: T, r: 4, fill: "var(--bad)" }, svg);
+    el("circle", { cx: 178, cy: T, r: 4, fill: "var(--ink)" }, svg);
+    w(R, T, R, 97); w(R, 133, R, B); w(L, B, R, B);
+    el("circle", { cx: R, cy: 115, r: 30, class: "f-glow" }, svg);
+    el("circle", { cx: R, cy: 115, r: 18, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+    el("line", { x1: R - 10, y1: 105, x2: R + 10, y2: 125, stroke: "var(--angle)", "stroke-width": 2 }, svg);
+    el("line", { x1: R + 10, y1: 105, x2: R - 10, y2: 125, stroke: "var(--angle)", "stroke-width": 2 }, svg);
+    el("text", { x: 16, y: 110, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "+");
+    el("text", { x: 18, y: 136, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "−");
+    el("text", { x: 134, y: 30, "text-anchor": "middle", class: "t-bad", "font-size": 13, "font-weight": 700 }, svg, "+");
+    el("text", { x: 186, y: 30, "text-anchor": "middle", class: "t-ink", "font-size": 13, "font-weight": 700 }, svg, "−");
+    el("text", { x: 160, y: 92, "text-anchor": "middle", class: "t-adj", "font-size": 13, "font-weight": 700 }, svg, "ammeter");
+    el("text", { x: 78, y: 120, class: "t-ink", "font-size": 13 }, svg, "battery");
+    el("text", { x: 234, y: 120, "text-anchor": "end", class: "t-ink", "font-size": 13 }, svg, "bulb");
+    const arrow = (x, y, dx, dy) => { const k = 7; el("path", { d: `M${x + dx * k},${y + dy * k} L${x - dx * k - dy * k * 0.8},${y - dy * k + dx * k * 0.8} L${x - dx * k + dy * k * 0.8},${y - dy * k - dx * k * 0.8} Z`, fill: "var(--adj)" }, svg); };
+    arrow(100, T, 1, 0); arrow(R, 160, 0, 1); arrow(160, B, -1, 0); arrow(L, 76, 0, -1);
+  })();
+
+  /* ---------- Lab: the current meter ---------- */
+  const lab = { q: 12, t: 6 };
+  let raf = 0, phase = 0, last = 0;
+  function drawDial(I) {
+    const svg = $("dial");
+    svg.replaceChildren();
+    const cx = 160, cy = 150;
+    el("path", { d: `M${cx - 106},${cy} A106,106 0 0 1 ${cx + 106},${cy}`, fill: "none", stroke: "var(--line)", "stroke-width": 8 }, svg);
+    for (let v = 0; v <= 10; v++) {
+      const a = Math.PI - (v / 10) * Math.PI, r1 = 100, r2 = v % 2 ? 110 : 116;
+      el("line", { x1: cx + r1 * Math.cos(a), y1: cy - r1 * Math.sin(a), x2: cx + r2 * Math.cos(a), y2: cy - r2 * Math.sin(a), class: "s-ink", "stroke-width": v % 2 ? 1.5 : 2.5 }, svg);
+      if (v % 2 === 0) el("text", { x: cx + 132 * Math.cos(a), y: cy - 132 * Math.sin(a) + 5, "text-anchor": "middle", class: "t-ink num", "font-size": 13 }, svg, String(v));
+    }
+    const a = Math.PI - (Math.min(I, 10) / 10) * Math.PI;
+    el("line", { x1: cx, y1: cy, x2: cx + 88 * Math.cos(a), y2: cy - 88 * Math.sin(a), stroke: "var(--adj)", "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    el("circle", { cx, cy, r: 7, fill: "var(--ink)" }, svg);
+    el("text", { x: cx, y: 180, "text-anchor": "middle", class: "t-adj num", "font-size": 20 }, svg, `${fmt(I)} A`);
+    el("text", { x: cx, y: 197, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "ammeter");
+  }
+  function drawStrip(I) {
+    const svg = $("strip");
+    svg.replaceChildren();
+    el("rect", { x: 6, y: 26, width: 308, height: 22, rx: 11, fill: "var(--adj)", "fill-opacity": 0.14, stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("rect", { x: 152, y: 20, width: 16, height: 34, rx: 3, fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    el("text", { x: 160, y: 14, "text-anchor": "middle", class: "t-angle", "font-size": 12, "font-weight": 700 }, svg, "count here");
+    const dots = Array.from({ length: 11 }, (_, i) => el("circle", { cx: 16 + i * 29, cy: 37, r: 5, class: "f-charge" }, svg));
+    cancelAnimationFrame(raf);
+    if (reduced()) return;
+    last = 0;
+    const step = (now) => {
+      if (last) phase = (phase + (now - last) * 0.0012 * I * 10) % 29;
+      last = now;
+      dots.forEach((d, i) => d.setAttribute("cx", 16 + ((i * 29 + phase) % 319)));
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  function renderLab(msg = "") {
+    const I = lab.q / lab.t;
+    $("qIn").value = lab.q; $("tIn").value = lab.t;
+    $("qOut").textContent = `${lab.q} C`; $("tOut").textContent = `${lab.t} s`;
+    $("calc").innerHTML = `<span class="k-i">I</span> = Q ÷ t = ${lab.q} ÷ ${lab.t} = <b class="k-i">${fmt(I)} A</b><br><span style="font-size:0.9rem;font-family:var(--body)">${fmt(I)} coulombs pass the counting point every second.</span>`;
+    $("changeMsg").textContent = msg;
+    drawDial(I);
+    drawStrip(I);
+  }
+  $("qIn").addEventListener("input", () => { lab.q = +$("qIn").value; renderLab(); });
+  $("tIn").addEventListener("input", () => { lab.t = +$("tIn").value; renderLab(); });
+  document.querySelectorAll("[data-ch]").forEach((b) => b.addEventListener("click", () => {
+    const before = lab.q / lab.t, kind = b.dataset.ch;
+    if (kind === "q2" && lab.q * 2 > 40) return renderLab("The charge slider only goes up to 40 C. Make the charge smaller first, then try again.");
+    if (kind === "t2" && lab.t * 2 > 40) return renderLab("The time slider only goes up to 40 s. Make the time smaller first, then try again.");
+    if (kind === "th" && (lab.t % 2 || lab.t / 2 < 4)) return renderLab(lab.t % 2 ? `Half of ${lab.t} s is ${lab.t / 2} s, which the slider can't show. Pick an even time first.` : "The time slider can't go below 4 s. Make the time bigger first.");
+    if (kind === "q2") lab.q *= 2; if (kind === "t2") lab.t *= 2; if (kind === "th") lab.t /= 2;
+    const after = lab.q / lab.t;
+    const word = { q2: "More charge in the same time: the current doubled.", t2: "The same charge over twice the time: the current halved.", th: "The same charge in half the time: the current doubled." }[kind];
+    renderLab(`${fmt(before)} A → ${fmt(after)} A. ${word}`);
+  }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const IS = [0.2, 0.4, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  const TS = { s: [2, 4, 5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 90, 120], min: [1, 2, 3, 4, 5, 10, 15, 20, 30], h: [0.5, 1, 2] };
+  const tWords = (v, u) => u === "s" ? `${v} seconds` : u === "min" ? (v === 1 ? "1 minute" : `${v} minutes`) : v === 0.5 ? "half an hour" : v === 1 ? "1 hour" : `${v} hours`;
+  const toSec = (v, u) => (u === "s" ? v : u === "min" ? v * 60 : v * 3600);
+  const convLine = (p) => p.u === "s" ? "" : p.u === "min" ? `Time in seconds: ${p.tv} × 60 = ${big(p.ts)} s.` : `Time in seconds: ${p.tv} × 60 × 60 = ${big(p.ts)} s.`;
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const type = f.type || pickOne(["I", "I", "Q", "Q", "t"]);
+    const u = type === "t" ? "s" : f.u || pickOne(["s", "s", "s", "min", "min", "h"]);
+    const I = f.I ?? pickOne(IS), tv = f.tv ?? pickOne(TS[u]), ts = toSec(tv, u), q = +(I * ts).toFixed(2);
+    p = { type, u, I, tv, ts, q, hints: 0, done: false };
+    p.ans = type === "I" ? I : type === "Q" ? q : ts;
+    p.unit = type === "I" ? "A" : type === "Q" ? "C" : "s";
+    $("pq").textContent = type === "I" ? `A charge of ${big(q)} C passes through a wire in ${tWords(tv, u)}. What is the current?`
+      : type === "Q" ? `A current of ${I} A flows through a wire for ${tWords(tv, u)}. How much charge passes?`
+      : `A charge of ${big(q)} C passes through a wire at a current of ${I} A. How many seconds does it take?`;
+    $("punit").textContent = p.unit;
+    $("pin").value = ""; $("pin").disabled = false; $("pcheck").disabled = false; $("phint").disabled = false;
+    $("phintbox").textContent = ""; $("pfb").className = "feedback"; $("pfb").textContent = "";
+  }
+  const formulaLine = (p) => p.type === "I" ? `I = Q ÷ t = ${big(p.q)} ÷ ${big(p.ts)} = <b>${fmt(p.I)} A</b>.` : p.type === "Q" ? `Q = I × t = ${p.I} × ${big(p.ts)} = <b>${big(p.q)} C</b>.` : `t = Q ÷ I = ${big(p.q)} ÷ ${p.I} = <b>${big(p.ts)} s</b>.`;
+  function hint() {
+    if (!p || p.done) return;
+    p.hints = Math.min(3, p.hints + 1);
+    const want = { I: "the current I", Q: "the charge Q", t: "the time t" }[p.type];
+    const lines = [
+      `Write down what you know and what you want. You want ${want}.`,
+      `Use the triangle with Q on top: ${p.type === "I" ? "I = Q ÷ t" : p.type === "Q" ? "Q = I × t" : "t = Q ÷ I"}.${p.u === "s" ? "" : " First change the time to seconds."}`,
+      `${convLine(p)} Now work out ${p.type === "I" ? `${big(p.q)} ÷ ${big(p.ts)}` : p.type === "Q" ? `${p.I} × ${big(p.ts)}` : `${big(p.q)} ÷ ${p.I}`}.`,
+    ];
+    $("phintbox").textContent = lines.slice(0, p.hints).join(" ");
+    if (p.hints === 3) $("phint").disabled = true;
+  }
+  const readNum = (s) => parseFloat(String(s).replace(/,/g, "").replace(/[^\d.\-]/g, ""));
+  function check(raw) {
+    if (!p || p.done) return;
+    const v = readNum(raw);
+    if (!isFinite(v)) { $("pfb").className = "feedback bad"; $("pfb").textContent = "Type a number, like 2.5."; return; }
+    p.done = true;
+    $("pin").disabled = true; $("pcheck").disabled = true; $("phint").disabled = true;
+    const ok = close(v, p.ans);
+    let why = "", see = "";
+    if (!ok) {
+      if (p.type === "I") {
+        if (close(v, p.q * p.ts)) { why = "You multiplied. Current is charge <b>divided</b> by time."; see = "e2-formula"; }
+        else if (close(v, p.ts / p.q)) { why = "That's time ÷ charge, upside down. Current = charge ÷ time."; see = "e2-formula"; }
+        else if (p.u !== "s" && close(v, p.q / p.tv)) { why = `You divided by ${p.u === "min" ? "minutes" : "hours"}. Change the time to seconds first.`; see = "e2-convert"; }
+      } else if (p.type === "Q") {
+        if (close(v, p.I / p.ts) || close(v, p.ts / p.I)) { why = "You divided. Q is on top of the triangle, so to find it you <b>multiply</b>: Q = I × t."; see = "e2-triangle"; }
+        else if (p.u !== "s" && close(v, p.I * p.tv)) { why = `You used ${p.u === "min" ? "minutes" : "hours"}. Change the time to seconds first.`; see = "e2-convert"; }
+      } else {
+        if (close(v, p.q * p.I)) { why = "You multiplied. To find t, divide: t = Q ÷ I."; see = "e2-triangle"; }
+        else if (close(v, p.I / p.q)) { why = "That's I ÷ Q, upside down. t = Q ÷ I."; see = "e2-triangle"; }
+      }
+      if (!why) { why = "Check each step below."; see = p.type === "I" ? "e2-formula" : "e2-triangle"; }
+    }
+    streak = ok ? streak + 1 : 0;
+    const work = [convLine(p), formulaLine(p)].filter(Boolean);
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = (ok ? "<b>Right!</b>" : `<b>Not quite.</b> The answer is ${big(p.ans)} ${p.unit}. ${why} <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`)
+      + `<ol class="work">${work.map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pcheck").addEventListener("click", () => check($("pin").value));
+  $("pin").addEventListener("keydown", (e) => { if (e.key === "Enter") check($("pin").value); });
+  $("phint").addEventListener("click", hint);
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "A charger says 2 A. What does the A stand for?", correct: 1, ok: "Right. Amperes, the unit of current.",
+       options: [["Area", "It's a unit of electricity, not of size."], ["Amperes", null], ["Apple", "It's the same on every brand of charger. It's a unit."]] }],
+    [{ type: "choice", q: "Electric current is…", correct: 0, ok: "Right. Charge per second.", see: "e2-idea",
+       options: [["how much charge passes a point each second", null], ["how hard the charges are pushed", "That's the potential difference, Level 3."], ["all the charge in the wire", "Current is about how much passes each second, not the total."]] }],
+    [{ type: "choice", q: "10 C of charge passes in 5 s. What is the current?", correct: 1, ok: "Right. 10 ÷ 5 = 2 A.", see: "e2-formula",
+       options: [["50 A", "You multiplied. Current = charge ÷ time."], ["2 A", null], ["0.5 A", "That's 5 ÷ 10, upside down. Charge goes on top."]] },
+     { type: "choice", q: "A current of 0.5 A means…", correct: 0, ok: "Right. 1 A = 1 C each second, so 0.5 A = 0.5 C each second.", see: "e2-units",
+       options: [["0.5 C of charge passes each second", null], ["0.5 C of charge passes in total", "Current is per second, not the total."], ["the charge moves 0.5 metres each second", "Amperes measure charge per second, not distance."]] }],
+    [{ type: "choice", q: "A current of 3 A flows for 10 s. How much charge passes?", correct: 0, ok: "Right. Q = I × t = 3 × 10 = 30 C.", see: "e2-triangle",
+       options: [["30 C", null], ["0.3 C", "That's 3 ÷ 10. Q is on top of the triangle, so multiply."], ["3.3 C", "That's 10 ÷ 3. To find Q, multiply: Q = I × t."]] }],
+    [{ type: "choice", q: "The charge doubles, but the time stays the same. The current…", correct: 0, ok: "Right. More on top, same on the bottom: I doubles.", see: "e2-what-if",
+       options: [["doubles", null], ["halves", "Charge is on top of I = Q ÷ t. More on top makes I bigger."], ["stays the same", "The same time, but twice the charge, so twice as much passes each second."]] },
+     { type: "choice", q: "The time doubles, but the charge stays the same. The current…", correct: 1, ok: "Right. Time is on the bottom: more time, less current.", see: "e2-what-if",
+       options: [["doubles", "Time is on the bottom of I = Q ÷ t. A bigger bottom makes I smaller."], ["halves", null], ["stays the same", "The same charge spread over twice the time, so less passes each second."]] }],
+    [{ type: "choice", q: "How is an ammeter connected?", correct: 0, ok: "Right. In series, so all the current flows through it.", see: "e2-ammeter",
+       options: [["In series: inside the loop", null], ["Beside the circuit, not touching it", "Then no current goes through it, so it reads nothing."]] }],
+    [{ type: "choice", q: "A phone needs the same charge from each charger. Which one fills it faster?", correct: 1, ok: "Right. t = Q ÷ I: a bigger current means less time.", see: "e2-chargers",
+       options: [["The 1 A charger", "It moves only 1 C each second, half as much as 2 A."], ["The 2 A charger", null]] }],
+  ];
+  const AR = [
+    "الشاحن المكتوب عليه 2 A بيشحن الموبايل أسرع من اللي مكتوب عليه 1 A. الحرف A معناه <b>أمبير</b>: كمية الكهربا اللي بتعدي كل ثانية، ودي اسمها <b>شدة التيار</b>.",
+    "<b>شدة التيار (I)</b> = كمية الشحنة الكهربية اللي بتعدي من نقطة في السلك في الثانية الواحدة. الشحنة بتتقاس بـ<b>الكولوم</b>، والتيار بـ<b>الأمبير</b>.",
+    "شدة التيار = الشحنة ÷ الزمن: <b>I = Q ÷ t</b>. يعني ١ أمبير = ١ كولوم كل ثانية. لازم الزمن يكون بالثواني (الدقيقة × ٦٠، الساعة × ٣٦٠٠).",
+    "غطّي اللي عايزه في المثلث: <b>Q = I × t</b> و <b>t = Q ÷ I</b>. لو عايز Q (فوق) اضرب، ولو عايز I أو t اقسم.",
+    "لو الشحنة زادت والزمن ثابت، التيار يزيد (<b>علاقة طردية</b>). لو الزمن زاد والشحنة ثابتة، التيار يقل (<b>علاقة عكسية</b>).",
+    "<b>الأميتر</b> بيقيس شدة التيار بالأمبير، وبيتوصل <b>على التوالي</b> جوّه الدايرة نفسها، والطرف الأحمر (+) ناحية القطب الموجب للبطارية.",
+    "شاحن 2 أمبير بينقل ٢ كولوم كل ثانية، ضعف شاحن 1 أمبير، فبيخلّص نفس الشحنة في نص الوقت.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-2-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const WHATIF = [
+    ["the charge doubles while the time stays the same", "it doubles", ["it halves", "it stays the same", "it becomes 4 times as big"], "Charge is on top of I = Q ÷ t, so doubling it doubles I."],
+    ["the time doubles while the charge stays the same", "it halves", ["it doubles", "it stays the same", "it becomes 4 times as big"], "Time is on the bottom of I = Q ÷ t, so doubling it halves I."],
+    ["the charge doubles and the time halves", "it becomes 4 times as big", ["it doubles", "it stays the same", "it halves"], "Twice the top (× 2) and half the bottom (another × 2): × 4."],
+    ["the charge and the time both double", "it stays the same", ["it doubles", "it becomes 4 times as big", "it halves"], "Twice the top and twice the bottom cancel out: 2Q ÷ 2t = Q ÷ t."],
+    ["the charge halves while the time stays the same", "it halves", ["it doubles", "it stays the same", "it becomes 4 times as big"], "Half the top, so half the current."],
+  ];
+  const E2_BANK = [
+    { id: "current-is", concept: "e2-idea", also: "e1-loop",
+      make: () => Q.mc("What is electric current?", "The amount of charge that passes a point each second", ["How hard the charges are pushed", "The total charge stored in a battery", "How fast one electron moves"], "Current is charge per second, counted at one point in the wire.") },
+    { id: "unit-current", concept: "e2-idea",
+      make: () => Q.mc("What is the unit of electric current?", "The ampere (A)", ["The coulomb (C)", "The volt (V)", "The second (s)"], "Current is measured in amperes. Charge is measured in coulombs.") },
+    { id: "unit-charge", concept: "e2-idea",
+      make: () => Q.mc("What is the unit of electric charge?", "The coulomb (C)", ["The ampere (A)", "The volt (V)", "The watt (W)"], "Charge is measured in coulombs. Current (charge per second) is measured in amperes.") },
+    { id: "ampere-equals", concept: "e2-units",
+      make: () => Q.mc("1 ampere is the same as…", "1 coulomb per second", ["1 second per coulomb", "1 coulomb × 1 second", "1 volt per second"], "I = Q ÷ t, so amperes = coulombs ÷ seconds. 1 A = 1 C/s.") },
+    { id: "meaning", concept: "e2-units",
+      make: () => { const i = pickOne([0.2, 0.5, 2, 3, 5]); return Q.mc(`"The current in a wire is ${i} A." What does this mean?`, `${i} C of charge passes a point each second`, [`${i} C of charge passes in total`, `The charge moves ${i} metres each second`, `${i} seconds pass for each coulomb`], `${i} A = ${i} coulombs per second.`); } },
+    { id: "find-i", concept: "e2-formula",
+      make: () => { const i = pickOne([2, 3, 4, 5, 6]), t = pickOne([5, 10, 20, 30]), q = i * t; return Q.mc(`${q} C of charge passes in ${t} s. What is the current?`, `${i} A`, [`${q * t} A`, `${fmt(t / q)} A`, `${q + t} A`], `I = Q ÷ t = ${q} ÷ ${t} = ${i} A.`); } },
+    { id: "find-i-minutes", concept: "e2-convert", also: "e2-formula",
+      make: () => { const i = pickOne([1, 2, 3, 4, 5]), m = pickOne([2, 3, 4, 5, 10]), q = i * m * 60; return Q.mc(`${q} C of charge passes in ${m} minutes. What is the current?`, `${i} A`, [`${q / m} A`, `${q * m} A`, `${fmt(i / 60)} A`], `Change the time to seconds first: ${m} × 60 = ${m * 60} s. Then I = ${q} ÷ ${m * 60} = ${i} A.`); } },
+    { id: "find-q", concept: "e2-triangle",
+      make: () => { const i = pickOne([2, 3, 4, 5, 6, 8]), t = pickOne([10, 15, 20, 30, 60]); return Q.mc(`A current of ${i} A flows for ${t} s. How much charge passes?`, `${i * t} C`, [`${fmt(i / t)} C`, `${fmt(t / i)} C`, `${i + t} C`], `Q is on top of the triangle, so multiply: Q = I × t = ${i} × ${t} = ${i * t} C.`); } },
+    { id: "find-t", concept: "e2-triangle",
+      make: () => { const i = pickOne([2, 4, 5, 8, 10]), t = pickOne([3, 5, 6, 8, 12]), q = i * t; return Q.mc(`${q} C of charge passes at a current of ${i} A. How long does it take?`, `${t} s`, [`${q * i} s`, `${fmt(i / q)} s`, `${q + i} s`], `t = Q ÷ I = ${q} ÷ ${i} = ${t} s.`); } },
+    { id: "what-if", concept: "e2-what-if",
+      make: () => { const [cond, right, wrongs, why] = pickOne(WHATIF); return Q.mc(`What happens to the current if ${cond}?`, right, wrongs, why); } },
+    { id: "direct", concept: "e2-what-if",
+      make: () => Q.mc("At constant time, how are current and charge related?", "Directly: more charge, more current", ["Inversely: more charge, less current", "They aren't related", "Current is always equal to the charge"], "At the same time, I = Q ÷ t grows when Q grows. That's a direct relationship.") },
+    { id: "inverse", concept: "e2-what-if",
+      make: () => Q.mc("At constant charge, how are current and time related?", "Inversely: more time, less current", ["Directly: more time, more current", "They aren't related", "Current is always equal to the time"], "With the same charge, a longer time means less passes each second. That's an inverse relationship.") },
+    { id: "ammeter-series", concept: "e2-ammeter",
+      make: () => Q.mc("How is an ammeter connected in a circuit?", "In series, so all the current flows through it", ["In parallel, beside a bulb", "It doesn't need to be connected", "Only to the battery's − end, with one wire"], "An ammeter has to be part of the loop, so every charge passes through it. That's a series connection.") },
+    { id: "ammeter-does", concept: "e2-ammeter",
+      make: () => Q.mc("What does an ammeter measure?", "Electric current, in amperes", ["The push of the battery, in volts", "Electric charge, in coulombs", "The time, in seconds"], "Ammeter = ampere meter. It measures current.") },
+    { id: "ammeter-red", concept: "e2-ammeter",
+      make: () => Q.mc("Which side should the ammeter's red (+) terminal connect to?", "The side that leads to the battery's + end", ["The side that leads to the battery's − end", "Either side, it doesn't matter", "The bulb only"], "Red (+) goes towards the battery's +, black (−) towards −. The other way, the needle tries to move backwards.") },
+    { id: "chargers", concept: "e2-chargers", also: "e2-what-if",
+      make: () => { const [h, i2, ans] = pickOne([[4, 2, "2 hours"], [6, 2, "3 hours"], [6, 3, "2 hours"], [3, 3, "1 hour"]]); return Q.mc(`With a 1 A charger, a phone fills in ${h} hours. About how long with a ${i2} A charger (same phone)?`, ans, [`${h * i2} hours`, `${h} hours`, `${h + i2} hours`], `The same charge at ${i2} times the current takes 1/${i2} of the time: ${h} ÷ ${i2} = ${ans}.`); } },
+    { id: "recap-loop", concept: "e1-conditions",
+      make: () => Q.mc("An ammeter in a circuit reads 0 A. The battery is new. What's the most likely reason?", "There's a gap somewhere, so the loop isn't closed", ["The ammeter is in series", "The current is too strong to measure", "The wires are full of charge"], "With a new battery, a reading of 0 A means no current, so the loop must be open somewhere (Level 1).") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E2_BANK, count: 10, storageKey: "elec-2-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-2-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e2" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e2", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-2-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["dial", "strip", "figAmm"],
+    prepare() { steps.prepare(); },
+    quizBank: E2_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e2",
+    cases() {
+      const out = [];
+      for (const [q, t] of [[1, 40], [40, 4], [12, 6], [20, 8], [3, 7], [40, 40], [39, 4], [1, 4]]) out.push({ kind: "lab", q, t, name: `lab Q=${q} t=${t}` });
+      for (const type of ["I", "Q", "t"]) for (const u of type === "t" ? ["s"] : ["s", "min", "h"]) for (const answered of ["no", "right", "wrong"])
+        out.push({ kind: "practice", f: { type, u, I: 2.5, tv: u === "h" ? 0.5 : 12 }, answered, name: `practice ${type} ${u} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { lab.q = c.q; lab.t = c.t; renderLab(); }
+      else { newProblem(c.f); if (c.answered === "right") check(String(p.ans)); if (c.answered === "wrong") check(String(p.ans * 7)); }
+    },
+    practice: () => p, check, newProblem,
+  };
+})();
+</script>
