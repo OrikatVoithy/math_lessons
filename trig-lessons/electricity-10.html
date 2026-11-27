@@ -1,0 +1,929 @@
+<title>The Electric Motor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 10 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.factors, .meters { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.factors th, .factors td, .meters th, .meters td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.factors th, .meters th { background: var(--paper); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.figctl { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.speedtxt { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--hyp); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-9/">← Electricity 9: The electromagnet</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity and magnetism · Level 10 of 11</div>
+    <h1>The electric motor: from current to motion</h1>
+    <p class="lede">Fans, drills, washing machines and electric cars all turn electricity into spinning. Go through the 7 short steps, then run your own motor in the lab.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>How does electricity make a fan spin?</h2>
+        <div class="in-short">Plug in a fan and its blades spin. Electricity goes in and motion comes out, with nothing burning and no engine. The part that does it is an electric motor, and it works with a magnet and a coil.</div>
+        <p>Switch on a fan, and the blades start spinning. A drill, a hair dryer, a washing machine and an electric car do the same: electricity goes in, turning comes out.</p>
+        <p>There's no fuel and no engine. So how can electricity push something round?</p>
+        <p>In <a data-concept="e9-oersted" href="#">Level 9</a>, a current made a magnetic field. Today: what happens when a current flows in a wire that's already inside a magnet?</p>
+        <div class="more">
+          <h3>Motors everywhere</h3>
+          <p>A typical home has dozens of motors: in the fridge, the fans, the washing machine, the blender, even in a phone's vibration buzzer.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figFan" viewBox="0 0 260 170" role="img" aria-label="A fan with spinning blades, powered by electricity."></svg>
+        <figcaption>Electricity in, spinning out.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The key experiment</div>
+        <h2>A magnet pushes a wire that carries a current</h2>
+        <div class="in-short">A metal rod rests on two copper rails between the poles of a strong magnet. Close the circuit: current flows through the rod and it rolls along. A current-carrying wire across a magnetic field feels a magnetic force.</div>
+        <p><b>The book's activity:</b> a metal rod rests across two copper rails, inside a strong U-shaped magnet. The rails are connected to a battery and a switch. Close the switch (try it with the picture):</p>
+        <p><b>Observation:</b> the rod rolls along the rails. <b>Conclusion:</b> when a current flows through a conductor placed across (perpendicular to) magnetic field lines, the conductor feels a <b class="k-r">magnetic force</b> in a definite direction, which can make it move.</p>
+        <p>Reverse the current, and the rod rolls the other way.</p>
+        <div class="more">
+          <h3>Why does it happen?</h3>
+          <p>The current makes its own magnetic field around the rod (Level 9). That field pushes against the magnet's field, so the rod is shoved sideways.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figRail" viewBox="0 0 260 180" role="img" aria-label="A metal rod on two rails inside a magnet. With the circuit closed, it rolls."></svg>
+        <div class="figctl"><button type="button" id="railBtn">Close the switch</button><button type="button" id="railRev">Reverse the current</button></div>
+        <figcaption id="railCap"></figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Turning forces</div>
+        <h2>Two opposite pushes make something turn: torque</h2>
+        <div class="in-short">Torque is the turning effect of two equal forces in opposite directions acting along different lines. Like your two hands on a steering wheel: one pushes up, the other down, and the wheel turns.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Torque</b><span class="ar" lang="ar"> عزم الازدواج</span>: the rotational effect produced by two forces that are equal in size, opposite in direction, and act along different lines.</p></div>
+        <p>Think of a steering wheel. One hand pushes up on one side, the other pushes down on the other side. The forces are equal and opposite, but they act on different lines, so the wheel <b>turns</b> instead of moving.</p>
+        <p>In a motor, the two sides of a coil carry current in opposite directions, so the magnet pushes one side up and the other side down. That's a torque, so the coil turns.</p>
+        <div class="more">
+          <h3>Why not equal and opposite on the same line?</h3>
+          <p>Push a box equally from both sides along the same line and nothing happens: the forces cancel. Only when the lines are apart do they make it turn.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Inside a motor</div>
+        <h2>Coil, magnet, commutator and brushes</h2>
+        <div class="in-short">An electric motor turns electrical energy into kinetic energy. Its parts: a coil of wire that can spin, a permanent magnet around it, a commutator (a split metal cylinder joined to the coil's ends) and two graphite brushes that carry the current in and out.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Electric motor</b><span class="ar" lang="ar"> المحرك الكهربي</span>: a device that converts <b>electrical energy</b> into <b>kinetic energy</b>.</p></div>
+        <div class="tablewrap">
+          <table class="meters parts">
+            <thead><tr><th scope="col">Part</th><th scope="col">What it is and does</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Coil</th><td>A rectangular coil of insulated wire that can spin about its axis.</td></tr>
+              <tr><th scope="row">Permanent magnet</th><td>Its N and S poles make the magnetic field around the coil.</td></tr>
+              <tr><th scope="row">Commutator</th><td>A metal cylinder split into two halves insulated from each other. The halves are joined to the coil's ends and spin with the coil.</td></tr>
+              <tr><th scope="row">Two graphite brushes</th><td>They press on the two halves of the commutator. <b>G.R.:</b> <i>to act as the input and output of the electric current.</i></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Give reason:</b> the electric motor is called by that name. <i>Because it converts electrical energy into kinetic (movement) energy.</i></p>
+        <div class="more">
+          <h3>Why graphite?</h3>
+          <p>Graphite conducts electricity and is slippery, so it can rub against the spinning commutator without wearing it out quickly. Your book asks: "The two motor brushes are made of …" <i>graphite</i> (Monufia 26).</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody">
+        <div class="eyebrow">How it spins</div>
+        <h2>Current in, torque on the coil, round it goes</h2>
+        <div class="in-short">Current enters through a brush and flows round the coil. Its two sides carry current in opposite directions, so the magnet pushes them in opposite directions: a torque. The coil spins. The commutator swaps the current every half turn, so it keeps spinning the same way.</div>
+        <ol class="recipe">
+          <li>The current enters through one brush and the commutator, flows round the coil, and leaves through the other brush.</li>
+          <li>The coil sits in the magnet's field, and its two sides carry current in opposite directions.</li>
+          <li>So the magnet pushes one side up and the other side down: two equal, opposite forces on different lines, a <b>torque</b>.</li>
+          <li>The torque makes the coil turn.</li>
+        </ol>
+        <p>Your book's principle: <b>when a current passes through the coil, a torque is produced, causing the coil to rotate.</b></p>
+        <div class="more">
+          <h3>Why doesn't it just rock back and forth?</h3>
+          <p>After half a turn, each side of the coil has swapped places. The commutator's two halves swap brushes at that moment, so the current in the coil reverses. That keeps the push in the same turning direction, half turn after half turn.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figHow" viewBox="0 0 260 190" role="img" aria-label="A coil between the north and south poles of a magnet. One side is pushed up and the other down, so it turns."></svg>
+        <figcaption>One side pushed up, the other down: a torque, so the coil turns.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Controlling it</div>
+        <h2>More power, the other way, faster or slower</h2>
+        <div class="in-short">A motor's power grows with its torque, which increases with more current, more turns, a bigger coil face area and a stronger magnet. To reverse it, reverse the current or reverse the magnet's poles.</div>
+        <p>A motor's power is directly proportional to the torque on its coil. The torque increases by increasing:</p>
+        <div class="tablewrap">
+          <table class="factors">
+            <tbody>
+              <tr><th scope="row">1</th><td>The <b>current</b> through the coil (I)</td></tr>
+              <tr><th scope="row">2</th><td>The <b>number of turns</b> in the coil (n)</td></tr>
+              <tr><th scope="row">3</th><td>The <b>face area</b> of the coil (A)</td></tr>
+              <tr><th scope="row">4</th><td>The <b>strength of the magnetic field</b> (B)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Two ways to reverse a motor</b> (book):</p>
+        <ul class="checks">
+          <li>Reverse the poles of the electric source connected to the coil.</li>
+          <li>Reverse the poles of the permanent magnet.</li>
+        </ul>
+        <p><b>The electric drill (book):</b></p>
+        <ul class="checks drill">
+          <li>For hard walls, the motor turns at a very high speed. <i>G.R.: to give the drill bit enough kinetic energy to cut into the hard surface.</i></li>
+          <li>Used as a screwdriver, it turns at a low speed. <i>G.R.: for accuracy, and to avoid damaging the screw head while tightening or loosening it.</i></li>
+        </ul>
+        <div class="more">
+          <h3>Reverse both?</h3>
+          <p>Reverse the current <b>and</b> the magnet together, and the two changes cancel out: the motor turns the same way as before.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the fan</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">A fan has a motor: current flows round a coil inside a magnet, the magnet pushes the coil's two sides in opposite directions, the torque spins the coil, and the blades are fixed to it. Electrical energy becomes kinetic energy.</div>
+        <ul class="checks energy">
+          <li>The fan's motor has a coil inside a magnet. Current flows through the brushes and the commutator into the coil.</li>
+          <li>The magnet pushes the coil's two sides in opposite directions, making a torque, so the coil spins, and the blades fixed to it spin too.</li>
+          <li><b>Energy:</b> electrical energy in, kinetic (movement) energy out.</li>
+          <li>The speed control gives more current for a faster spin, or less for slower.</li>
+        </ul>
+        <div class="more">
+          <h3>Coming next</h3>
+          <p>What if you spin a motor's coil by hand instead of feeding it current? It makes electricity. That's a generator, in Level 11, and it's how power stations work.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: run a motor</h2>
+    <p class="lede" style="margin-top:8px">Change the current, the turns and the magnet, then try reversing things. Guess first: faster or slower? Which way?</p>
+  </div>
+
+  <section class="panel lab" aria-label="Motor lab">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A motor coil spinning between the poles of a magnet."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="cellsIn">Cells</label><input type="range" id="cellsIn" min="0" max="3" step="1" value="1"><output id="cellsOut"></output></div>
+      <div class="slider-row"><label for="turnsIn">Turns</label><input type="range" id="turnsIn" min="10" max="50" step="10" value="20"><output id="turnsOut"></output></div>
+      <div class="row"><span class="label">Magnet</span><div class="seg" id="magSeg"><button type="button" data-m="1">Weak</button><button type="button" data-m="2">Strong</button></div></div>
+      <div class="row"><span class="label">Reverse</span><button type="button" id="revI">The current</button><button type="button" id="revB">The magnet</button></div>
+      <p class="speedtxt" id="speedTxt" aria-live="polite"></p>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Think it through</h2>
+      <p class="lede" style="margin-top:8px">Predict what a motor does, and name its parts. A new question each time.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 200" role="img" aria-label="A motor for the practice question."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next question</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on the electric motor</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity and magnetism</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Levels 1–8</span><h3>Electric circuits</h3><p>Flow, push, resistance, Ohm's law, batteries, circuits and the bill.</p><a class="golink" href="../electricity/">Review from Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 9</span><h3>The electromagnet</h3><p>A current makes a magnetic field.</p><a class="golink" href="../electricity-9/">Review Level 9 →</a></li>
+      <li class="panel now"><span class="lv">Level 10</span><h3>The electric motor</h3><p>A magnet pushes a current-carrying wire.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 11</span><h3>The generator</h3><p>Spinning a coil in a magnet makes electricity.</p><span class="pill">Coming next</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const W = (svg, x1, y1, x2, y2, extra = {}) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 2.5, "stroke-linecap": "round", ...extra }, svg);
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const spinners = [];
+  function spin(g, cx, cy, speedFn) { spinners.push({ g, cx, cy, speedFn, a: 0 }); }
+  let last = 0;
+  function tick(t) {
+    const dt = last ? (t - last) / 1000 : 0; last = t;
+    for (const s of spinners) { if (!s.g.isConnected) continue; s.a = (s.a + s.speedFn() * dt * 360) % 360; s.g.setAttribute("transform", `rotate(${s.a} ${s.cx} ${s.cy})`); }
+    requestAnimationFrame(tick);
+  }
+  if (!reduced()) requestAnimationFrame(tick);
+
+  /* ---------- Step 1: a fan ---------- */
+  (function fan() {
+    const svg = $("figFan");
+    el("rect", { x: 122, y: 100, width: 16, height: 52, fill: "var(--muted)" }, svg);
+    el("rect", { x: 92, y: 150, width: 76, height: 10, rx: 4, fill: "var(--muted)" }, svg);
+    el("circle", { cx: 130, cy: 72, r: 54, fill: "none", stroke: "var(--line)", "stroke-width": 2 }, svg);
+    const g = el("g", {}, svg);
+    for (const a of [0, 120, 240]) el("ellipse", { cx: 130, cy: 46, rx: 12, ry: 24, fill: "var(--adj)", "fill-opacity": 0.7, transform: `rotate(${a} 130 72)` }, g);
+    el("circle", { cx: 130, cy: 72, r: 8, fill: "var(--ink)" }, svg);
+    el("text", { x: 254, y: 146, "text-anchor": "end", class: "t-ink", "font-size": 12 }, svg, "motor inside");
+    spin(g, 130, 72, () => 0.8);
+  })();
+
+  /* ---------- Step 2: the rod on the rails ---------- */
+  let rail = 0; // 0 open, 1 closed, -1 closed and reversed
+  function drawRail() {
+    const svg = $("figRail");
+    svg.replaceChildren();
+    el("rect", { x: 70, y: 52, width: 120, height: 96, rx: 6, fill: "var(--hyp)", "fill-opacity": 0.12, stroke: "var(--hyp)", "stroke-dasharray": "4 3" }, svg);
+    el("text", { x: 130, y: 44, "text-anchor": "middle", class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "magnet's field");
+    W(svg, 30, 70, 236, 70); W(svg, 30, 130, 236, 130);
+    // battery and switch on the left
+    W(svg, 30, 70, 30, 88); W(svg, 30, 112, 30, 130);
+    el("line", { x1: 20, y1: 92, x2: 40, y2: 92, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: 25, y1: 100, x2: 35, y2: 100, stroke: "var(--ink)", "stroke-width": 6 }, svg);
+    if (rail === 0) W(svg, 30, 100, 30, 112, { stroke: "var(--muted)", "stroke-dasharray": "3 3" }); else W(svg, 30, 100, 30, 112);
+    const rx = rail === 0 ? 130 : rail === 1 ? 172 : 88;
+    el("rect", { x: rx - 5, y: 62, width: 10, height: 76, rx: 4, fill: rail ? "var(--adj)" : "var(--muted)" }, svg);
+    if (rail) {
+      const d = rail;
+      el("path", { d: `M${rx + d * 14},100 L${rx + d * 40},100`, stroke: "var(--hyp)", "stroke-width": 3, fill: "none" }, svg);
+      el("path", { d: d > 0 ? `M${rx + 48},100 L${rx + 38},94 L${rx + 38},106 Z` : `M${rx - 48},100 L${rx - 38},94 L${rx - 38},106 Z`, fill: "var(--hyp)" }, svg);
+    }
+    el("text", { x: 130, y: 168, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, rail ? "current flows: the rod is pushed" : "switch open: no current");
+    $("railBtn").textContent = rail ? "Open the switch" : "Close the switch";
+    $("railRev").disabled = !rail;
+    $("railCap").textContent = rail === 0 ? "Switch open: the rod stays still." : rail === 1 ? "Current on: the magnetic force pushes the rod along the rails." : "Current reversed: the rod is pushed the other way.";
+  }
+  $("railBtn").addEventListener("click", () => { rail = rail ? 0 : 1; drawRail(); });
+  $("railRev").addEventListener("click", () => { if (rail) { rail = -rail; drawRail(); } });
+  drawRail();
+
+  /* ---------- Step 5: how the coil turns ---------- */
+  (function how() {
+    const svg = $("figHow");
+    el("rect", { x: 10, y: 50, width: 50, height: 90, rx: 4, fill: "var(--bad)", "fill-opacity": 0.75 }, svg);
+    el("rect", { x: 200, y: 50, width: 50, height: 90, rx: 4, fill: "var(--adj)", "fill-opacity": 0.75 }, svg);
+    el("text", { x: 35, y: 100, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "N");
+    el("text", { x: 225, y: 100, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "S");
+    el("path", { d: "M80,95 L180,95", stroke: "var(--opp)", "stroke-width": 8, "stroke-linecap": "round", fill: "none" }, svg);
+    el("circle", { cx: 80, cy: 95, r: 9, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 3 }, svg);
+    el("circle", { cx: 180, cy: 95, r: 9, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 3 }, svg);
+    el("path", { d: "M80,82 L80,40", stroke: "var(--hyp)", "stroke-width": 3, fill: "none" }, svg);
+    el("path", { d: "M80,32 L73,44 L87,44 Z", fill: "var(--hyp)" }, svg);
+    el("path", { d: "M180,108 L180,150", stroke: "var(--hyp)", "stroke-width": 3, fill: "none" }, svg);
+    el("path", { d: "M180,158 L173,146 L187,146 Z", fill: "var(--hyp)" }, svg);
+    el("text", { x: 92, y: 40, class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "pushed up");
+    el("text", { x: 168, y: 160, "text-anchor": "end", class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "pushed down");
+    el("text", { x: 130, y: 182, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "coil seen edge-on");
+  })();
+
+  /* ---------- Lab: run a motor ---------- */
+  const lab = { cells: 1, turns: 20, mag: 1, dI: 1, dB: 1 };
+  const speed = () => (lab.cells * lab.turns * lab.mag) / 40; // turns per second, for the animation
+  let coilG = null;
+  function renderLab(msg = "") {
+    const svg = $("lab");
+    svg.replaceChildren();
+    const nLeft = lab.dB > 0;
+    el("rect", { x: 14, y: 60, width: 56, height: 100, rx: 4, fill: nLeft ? "var(--bad)" : "var(--adj)", "fill-opacity": 0.4 + 0.3 * lab.mag / 2 }, svg);
+    el("rect", { x: 250, y: 60, width: 56, height: 100, rx: 4, fill: nLeft ? "var(--adj)" : "var(--bad)", "fill-opacity": 0.4 + 0.3 * lab.mag / 2 }, svg);
+    el("text", { x: 42, y: 116, "text-anchor": "middle", class: "t-ink", "font-size": 20, "font-weight": 700 }, svg, nLeft ? "N" : "S");
+    el("text", { x: 278, y: 116, "text-anchor": "middle", class: "t-ink", "font-size": 20, "font-weight": 700 }, svg, nLeft ? "S" : "N");
+    coilG = el("g", {}, svg);
+    const thick = 4 + lab.turns / 8;
+    el("rect", { x: 90, y: 110 - thick / 2, width: 140, height: thick, rx: thick / 2, fill: lab.cells ? "var(--opp)" : "var(--muted)" }, coilG);
+    el("circle", { cx: 90, cy: 110, r: 7, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 2.5 }, coilG);
+    el("circle", { cx: 230, cy: 110, r: 7, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 2.5 }, coilG);
+    el("circle", { cx: 160, cy: 110, r: 10, fill: "var(--muted)" }, svg);
+    spinners.length = Math.min(spinners.length, 1); // keep the fan, replace the coil
+    const dir = lab.dI * lab.dB;
+    spin(coilG, 160, 110, () => speed() * dir);
+    if (reduced() || !lab.cells) coilG.setAttribute("transform", "rotate(30 160 110)");
+    el("text", { x: 160, y: 200, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, !lab.cells ? "no current: no torque" : dir > 0 ? "turning clockwise ↻" : "turning anticlockwise ↺");
+    el("text", { x: 160, y: 30, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, `${lab.cells} cell${lab.cells === 1 ? "" : "s"}, ${lab.turns} turns, ${lab.mag === 2 ? "strong" : "weak"} magnet`);
+    $("cellsIn").value = lab.cells; $("cellsOut").textContent = `${lab.cells}`;
+    $("turnsIn").value = lab.turns; $("turnsOut").textContent = `${lab.turns}`;
+    document.querySelectorAll("#magSeg button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.m === lab.mag)));
+    $("speedTxt").textContent = lab.cells ? `Power: ${"▮".repeat(Math.max(1, Math.round(speed() * 2)))} (${(lab.cells * lab.turns * lab.mag)} units)` : "Stopped";
+    $("labMsg").textContent = msg || "More current (cells), more turns or a stronger magnet → more torque, more power.";
+  }
+  $("cellsIn").addEventListener("input", () => { lab.cells = +$("cellsIn").value; renderLab(lab.cells ? "" : "No current, so no force on the coil: the motor stops."); });
+  $("turnsIn").addEventListener("input", () => { lab.turns = +$("turnsIn").value; renderLab(); });
+  document.querySelectorAll("#magSeg button").forEach((b) => b.addEventListener("click", () => { lab.mag = +b.dataset.m; renderLab(); }));
+  $("revI").addEventListener("click", () => { lab.dI *= -1; renderLab(lab.dI * lab.dB > 0 && lab.dB < 0 ? "Both reversed: the two changes cancel, so it turns the original way again." : "Reversing the current reverses the forces, so the coil turns the other way."); });
+  $("revB").addEventListener("click", () => { lab.dB *= -1; renderLab(lab.dI < 0 && lab.dB < 0 ? "Both reversed: the two changes cancel, so it turns the original way again." : "Reversing the magnet's poles reverses the forces, so the coil turns the other way."); });
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const CHANGES = [
+    { txt: "The current through the coil is increased.", ans: "faster", why: "More current → more torque → more power." },
+    { txt: "The number of turns in the coil is increased.", ans: "faster", why: "More turns → more torque → more power." },
+    { txt: "A weaker magnet is used.", ans: "slower", why: "A weaker magnetic field → less torque → less power." },
+    { txt: "The poles of the battery are reversed.", ans: "reverse", why: "Reversing the current reverses the forces on the coil, so it turns the other way." },
+    { txt: "The poles of the magnet are reversed.", ans: "reverse", why: "Reversing the magnet reverses the forces on the coil, so it turns the other way." },
+    { txt: "Both the battery and the magnet are reversed.", ans: "same", why: "The two reversals cancel out: it turns the same way as before." },
+    { txt: "The current is switched off.", ans: "stop", why: "No current, no force on the coil, no torque: it stops." },
+  ];
+  const PARTS = [
+    ["Which part carries the current into and out of the coil?", "The graphite brushes"],
+    ["Which part is a metal cylinder split into two insulated halves joined to the coil's ends?", "The commutator"],
+    ["Which part makes the magnetic field around the coil?", "The permanent magnet"],
+    ["Which part spins and turns the motor's shaft?", "The coil"],
+  ];
+  let p = null, streak = 0;
+  function drawMini(svg) {
+    el("rect", { x: 30, y: 50, width: 50, height: 100, rx: 4, fill: "var(--bad)", "fill-opacity": 0.6 }, svg);
+    el("rect", { x: 240, y: 50, width: 50, height: 100, rx: 4, fill: "var(--adj)", "fill-opacity": 0.6 }, svg);
+    el("text", { x: 55, y: 106, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "N");
+    el("text", { x: 265, y: 106, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "S");
+    el("rect", { x: 100, y: 94, width: 120, height: 12, rx: 6, fill: "var(--opp)", transform: "rotate(25 160 100)" }, svg);
+    el("circle", { cx: 160, cy: 100, r: 9, fill: "var(--muted)" }, svg);
+  }
+  function newProblem(f = {}) {
+    const kind = f.kind || pickOne(["change", "change", "change", "part", "reason"]);
+    const svg = $("pfig");
+    svg.replaceChildren();
+    drawMini(svg);
+    p = { kind, done: false };
+    if (kind === "change") {
+      const c = f.c != null ? CHANGES[f.c] : pickOne(CHANGES);
+      p.q = `A motor is running. ${c.txt} What happens?`;
+      p.opts = [["faster", "It turns with more power (faster)"], ["slower", "It turns with less power (slower)"], ["reverse", "It turns the other way"], ["same", "It turns the same way as before"], ["stop", "It stops"]];
+      p.ans = c.ans; p.why = c.why; p.see = c.ans === "reverse" || c.ans === "same" ? "e10-reverse" : c.ans === "stop" ? "e10-how" : "e10-factors";
+    } else if (kind === "part") {
+      const [q, right] = f.pt != null ? PARTS[f.pt] : pickOne(PARTS);
+      p.q = q; p.opts = ["The graphite brushes", "The commutator", "The permanent magnet", "The coil"].map((t) => [t, t]); p.ans = right;
+      p.why = `${right}. Brushes: current in and out. Commutator: split cylinder on the coil's ends. Magnet: the field. Coil: spins.`; p.see = "e10-parts";
+    } else {
+      const [st, right, wrongs, see] = pickOne([
+        ["The electric motor is called by that name.", "It converts electrical energy into kinetic energy", ["It makes electricity from motion", "It stores electrical energy", "It has a magnet inside"], "e10-motor"],
+        ["Two graphite brushes touch the two halves of the commutator.", "To act as the input and output of the electric current", ["To slow the coil down", "To make a magnetic field", "To cool the motor"], "e10-parts"],
+        ["A drill's motor turns very fast when drilling hard walls.", "To give the drill bit enough kinetic energy to cut into the hard surface", ["To save electricity", "To avoid damaging the screw head", "To cool the drill bit"], "e10-reverse"],
+        ["A drill's motor turns slowly when it's used as a screwdriver.", "For accuracy, and to avoid damaging the screw head", ["To drill faster", "To make more torque than ever", "Because the battery is flat"], "e10-reverse"],
+      ]);
+      p.q = `Give reason: ${st}`; p.opts = Q.shuffle([right, ...wrongs]).map((t) => [t, t]); p.ans = right;
+      p.why = `Because: ${right.charAt(0).toLowerCase() + right.slice(1)}.`; p.see = see;
+    }
+    $("pq").textContent = p.q;
+    $("popts").innerHTML = p.opts.map(([k, t]) => `<button type="button" data-k="${k.replace(/"/g, "&quot;")}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.ans;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.ans) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = `${ok ? "<b>Right!</b>" : "<b>Not quite.</b>"} ${p.why}${ok ? "" : ` <a class="kb-link" data-concept="${p.see}" href="#">Show me where this is explained →</a>`}`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "What kind of energy does a fan's motor turn electricity into?", correct: 1, ok: "Right. Electricity in, movement out.",
+       options: [["Light energy", "The fan doesn't glow; it moves."], ["Kinetic (movement) energy", null], ["Chemical energy", "That's what a battery stores."]] }],
+    [{ type: "choice", q: "In the rails experiment, what happens when the current is reversed?", correct: 0, ok: "Right. The force reverses, so the rod rolls the other way.", see: "e10-force",
+       options: [["The rod rolls the other way", null], ["The rod stops forever", "It still moves, just the other way."]] }],
+    [{ type: "choice", q: "Torque is made by two forces that are…", correct: 2, ok: "Right. Equal, opposite, on different lines.", see: "e10-torque",
+       options: [["equal, in the same direction", "Same direction would push it along, not turn it."], ["equal and opposite on the same line", "On the same line they cancel out."], ["equal and opposite, acting along different lines", null]] }],
+    [{ type: "choice", q: "What do the two graphite brushes do?", correct: 0, ok: "Right. They carry the current into and out of the coil.", see: "e10-parts",
+       options: [["Act as the input and output of the current", null], ["Make the magnetic field", "That's the permanent magnet."]] }],
+    [{ type: "choice", q: "Why does the motor's coil start to turn?", correct: 1, ok: "Right. Opposite forces on the two sides make a torque.", see: "e10-how",
+       options: [["The coil is heavier on one side", "It's the magnetic forces, not weight."], ["The magnet pushes its two sides in opposite directions, making a torque", null]] }],
+    [{ type: "choice", q: "How can you reverse a motor's direction?", correct: 2, ok: "Right. Reverse the current, or reverse the magnet.", see: "e10-reverse",
+       options: [["Add more turns", "That changes its power, not its direction."], ["Use a weaker magnet", "That makes it slower, not reversed."], ["Reverse the battery's poles", null]] }],
+    [{ type: "choice", q: "What does a fan's speed control change to make it spin faster?", correct: 0, ok: "Right. More current, more torque.", see: "e10-energy",
+       options: [["It lets more current through the motor", null], ["It reverses the magnet", "That would change its direction, not its speed."]] }],
+  ];
+  const AR = [
+    "المروحة بتلف لما نوصّلها بالكهربا: كهربا بتدخل وحركة بتطلع. الجزء ده اسمه <b>المحرك الكهربي</b>، وبيشتغل بمغناطيس وملف.",
+    "تجربة الكتاب: ساق معدنية على قضيبين نحاس جوّه مغناطيس. لما الدايرة تتقفل الساق بتتحرك. الموصّل اللي فيه تيار عمودي على خطوط المجال بتأثر عليه <b>قوة مغناطيسية</b>.",
+    "<b>عزم الازدواج</b>: التأثير الدوراني لقوتين متساويتين في المقدار ومتضادتين في الاتجاه وخطّي عملهما مختلفين، زي إيديك على الدركسيون.",
+    "<b>المحرك الكهربي</b> بيحوّل الطاقة الكهربية لطاقة حركية. أجزاؤه: ملف، مغناطيس دائم، <b>أسطوانة معدنية مشقوقة</b>، وفرشتين من الجرافيت للتيار داخل وخارج.",
+    "التيار بيعدي في الملف، وجانبي الملف فيهم تيار عكس بعض، فالمغناطيس بيزق جنب لفوق وجنب لتحت: <b>عزم ازدواج</b> بيلف الملف.",
+    "قدرة المحرك بتزيد بزيادة: شدة التيار، عدد اللفات، مساحة وجه الملف، وشدة المجال المغناطيسي. ولعكس الاتجاه: نعكس أقطاب المصدر أو أقطاب المغناطيس.",
+    "محرك المروحة: تيار في ملف جوّه مغناطيس، القوتين بيعملوا عزم بيلف الملف والريش. الطاقة الكهربية بتتحول لطاقة حركية.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-10-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E10_BANK = [
+    { id: "motor-term", concept: "e10-motor",
+      make: () => Q.mc("Write the scientific term: \"A device that converts electrical energy into kinetic energy.\"", "The electric motor", ["The electric generator", "The electromagnet", "The battery"], "A motor: electrical → kinetic. (A generator does the opposite.)") },
+    { id: "motor-gr", concept: "e10-motor",
+      make: () => Q.mc("Give reason: the electric motor is called by that name.", "Because it converts electrical energy into kinetic energy", ["Because it converts kinetic energy into electrical energy", "Because it stores electricity", "Because it contains a magnet"], "Motor = makes motion from electricity.") },
+    { id: "torque-term", concept: "e10-torque",
+      make: () => Q.mc("Write the scientific term: \"The rotational effect of two equal forces in opposite directions acting along different lines.\"", "Torque", ["Electromotive force", "Magnetic field", "Resistance"], "That's torque, like hands on a steering wheel.") },
+    { id: "steering", concept: "e10-torque",
+      make: () => Q.mc("Turning a steering wheel with both hands is an example of…", "torque", ["electromotive force", "a magnetic field", "resistance"], "Two equal, opposite forces on different lines make it turn.") },
+    { id: "rail-obs", concept: "e10-force",
+      make: () => Q.mc("A metal rod lies across two rails inside a magnet. What happens when current flows through the rod?", "It moves along the rails", ["Nothing happens", "It melts", "It becomes a permanent magnet"], "A current-carrying conductor across a magnetic field feels a force.") },
+    { id: "rail-concl", concept: "e10-force",
+      make: () => Q.mc("What does the moving-rod experiment show?", "A current-carrying conductor across a magnetic field feels a magnetic force", ["Magnets make electric current", "Copper is magnetic", "Current flows only in rails"], "Current + magnetic field → force on the conductor.") },
+    { id: "commutator-term", concept: "e10-parts",
+      make: () => Q.mc("Write the scientific term: \"A metal cylinder split into two mutually insulated halves, connected to the ends of the coil and rotating with it.\"", "The commutator", ["The brush", "The core", "The rheostat"], "That's the commutator (split cylinder).") },
+    { id: "brushes", concept: "e10-parts",
+      make: () => Q.mc("The two motor brushes are made of … (Monufia 26)", "graphite", ["copper", "soft iron", "plastic"], "Graphite conducts and is slippery.") },
+    { id: "brushes-gr", concept: "e10-parts",
+      make: () => Q.mc("Give reason: two graphite brushes touch the two halves of the split cylinder in an electric motor.", "To act as the input and output of the electric current", ["To make the magnetic field", "To stop the coil", "To insulate the coil"], "Current goes in through one brush and out through the other.") },
+    { id: "principle", concept: "e10-how",
+      make: () => Q.mc("What is the working principle of the electric motor?", "A current in the coil inside a magnetic field produces a torque that rotates the coil", ["Spinning a coil in a magnet produces a current", "A magnet heats the coil", "The battery pushes the coil round directly"], "Current + field → torque → rotation. (The second option is the generator.)") },
+    { id: "factors", concept: "e10-factors",
+      make: () => Q.mc("Which of these increases the torque (and power) of an electric motor?", "Increasing the number of turns in the coil", ["Using a weaker magnet", "Reducing the current", "Making the coil smaller"], "Torque increases with current, turns, coil face area and field strength.") },
+    { id: "factors-list", concept: "e10-factors",
+      make: () => { const right = pickOne(["The current through the coil", "The number of turns", "The face area of the coil", "The strength of the magnetic field"]); return Q.mc("Which factor does a motor's torque depend on?", right, ["The colour of the coil", "The temperature of the room", "The shape of the battery"], "Torque depends on current, turns, coil face area and magnetic field strength."); } },
+    { id: "reverse", concept: "e10-reverse",
+      make: () => Q.mc("State one way to reverse the direction of rotation of a motor's coil.", "Reverse the poles of the battery", ["Add more turns", "Use a stronger magnet", "Make the brushes longer"], "Reverse the source's poles, or reverse the magnet's poles.") },
+    { id: "reverse-both", concept: "e10-reverse",
+      make: () => Q.mc("Both the battery and the magnet of a motor are reversed. The coil turns…", "the same way as before", ["the other way", "faster", "not at all"], "Two reversals cancel each other out.") },
+    { id: "drill-fast", concept: "e10-reverse",
+      make: () => Q.mc("Give reason: when drilling hard walls, the drill's motor turns at a very high speed.", "To give the drill bit enough kinetic energy to cut into the hard surface", ["To protect the screw head", "To save battery", "To cool the motor"], "High speed → lots of kinetic energy to penetrate hard material.") },
+    { id: "drill-slow", concept: "e10-reverse",
+      make: () => Q.mc("Give reason: used as a screwdriver, the drill's motor turns at a low speed.", "For accuracy, and to avoid damaging the screw head", ["To drill through walls", "To reverse the current", "Because it has no brushes"], "Slow and controlled for screws.") },
+    { id: "energy", concept: "e10-energy",
+      make: () => Q.mc("In an electric fan, the motor changes…", "electrical energy into kinetic energy", ["kinetic energy into electrical energy", "light energy into heat", "chemical energy into light"], "Motor: electrical → kinetic.") },
+    { id: "recap-oersted", concept: "e9-oersted",
+      make: () => Q.mc("Why does a current-carrying wire get pushed inside a magnet?", "The current makes its own magnetic field, which pushes against the magnet's field", ["The wire becomes heavy", "The magnet heats the wire", "The wire is made of iron"], "From Level 9: a current makes a magnetic field.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E10_BANK, count: 10, storageKey: "elec-10-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-10-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e10" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e10", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-10-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig", "figFan", "figRail", "figHow"],
+    prepare() { steps.prepare(); },
+    quizBank: E10_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e10",
+    cases() {
+      const out = [];
+      for (const r of [0, 1, -1]) out.push({ kind: "rail", r, name: `rail ${r}` });
+      for (const cells of [0, 1, 3]) for (const turns of [10, 50]) for (const mag of [1, 2]) for (const [dI, dB] of [[1, 1], [-1, 1], [-1, -1]])
+        out.push({ kind: "lab", s: { cells, turns, mag, dI, dB }, name: `lab ${cells} ${turns} ${mag} ${dI} ${dB}` });
+      for (const answered of [false, true]) { for (let c = 0; c < 7; c++) out.push({ kind: "practice", f: { kind: "change", c }, answered, name: `practice change ${c} ${answered}` }); for (let pt = 0; pt < 4; pt++) out.push({ kind: "practice", f: { kind: "part", pt }, answered, name: `practice part ${pt} ${answered}` }); }
+      return out;
+    },
+    show(c) {
+      if (c.kind === "rail") { rail = c.r; drawRail(); }
+      else if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(p.ans); }
+    },
+  };
+})();
+</script>
