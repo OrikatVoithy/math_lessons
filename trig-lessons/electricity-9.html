@@ -1,0 +1,977 @@
+<title>The Electromagnet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 9 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.meters, .factors { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.meters th, .meters td, .factors th, .factors td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.meters th, .factors th { background: var(--paper); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.figctl { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.clipcount { font-family: var(--mono); font-size: 1.2rem; font-weight: 700; color: var(--hyp); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-8/">← Electricity 8: Power and the bill</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity and magnetism · Level 9 of 11</div>
+    <h1>Electricity makes magnetism (the electromagnet)</h1>
+    <p class="lede">A current in a wire turns it into a magnet, one you can switch on and off. Go through the 7 short steps, then build your own electromagnet and see how many paper clips it lifts.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>How does a crane pick up a car, then let it go?</h2>
+        <div class="in-short">In a scrapyard, a crane's giant magnet lifts a whole car and drops it exactly where it's wanted. An ordinary magnet can't let go. This one is made with electricity, so it can be switched off.</div>
+        <p>In a scrapyard, a crane lowers a huge disc onto an old car. The car jumps up and sticks to it. The crane swings round and, at exactly the right spot, the car drops.</p>
+        <p>An ordinary magnet can't do that: once it grabs something, it holds on. So what kind of magnet can be switched off?</p>
+        <div class="more">
+          <h3>Where else</h3>
+          <p>Door bells, loudspeakers, electric locks, MRI scanners in hospitals and the motors in Level 10 all use magnets made with electricity.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figCrane" viewBox="0 0 260 180" role="img" aria-label="A crane with a big disc magnet. When switched on it lifts a car; when switched off the car drops."></svg>
+        <div class="figctl"><button type="button" id="craneBtn">Switch the magnet off</button></div>
+        <figcaption id="craneCap">Switched on: the car is lifted.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">What you already know</div>
+        <h2>Magnets, fields and the compass</h2>
+        <div class="in-short">A magnetic field is the region around a magnet where its force can be detected. Field lines are imaginary lines showing its direction and strength. A compass needle is a small free magnet that points north.</div>
+        <dl class="defs">
+          <div><dt>Magnetic field<span class="ar" lang="ar"> المجال المغناطيسي</span></dt><dd>The region around a magnet where the effects of its magnetic force can be detected.</dd></div>
+          <div><dt>Field lines</dt><dd>Imaginary lines that show the direction and strength of the magnetic field. Where they're close together, the field is strong.</dd></div>
+          <div><dt>Compass needle<span class="ar" lang="ar"> البوصلة</span></dt><dd>A small, freely moving magnet that points north because of the Earth's magnetic field.</dd></div>
+        </dl>
+        <div class="more">
+          <h3>Why does a compass point north?</h3>
+          <p>The Earth itself acts like a giant magnet. A compass needle lines up with the Earth's field lines, so it points north–south.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 160" role="img" aria-label="A bar magnet with curved field lines from its north pole round to its south pole.">
+          <path d="M100,80 C100,30 160,30 160,80 M100,80 C100,130 160,130 160,80 M92,80 C80,10 180,10 168,80 M92,80 C80,150 180,150 168,80 M86,80 C50,-10 210,-10 174,80 M86,80 C50,170 210,170 174,80" fill="none" stroke="var(--hyp)" stroke-opacity="0.5" stroke-width="1.5"/>
+          <rect x="80" y="68" width="50" height="24" fill="var(--bad)" fill-opacity="0.8"/>
+          <rect x="130" y="68" width="50" height="24" fill="var(--adj)" fill-opacity="0.8"/>
+          <text x="105" y="85" text-anchor="middle" class="t-ink" font-size="14" font-weight="700">N</text>
+          <text x="155" y="85" text-anchor="middle" class="t-ink" font-size="14" font-weight="700">S</text>
+        </svg>
+        <figcaption>Field lines leave the north pole and return to the south pole.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">Oersted's discovery</div>
+        <h2>A current makes a magnetic field</h2>
+        <div class="in-short">Put a wire above a compass, parallel to its needle. Close the circuit: the needle swings. So an electric current has a magnetic effect: it makes a magnetic field around the wire.</div>
+        <p>The book's activity (try it with the picture):</p>
+        <ol class="recipe compact">
+          <li>Put a compass on a table and wait for its needle to settle.</li>
+          <li>Hold an insulated wire just above it, parallel to the needle, with the circuit open.</li>
+          <li>Close the circuit. What do you see?</li>
+        </ol>
+        <p><b>Observation:</b> the needle swings away from its first direction. <b>Conclusion:</b> an electric current has a <b class="k-r">magnetic effect</b>.</p>
+        <p><b>Give reason:</b> the compass needle near a current-carrying wire deflects. <i>Because the current in the wire makes a magnetic field around it.</i></p>
+        <div class="more">
+          <h3>Who was Oersted?</h3>
+          <p>Hans Christian Oersted, a Danish scientist, noticed this in 1820, during a lecture. It was the first proof that electricity and magnetism are linked. Your book asks: "The scientist … discovered the magnetic effect of electric current." <i>Oersted.</i></p>
+          <h3>Switch it off</h3>
+          <p>Open the circuit and the needle swings back to north: no current, no extra field.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figOer" viewBox="0 0 260 170" role="img" aria-label="A compass under a wire. When the circuit is closed, the needle swings."></svg>
+        <div class="figctl"><button type="button" id="oerBtn">Close the circuit</button></div>
+        <figcaption id="oerCap">Circuit open: the needle points north.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The electromagnet</div>
+        <h2>A coil around soft iron makes a magnet you can switch off</h2>
+        <div class="in-short">An electromagnet is a soft-iron core wound with insulated copper wire connected to a battery. It's a temporary magnet: switch the current off and it loses its magnetism. Soft iron is used because it's easily magnetised and demagnetised.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Electromagnet</b><span class="ar" lang="ar"> المغناطيس الكهربي</span>: a soft-iron core wound with an insulated copper wire connected to a battery. It is a <b>temporary magnet</b> that can be switched on or off.</p></div>
+        <ul class="checks">
+          <li><b>Give reason:</b> the electromagnet is called a temporary magnet. <i>Because it loses its magnetisation when the current in its coil is switched off.</i></li>
+          <li><b>Give reason:</b> its core is made of soft iron. <i>Because soft iron is easily magnetised and demagnetised.</i></li>
+          <li><b>What happens</b> when the current is switched off? <i>The electromagnet loses its magnetism, and the iron filings or clips it held fall off.</i></li>
+        </ul>
+        <div class="more">
+          <h3>Why a coil, not a straight wire?</h3>
+          <p>A straight wire's field is weak. Winding the wire into many turns adds all their fields together, and the iron core concentrates them, making a strong magnet.</p>
+          <h3>Why insulated wire?</h3>
+          <p>So the current goes round every turn, instead of jumping straight across where the turns touch.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Making it stronger</div>
+        <h2>More turns, more current, a soft-iron core</h2>
+        <div class="in-short">An electromagnet's strength is directly proportional to the number of turns in its coil and to the current through it, and depends on the core material (soft iron). In the book's activity, more turns and more cells lifted more paper clips.</div>
+        <div class="tablewrap">
+          <table class="factors">
+            <thead><tr><th scope="col">Factor</th><th scope="col">Relationship</th><th scope="col">Which means</th></tr></thead>
+            <tbody>
+              <tr><td><b>Number of turns</b> (n)</td><td>Directly proportional</td><td>More turns → stronger magnet</td></tr>
+              <tr><td><b>Current</b> (I)</td><td>Directly proportional</td><td>More current (more cells in series) → stronger magnet</td></tr>
+              <tr><td><b>Core material</b></td><td>Depends on it</td><td>A soft-iron core makes it much stronger than air</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>The book's activity:</b> wind a few turns of insulated wire round a soft-iron nail and connect a cell. Count the paper clips it lifts. Then add more turns, then more cells in series.</p>
+        <p><b>Observation:</b> more turns lifted more clips, and more cells lifted more still. <b>Conclusion:</b> the more turns and the more current, the stronger the electromagnet.</p>
+        <div class="more">
+          <h3>Why do more cells mean more current?</h3>
+          <p>Cells in series add up their emf (<a data-concept="e6-rules" href="#">Level 6</a>), and a bigger push drives a bigger current through the coil (<a data-concept="e5-formula" href="#">Ohm's law, Level 5</a>).</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody">
+        <div class="eyebrow">Using electromagnets</div>
+        <h2>The scrap crane and the electric bell</h2>
+        <div class="in-short">Scrap crane: switch on to grab iron, switch off to drop it. Electric bell: pressing the button magnetises the electromagnet, it pulls the iron strip so the hammer hits the gong, which opens the circuit, so the strip springs back and closes it again, over and over.</div>
+        <div class="example"><div class="eyebrow">Book example: moving scrap iron</div><p>When the electromagnet's coil is connected, pieces of iron scrap are attracted to it and can be moved. When the current is switched off, it loses its magnetism and the scrap falls at the place wanted.</p></div>
+        <p><b>The electric bell</b> (step through it with the buttons under the picture):</p>
+        <ol class="recipe compact bellbox">
+          <li>Press the button: the circuit closes, so the electromagnet is magnetised and pulls the soft-iron strip.</li>
+          <li>The strip swings over and the hammer strikes the gong. At the same moment the strip leaves the contact screw, so the circuit opens and the electromagnet loses its magnetism.</li>
+          <li>The spring pulls the strip back to the contact screw, closing the circuit again. This repeats very fast, so the bell keeps ringing.</li>
+        </ol>
+        <div class="more">
+          <h3>The bell's parts (book)</h3>
+          <p>A U-shaped electromagnet; a springy soft-iron strip with a hammer at one end; a metal gong; a contact screw that touches the strip when the circuit is closed; a spring; a push button and a source.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figBell" viewBox="0 0 260 190" role="img" aria-label="An electric bell: an electromagnet, an iron strip with a hammer, a gong, a contact screw and a spring."></svg>
+        <div class="figctl"><button type="button" data-bell="1">1</button><button type="button" data-bell="2">2</button><button type="button" data-bell="3">3</button></div>
+        <figcaption id="bellCap"></figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the crane</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">The crane's disc is an electromagnet. Current on: it's a strong magnet and grabs the car. Current off: it stops being a magnet (soft iron demagnetises easily), so the car drops. A permanent magnet can't be switched off or adjusted.</div>
+        <ul class="checks">
+          <li>The crane's disc is a giant <b>electromagnet</b>: a coil of wire with a soft-iron core.</li>
+          <li><b>Current on:</b> a strong magnet that grabs the car. <b>Current off:</b> the soft iron loses its magnetism at once, so the car drops.</li>
+          <li>More current makes it stronger, so the operator can choose how hard it pulls.</li>
+        </ul>
+        <div class="tablewrap">
+          <table class="meters">
+            <thead><tr><th scope="col"></th><th scope="col">Permanent magnet</th><th scope="col">Electromagnet</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Alike</th><td colspan="2">Both have a north and a south pole, make a magnetic field, and attract magnetic materials.</td></tr>
+              <tr><th scope="row">Lasts</th><td>Keeps its magnetism permanently</td><td>Loses it when the current is cut off (temporary)</td></tr>
+              <tr><th scope="row">Strength</th><td>Can't be controlled</td><td>Easily controlled by the current or the number of turns</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>Coming next</h3>
+          <p>A current makes a magnetic field. So what happens when a current flows through a wire that's already inside a magnet's field? It gets pushed. That push is how motors work, in Level 10.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: build an electromagnet</h2>
+    <p class="lede" style="margin-top:8px">Choose the turns, the cells and the core, then switch it on. Guess how many paper clips it will lift.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Electromagnet lab">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 230" role="img" aria-label="An electromagnet: a nail wound with wire, connected to cells, lifting paper clips."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="turnsIn">Turns</label><input type="range" id="turnsIn" min="5" max="50" step="5" value="20"><output id="turnsOut"></output></div>
+      <div class="slider-row"><label for="cellsIn">Cells</label><input type="range" id="cellsIn" min="1" max="4" step="1" value="1"><output id="cellsOut"></output></div>
+      <div class="row"><span class="label">Core</span><div class="seg" id="coreSeg"><button type="button" data-c="iron">Soft iron</button><button type="button" data-c="air">No core</button></div></div>
+      <div class="row"><span class="label">Current</span><div class="seg" id="swSeg"><button type="button" data-s="on">On</button><button type="button" data-s="off">Off</button></div></div>
+      <p class="clipcount" id="clipCount" aria-live="polite"></p>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Think it through</h2>
+      <p class="lede" style="margin-top:8px">Compare electromagnets and predict what happens. A new question each time.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 200" role="img" aria-label="Electromagnets for the practice question."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next question</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on electromagnets</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity and magnetism</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Levels 1–8</span><h3>Electric circuits</h3><p>Flow, push, resistance, Ohm's law, batteries, circuits and the bill.</p><a class="golink" href="../electricity/">Review from Level 1 →</a></li>
+      <li class="panel now"><span class="lv">Level 9</span><h3>The electromagnet</h3><p>A current makes a magnetic field.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 10</span><h3>The electric motor</h3><p>A magnet pushes a current-carrying wire.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 11</span><h3>The generator</h3><p>Spinning a coil in a magnet makes electricity.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const W = (svg, x1, y1, x2, y2, extra = {}) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 2.5, "stroke-linecap": "round", ...extra }, svg);
+
+  /* ---------- Step 1: the crane ---------- */
+  let craneOn = true;
+  function drawCrane() {
+    const svg = $("figCrane");
+    svg.replaceChildren();
+    el("path", { d: "M30,168 L30,20 L200,20 M30,50 L70,20", fill: "none", stroke: "var(--muted)", "stroke-width": 6 }, svg);
+    W(svg, 150, 20, 150, 60);
+    el("rect", { x: 118, y: 60, width: 64, height: 14, rx: 4, fill: craneOn ? "var(--hyp)" : "var(--muted)" }, svg);
+    if (craneOn) el("path", { d: "M118,78 Q150,96 182,78", fill: "none", stroke: "var(--hyp)", "stroke-opacity": 0.5, "stroke-width": 2 }, svg);
+    const carY = craneOn ? 76 : 136;
+    el("rect", { x: 122, y: carY, width: 56, height: 18, rx: 6, fill: "var(--opp)" }, svg);
+    el("rect", { x: 132, y: carY - 8, width: 32, height: 10, rx: 4, fill: "var(--opp)" }, svg);
+    el("circle", { cx: 134, cy: carY + 20, r: 6, fill: "var(--ink)" }, svg); el("circle", { cx: 166, cy: carY + 20, r: 6, fill: "var(--ink)" }, svg);
+    el("path", { d: "M10,168 L250,168", stroke: "var(--muted)", "stroke-width": 2, fill: "none" }, svg);
+    el("text", { x: 190, y: 64, class: craneOn ? "t-hyp" : "t-ink", "font-size": 12, "font-weight": 700 }, svg, craneOn ? "magnet on" : "magnet off");
+    $("craneBtn").textContent = craneOn ? "Switch the magnet off" : "Switch the magnet on";
+    $("craneCap").textContent = craneOn ? "Switched on: the car is lifted." : "Switched off: the car drops. An ordinary magnet couldn't do that.";
+  }
+  $("craneBtn").addEventListener("click", () => { craneOn = !craneOn; drawCrane(); });
+  drawCrane();
+
+  /* ---------- Step 3: Oersted's experiment ---------- */
+  let oerOn = false;
+  function drawOer() {
+    const svg = $("figOer");
+    svg.replaceChildren();
+    el("circle", { cx: 130, cy: 108, r: 46, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    el("text", { x: 130, y: 78, "text-anchor": "middle", class: "t-ink", "font-size": 12, "font-weight": 700 }, svg, "N");
+    const g = el("g", { transform: `rotate(${oerOn ? 55 : 0} 130 108)` }, svg);
+    el("path", { d: "M130,72 L137,108 L123,108 Z", fill: "var(--bad)" }, g);
+    el("path", { d: "M130,144 L137,108 L123,108 Z", fill: "var(--muted)" }, g);
+    el("circle", { cx: 130, cy: 108, r: 3, fill: "var(--ink)" }, svg);
+    W(svg, 20, 40, 226, 40, { stroke: oerOn ? "var(--adj)" : "var(--ink)" });
+    el("text", { x: 232, y: 44, class: "t-ink", "font-size": 12 }, svg, "wire");
+    if (oerOn) { el("text", { x: 120, y: 26, "text-anchor": "middle", class: "t-adj", "font-size": 12, "font-weight": 700 }, svg, "current flowing →"); }
+    $("oerBtn").textContent = oerOn ? "Open the circuit" : "Close the circuit";
+    $("oerCap").textContent = oerOn ? "Circuit closed: the needle swings. The current made a magnetic field." : "Circuit open: the needle points north.";
+  }
+  $("oerBtn").addEventListener("click", () => { oerOn = !oerOn; drawOer(); });
+  drawOer();
+
+  /* ---------- Step 6: the electric bell, in three stages ---------- */
+  const BELL = {
+    1: "1. Button pressed: the circuit is closed (the strip touches the contact screw), so the electromagnet is magnetised and starts pulling the iron strip.",
+    2: "2. The strip is pulled over: the hammer strikes the gong. But the strip has left the contact screw, so the circuit is now open and the electromagnet loses its magnetism.",
+    3: "3. The spring pulls the strip back to the contact screw. The circuit closes again, and the cycle repeats very fast.",
+  };
+  function drawBell(stage) {
+    const svg = $("figBell");
+    svg.replaceChildren();
+    const pulled = stage === 2, closed = stage !== 2, magOn = stage === 1;
+    const sx = pulled ? 122 : 140;
+    el("rect", { x: 56, y: 92, width: 46, height: 40, rx: 4, fill: magOn ? "var(--hyp)" : "var(--muted)", "fill-opacity": 0.85 }, svg);
+    el("text", { x: 79, y: 152, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "electromagnet");
+    el("circle", { cx: 96, cy: 40, r: 16, fill: "none", stroke: "var(--angle)", "stroke-width": 3 }, svg);
+    el("text", { x: 60, y: 20, class: "t-angle", "font-size": 12, "font-weight": 700 }, svg, "gong");
+    el("line", { x1: sx, y1: 168, x2: sx, y2: 66, stroke: "var(--ink)", "stroke-width": 4, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: sx - 8, cy: 58, r: 8, fill: "var(--ink)" }, svg);
+    el("line", { x1: 196, y1: 112, x2: 144, y2: 112, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("text", { x: 168, y: 100, class: "t-ink", "font-size": 12 }, svg, "contact screw");
+    el("path", { d: `M${sx},160 l8,-6 l8,12 l8,-12 l8,12 l8,-12 l8,6 L210,160`, fill: "none", stroke: "var(--muted)", "stroke-width": 2 }, svg);
+    el("text", { x: 192, y: 182, class: "t-ink", "font-size": 12 }, svg, "spring");
+    if (pulled) el("text", { x: 150, y: 132, class: "t-bad", "font-size": 12, "font-weight": 700 }, svg, "gap: circuit open");
+    if (pulled) el("text", { x: 120, y: 30, class: "t-angle", "font-size": 13, "font-weight": 700 }, svg, "ding!");
+    if (magOn) { el("path", { d: "M134,112 L112,112", stroke: "var(--hyp)", "stroke-width": 2.5, fill: "none" }, svg); el("path", { d: "M106,112 L114,107 L114,117 Z", fill: "var(--hyp)" }, svg); el("text", { x: 150, y: 132, class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "magnet pulls"); }
+    document.querySelectorAll("[data-bell]").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.bell === stage)));
+    $("bellCap").textContent = BELL[stage] + (closed ? "" : "");
+  }
+  document.querySelectorAll("[data-bell]").forEach((b) => b.addEventListener("click", () => drawBell(+b.dataset.bell)));
+  drawBell(1);
+
+  /* ---------- Lab: build an electromagnet ---------- */
+  const lab = { turns: 20, cells: 1, core: "iron", on: true };
+  const clipsFor = (s) => (s.on ? Math.round(0.06 * s.turns * s.cells * (s.core === "iron" ? 1 : 0.15)) : 0);
+  let lastClips = null;
+  function drawMagnet(svg, x0, y0, len, s, scale = 1) {
+    const h = 16 * scale;
+    if (s.core === "iron") el("rect", { x: x0, y: y0 - h / 2, width: len, height: h, rx: 3, fill: "var(--muted)" }, svg);
+    else el("rect", { x: x0, y: y0 - h / 2, width: len, height: h, rx: 3, fill: "none", stroke: "var(--muted)", "stroke-dasharray": "4 3" }, svg);
+    const loops = Math.max(3, Math.round(s.turns / 2.5 / (scale < 1 ? 1.6 : 1)));
+    let d = "";
+    for (let i = 0; i < loops; i++) { const x = x0 + 8 * scale + (i * (len - 16 * scale)) / Math.max(1, loops - 1); d += `M${x},${y0 - h / 2 - 5 * scale} q${4 * scale},${h / 2 + 5 * scale} 0,${h + 10 * scale} `; }
+    el("path", { d, fill: "none", stroke: s.on ? "var(--adj)" : "var(--opp)", "stroke-width": 1.8 * scale }, svg);
+    if (s.on && clipsFor(s) > 0) el("path", { d: `M${x0 - 6},${y0 - 16 * scale} C${x0 + len / 2},${y0 - 50 * scale} ${x0 + len / 2},${y0 - 50 * scale} ${x0 + len + 6},${y0 - 16 * scale} M${x0 - 6},${y0 + 16 * scale} C${x0 + len / 2},${y0 + 50 * scale} ${x0 + len / 2},${y0 + 50 * scale} ${x0 + len + 6},${y0 + 16 * scale}`, fill: "none", stroke: "var(--hyp)", "stroke-opacity": 0.45, "stroke-width": 1.5 }, svg);
+  }
+  function renderLab() {
+    const svg = $("lab");
+    svg.replaceChildren();
+    const n = clipsFor(lab);
+    drawMagnet(svg, 70, 90, 170, lab);
+    // wires to the cells
+    W(svg, 78, 108, 78, 180); W(svg, 232, 108, 232, 180);
+    const cw = 22, totalW = lab.cells * cw, cx0 = 155 - totalW / 2;
+    W(svg, 78, 180, cx0, 180);
+    for (let i = 0; i < lab.cells; i++) {
+      const x = cx0 + i * cw;
+      el("line", { x1: x + 8, y1: 172, x2: x + 8, y2: 188, stroke: "var(--ink)", "stroke-width": 2 }, svg);
+      el("line", { x1: x + 14, y1: 176, x2: x + 14, y2: 184, stroke: "var(--ink)", "stroke-width": 5 }, svg);
+      if (i < lab.cells - 1) W(svg, x + 14, 180, x + cw + 8, 180);
+    }
+    const end = cx0 + (lab.cells - 1) * cw + 14;
+    if (lab.on) W(svg, end, 180, 232, 180); else { W(svg, end, 180, 200, 180); W(svg, 200, 180, 222, 168); W(svg, 226, 180, 232, 180); }
+    // paper clips: hanging from the tip when on, lying on the table when off
+    const clip = (x, y) => el("rect", { x, y, width: 8, height: 16, rx: 3, fill: "none", stroke: "var(--angle)", "stroke-width": 2 }, svg);
+    if (n > 0) for (let i = 0; i < n; i++) clip(246 + (i % 3) * 12, 84 + Math.floor(i / 3) * 18);
+    else for (let i = 0; i < 6; i++) clip(250 + (i % 3) * 12, 200 + Math.floor(i / 3) * 4);
+    el("path", { d: "M240,218 L316,218", stroke: "var(--muted)", "stroke-width": 2, fill: "none" }, svg);
+    el("text", { x: 155, y: 38, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, lab.core === "iron" ? "soft-iron core" : "no core (air)");
+    $("turnsIn").value = lab.turns; $("turnsOut").textContent = `${lab.turns}`;
+    $("cellsIn").value = lab.cells; $("cellsOut").textContent = `${lab.cells}`;
+    document.querySelectorAll("#coreSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === lab.core)));
+    document.querySelectorAll("#swSeg button").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.s === "on") === lab.on)));
+    $("clipCount").textContent = `${n} paper clip${n === 1 ? "" : "s"} lifted`;
+    let msg;
+    if (!lab.on) msg = "Current off: the soft iron loses its magnetism straight away, and the clips fall. That's why it's a temporary magnet.";
+    else if (lab.core === "air") msg = "Without the iron core, the coil is only a weak magnet. Soft iron makes it much stronger.";
+    else if (lastClips != null && n > lastClips) msg = "Stronger! More turns or more current make a stronger electromagnet.";
+    else if (lastClips != null && n < lastClips) msg = "Weaker: fewer turns or less current.";
+    else msg = "Strength depends on the number of turns, the current (cells) and the core.";
+    $("labMsg").textContent = msg;
+    lastClips = n;
+  }
+  $("turnsIn").addEventListener("input", () => { lab.turns = +$("turnsIn").value; renderLab(); });
+  $("cellsIn").addEventListener("input", () => { lab.cells = +$("cellsIn").value; renderLab(); });
+  document.querySelectorAll("#coreSeg button").forEach((b) => b.addEventListener("click", () => { lab.core = b.dataset.c; renderLab(); }));
+  document.querySelectorAll("#swSeg button").forEach((b) => b.addEventListener("click", () => { lab.on = b.dataset.s === "on"; renderLab(); }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const CHANGES = [
+    { txt: "The number of turns in its coil is increased.", ans: "stronger", why: "Strength is directly proportional to the number of turns." },
+    { txt: "More cells are connected in series, so the current increases.", ans: "stronger", why: "Strength is directly proportional to the current." },
+    { txt: "Fewer turns are wound round the core.", ans: "weaker", why: "Fewer turns, weaker magnet." },
+    { txt: "The soft-iron core is pulled out, leaving the coil empty.", ans: "weaker", why: "The soft-iron core makes the magnet much stronger; without it, it's weak." },
+    { txt: "The current is switched off.", ans: "none", why: "It's a temporary magnet: it loses its magnetism when the current stops." },
+  ];
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const kind = f.kind || pickOne(["compare", "compare", "change", "change", "reason"]);
+    const svg = $("pfig");
+    svg.replaceChildren();
+    p = { kind, done: false };
+    if (kind === "compare") {
+      let a, b;
+      do {
+        a = f.a || { turns: pickOne([10, 20, 30, 40]), cells: pickOne([1, 2, 3]), core: pickOne(["iron", "iron", "air"]), on: true };
+        b = f.b || { turns: pickOne([10, 20, 30, 40]), cells: pickOne([1, 2, 3]), core: pickOne(["iron", "iron", "air"]), on: true };
+      } while (!f.a && JSON.stringify(a) === JSON.stringify(b));
+      const sa = a.turns * a.cells * (a.core === "iron" ? 1 : 0.15), sb = b.turns * b.cells * (b.core === "iron" ? 1 : 0.15);
+      p.ans = Math.abs(sa - sb) < 1e-9 ? "eq" : sa > sb ? "A" : "B";
+      p.q = "Which electromagnet is stronger (lifts more paper clips)?";
+      p.opts = [["A", "Electromagnet A"], ["B", "Electromagnet B"], ["eq", "They're equally strong"]];
+      const desc = (m) => `${m.turns} turns, ${m.cells} cell${m.cells > 1 ? "s" : ""}, ${m.core === "iron" ? "soft iron" : "no core"}`;
+      p.why = `A: ${desc(a)}. B: ${desc(b)}. ${a.core !== b.core ? "A soft-iron core makes a big difference. " : ""}${p.ans === "eq" ? "Turns × cells come out the same, with the same core, so they're equally strong." : `More turns and more current (cells) make a stronger magnet, so ${p.ans} is stronger.`}`;
+      drawMagnet(svg, 50, 50, 170, a, 0.8); drawMagnet(svg, 50, 140, 170, b, 0.8);
+      el("text", { x: 22, y: 55, "text-anchor": "middle", class: "t-ink", "font-size": 16, "font-weight": 700 }, svg, "A");
+      el("text", { x: 22, y: 145, "text-anchor": "middle", class: "t-ink", "font-size": 16, "font-weight": 700 }, svg, "B");
+      el("text", { x: 236, y: 54, class: "t-ink", "font-size": 11 }, svg, `${a.cells} cell${a.cells > 1 ? "s" : ""}`);
+      el("text", { x: 236, y: 144, class: "t-ink", "font-size": 11 }, svg, `${b.cells} cell${b.cells > 1 ? "s" : ""}`);
+      p.see = "e9-factors";
+    } else if (kind === "change") {
+      const c = f.c != null ? CHANGES[f.c] : pickOne(CHANGES);
+      p.q = `An electromagnet is working. ${c.txt} What happens to it?`;
+      p.opts = [["stronger", "It becomes stronger"], ["weaker", "It becomes weaker"], ["none", "It loses its magnetism"], ["same", "Nothing changes"]];
+      p.ans = c.ans; p.why = c.why; p.see = c.ans === "none" ? "e9-temporary" : "e9-factors";
+      drawMagnet(svg, 70, 100, 180, { turns: 25, cells: 1, core: "iron", on: true });
+    } else {
+      const [st, right, wrongs, see] = pickOne([
+        ["The electromagnet is called a temporary magnet.", "It loses its magnetisation when the current is switched off", ["It is made of plastic", "It only works for one day", "It has no poles"], "e9-temporary"],
+        ["The core of an electromagnet is made of soft iron.", "Soft iron is easily magnetised and demagnetised", ["Soft iron doesn't conduct electricity", "Soft iron is the heaviest metal", "Soft iron keeps its magnetism forever"], "e9-temporary"],
+        ["A compass needle near a current-carrying wire deflects.", "The current makes a magnetic field around the wire", ["The wire is hot", "The compass is broken", "The wire is made of iron"], "e9-oersted"],
+      ]);
+      p.q = `Give reason: ${st}`;
+      p.opts = Q.shuffle([right, ...wrongs]).map((t) => [t, t]);
+      p.ans = right; p.why = `Because ${right.charAt(0).toLowerCase() + right.slice(1)}.`; p.see = see;
+      el("text", { x: 160, y: 100, "text-anchor": "middle", class: "t-hyp", "font-size": 22, "font-weight": 700 }, svg, "Give reason");
+      el("text", { x: 160, y: 130, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "(G.R.)");
+    }
+    $("pq").textContent = p.q;
+    $("popts").innerHTML = p.opts.map(([k, t]) => `<button type="button" data-k="${k.replace(/"/g, "&quot;")}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.ans;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.ans) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = `${ok ? "<b>Right!</b>" : "<b>Not quite.</b>"} ${p.why}${ok ? "" : ` <a class="kb-link" data-concept="${p.see}" href="#">Show me where this is explained →</a>`}`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "Can an ordinary (permanent) magnet drop a car when you want it to?", correct: 1, ok: "Right. We need a magnet that can be switched off.",
+       options: [["Yes", "A permanent magnet keeps holding on. It can't be switched off."], ["No", null]] }],
+    [{ type: "choice", q: "What do magnetic field lines show?", correct: 0, ok: "Right. The direction and strength of the field.", see: "e9-field",
+       options: [["The direction and strength of the magnetic field", null], ["Real wires inside the magnet", "They're imaginary lines, used to picture the field."]] }],
+    [{ type: "choice", q: "In Oersted's experiment, what happens when the circuit is closed?", correct: 1, ok: "Right. The current's magnetic field moves the needle.", see: "e9-oersted",
+       options: [["Nothing", "The needle moves when current flows."], ["The compass needle swings", null], ["The wire glows", "The wire doesn't glow; the needle moves."]] }],
+    [{ type: "choice", q: "Why is an electromagnet's core made of soft iron?", correct: 0, ok: "Right. So it switches on and off easily.", see: "e9-temporary",
+       options: [["It's easily magnetised and demagnetised", null], ["It keeps its magnetism forever", "That would be a permanent magnet. Soft iron lets go easily."]] }],
+    [{ type: "choice", q: "Which change makes an electromagnet stronger?", correct: 2, ok: "Right. More turns (or more current) make it stronger.", see: "e9-factors",
+       options: [["Fewer turns", "Fewer turns make it weaker."], ["Removing the iron core", "The iron core makes it stronger."], ["More turns", null]] }],
+    [{ type: "choice", q: "In an electric bell, what makes the hammer move back after hitting the gong?", correct: 1, ok: "Right. The circuit opens, the magnet switches off, and the spring pulls the strip back.", see: "e9-bell",
+       options: [["The gong pushes it", "The gong doesn't push; the spring pulls the strip back."], ["The circuit opens, the electromagnet loses its magnetism, and the spring pulls it back", null]] }],
+    [{ type: "choice", q: "What can an electromagnet do that a permanent magnet can't?", correct: 0, ok: "Right. It can be switched off, and its strength controlled.", see: "e9-compare",
+       options: [["Be switched off, and have its strength changed", null], ["Attract iron", "Both attract iron."]] }],
+  ];
+  const AR = [
+    "في الخردة، الونش بيشيل عربية بمغناطيس كبير وبيوقّعها في المكان المطلوب. المغناطيس العادي مايقدرش يسيبها. ده <b>مغناطيس كهربي</b> بيتقفل ويتفتح.",
+    "<b>المجال المغناطيسي</b>: المنطقة حوالين المغناطيس اللي بيظهر فيها تأثير قوته. <b>خطوط المجال</b> خطوط وهمية بتوضح اتجاهه وشدته. <b>البوصلة</b> مغناطيس صغير حر بيشاور للشمال.",
+    "تجربة <b>أورستد</b>: سلك فوق بوصلة موازي لإبرتها. لما الدايرة تتقفل الإبرة بتنحرف. يعني التيار الكهربي ليه <b>تأثير مغناطيسي</b>.",
+    "<b>المغناطيس الكهربي</b>: قلب من الحديد المطاوع ملفوف عليه سلك نحاس معزول متوصل ببطارية. مغناطيس <b>مؤقت</b> بيفقد مغناطيسيته لما التيار يتقطع.",
+    "قوة المغناطيس الكهربي بتزيد بزيادة <b>عدد اللفات</b> و<b>شدة التيار</b>، وبتعتمد على مادة القلب (الحديد المطاوع).",
+    "الونش: نوصّل التيار يشيل الخردة، ونقطعه تقع. الجرس الكهربي: الزرار يقفل الدايرة، المغناطيس يجذب الشريحة والمطرقة تخبط الجرس، الدايرة تتفتح، والياي يرجّع الشريحة، وتتكرر بسرعة.",
+    "قرص الونش مغناطيس كهربي: التيار شغال يشيل العربية، يتقطع تقع. المغناطيس الدائم مايتقفلش ومانقدرش نتحكم في قوته.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-9-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E9_BANK = [
+    { id: "field-term", concept: "e9-field",
+      make: () => { const [d, right, wrongs] = pickOne([
+        ["The region around a magnet where the effects of its magnetic force can be detected.", "The magnetic field", ["Magnetic field lines", "The compass needle", "The electromagnet"]],
+        ["Imaginary lines that represent the direction and strength of the magnetic field.", "Magnetic field lines", ["The magnetic field", "Electric current", "Torque"]],
+        ["A small, freely moving magnet that points north under the influence of the Earth's magnetic field.", "The compass needle", ["The electromagnet", "The magnetic field", "The galvanometer"]]]);
+        return Q.mc(`Write the scientific term: "${d}"`, right, wrongs, `${right}: ${d}`); } },
+    { id: "oersted-sci", concept: "e9-oersted",
+      make: () => Q.mc("The scientist … discovered the magnetic effect of electric current.", "Oersted", ["Ohm", "Edison", "Volta"], "Oersted noticed a compass needle move near a current-carrying wire (1820).") },
+    { id: "oersted-obs", concept: "e9-oersted",
+      make: () => Q.mc("A wire is held above a compass, parallel to its needle. What happens when current flows through the wire?", "The needle deflects from its original direction", ["Nothing happens", "The needle spins round and round", "The wire becomes a permanent magnet"], "The current makes a magnetic field that pushes the needle away from north.") },
+    { id: "oersted-gr", concept: "e9-oersted",
+      make: () => Q.mc("Give reason: a compass needle placed beside a current-carrying wire deflects.", "Because the current in the wire makes a magnetic field around it", ["Because the wire is hot", "Because the wire contains iron", "Because the Earth's field disappears"], "Electric current has a magnetic effect.") },
+    { id: "conclusion", concept: "e9-oersted",
+      make: () => Q.mc("What does Oersted's experiment show?", "An electric current has a magnetic effect", ["Magnets make electric current", "Compasses conduct electricity", "Wires repel compasses only when cold"], "Current → magnetic field.") },
+    { id: "em-term", concept: "e9-electromagnet",
+      make: () => Q.mc("Write the scientific term: \"A soft-iron core wound with an insulated copper wire connected to a battery.\"", "The electromagnet", ["The compass", "The rheostat", "The permanent magnet"], "That's the electromagnet: a temporary magnet that can be switched on and off.") },
+    { id: "temporary", concept: "e9-temporary",
+      make: () => Q.mc("Give reason: the electromagnet is described as a temporary magnet.", "Because it loses its magnetisation when the current in its coil is switched off", ["Because it only lasts a few days", "Because it has no poles", "Because it is made of copper"], "No current → no magnetism.") },
+    { id: "soft-iron", concept: "e9-temporary",
+      make: () => Q.mc("Give reason: the core of an electromagnet is made of soft iron.", "Because it is easily magnetised and demagnetised", ["Because it never loses its magnetism", "Because it doesn't conduct heat", "Because it is lighter than copper"], "Soft iron switches on and off quickly with the current.") },
+    { id: "switch-off", concept: "e9-temporary",
+      make: () => Q.mc("What happens when the current to an electromagnet holding iron filings is switched off?", "It loses its magnetism and the filings fall off", ["It becomes stronger", "It becomes a permanent magnet", "The filings stick even harder"], "It's a temporary magnet.") },
+    { id: "factors", concept: "e9-factors",
+      make: () => { const [f, right] = pickOne([["the number of turns in its coil", "Directly proportional"], ["the current through its coil", "Directly proportional"]]); return Q.mc(`How is the strength of an electromagnet related to ${f}?`, right, ["Inversely proportional", "Not related at all", "It only depends on the colour of the wire"], "Strength ∝ number of turns, and ∝ current."); } },
+    { id: "more-turns", concept: "e9-factors",
+      make: () => Q.mc("What happens to an electromagnet's strength when the number of turns in its coil increases?", "It increases", ["It decreases", "It stays the same", "It becomes zero"], "More turns, stronger magnet.") },
+    { id: "clips", concept: "e9-factors",
+      make: () => Q.mc("In the book's activity, how do we show that more current makes a stronger electromagnet?", "Connect more cells in series and count more paper clips lifted", ["Use a longer nail", "Paint the wire", "Remove the nail"], "More cells → more current → more clips.") },
+    { id: "core-material", concept: "e9-factors",
+      make: () => Q.mc("Besides turns and current, what else affects an electromagnet's strength?", "The material of its core", ["The colour of the wire", "The time of day", "The shape of the battery"], "A soft-iron core makes it much stronger.") },
+    { id: "crane", concept: "e9-crane",
+      make: () => Q.mc("How does an electromagnetic crane move iron scrap?", "Switch the current on to attract the scrap, then off to drop it", ["It heats the scrap until it sticks", "It uses a permanent magnet that's pulled off by hand", "It pushes the scrap with a strong current"], "Current on: magnet. Current off: the scrap falls where it's wanted.") },
+    { id: "bell-1", concept: "e9-bell",
+      make: () => Q.mc("In an electric bell, what happens first when the button is pressed?", "The circuit closes, the electromagnet is magnetised and pulls the iron strip, so the hammer hits the gong", ["The spring pushes the hammer away", "The gong becomes magnetised", "The circuit opens"], "Pressing the button closes the circuit.") },
+    { id: "bell-cycle", concept: "e9-bell",
+      make: () => Q.mc("Why does an electric bell keep ringing while the button is held down?", "The strip keeps opening and closing the circuit, so the electromagnet keeps switching off and on", ["The battery gets stronger", "The gong is a permanent magnet", "The hammer is glued to the gong"], "Attract → circuit opens → spring returns the strip → circuit closes → repeat.") },
+    { id: "bell-parts", concept: "e9-bell",
+      make: () => Q.mc("Which part of an electric bell pulls the iron strip back after the circuit opens?", "The spring", ["The gong", "The battery", "The hammer"], "The spring returns the strip to the contact screw.") },
+    { id: "compare-alike", concept: "e9-compare",
+      make: () => Q.mc("What do a permanent magnet and an electromagnet have in common?", "Both have N and S poles, make a magnetic field, and attract magnetic materials", ["Both can be switched off", "Both need a battery", "Both have controllable strength"], "Those are the similarities; the differences are switching off and control.") },
+    { id: "compare-diff", concept: "e9-compare",
+      make: () => Q.mc("Which is a difference between a permanent magnet and an electromagnet?", "An electromagnet's strength can be controlled by the current or the turns", ["Only a permanent magnet has poles", "Only an electromagnet attracts iron", "A permanent magnet loses its magnetism when switched off"], "Electromagnets can be switched off and adjusted; permanent magnets can't.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E9_BANK, count: 10, storageKey: "elec-9-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-9-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e9" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e9", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-9-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig", "figCrane", "figOer", "figBell"],
+    prepare() { steps.prepare(); },
+    quizBank: E9_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e9",
+    cases() {
+      const out = [];
+      for (const on of [true, false]) out.push({ kind: "crane", on, name: `crane ${on}` }, { kind: "oer", on, name: `oersted ${on}` });
+      for (const st of [1, 2, 3]) out.push({ kind: "bell", st, name: `bell ${st}` });
+      for (const turns of [5, 25, 50]) for (const cells of [1, 4]) for (const core of ["iron", "air"]) for (const on of [true, false])
+        out.push({ kind: "lab", s: { turns, cells, core, on }, name: `lab ${turns} ${cells} ${core} ${on}` });
+      const A = { turns: 40, cells: 3, core: "iron", on: true }, B = { turns: 10, cells: 1, core: "air", on: true };
+      for (const answered of [false, true]) {
+        out.push({ kind: "practice", f: { kind: "compare", a: A, b: B }, answered, name: `practice compare ${answered}` });
+        for (let c = 0; c < 5; c++) out.push({ kind: "practice", f: { kind: "change", c }, answered, name: `practice change ${c} ${answered}` });
+      }
+      return out;
+    },
+    show(c) {
+      if (c.kind === "crane") { craneOn = c.on; drawCrane(); }
+      else if (c.kind === "oer") { oerOn = c.on; drawOer(); }
+      else if (c.kind === "bell") drawBell(c.st);
+      else if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(p.ans); }
+    },
+  };
+})();
+</script>

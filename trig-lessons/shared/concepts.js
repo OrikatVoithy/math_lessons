@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/", e9: "electricity-9/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8", e9: "Electricity 9" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -102,6 +102,16 @@
     "e8-cost": ["e8", 5, ".recipe", "working out the cost of electricity"],
     "e8-ledcfl": ["e8", 6, ".meters", "LED vs CFL: the monthly bill"],
     "e8-safety": ["e8", 6, ".safety", "safety with household electricity"],
+    // Electricity 9: The electromagnet
+    "e9-why": ["e9", 0, ".stepbody", "the scrapyard crane"],
+    "e9-field": ["e9", 1, ".defs", "magnetic field, field lines and the compass"],
+    "e9-oersted": ["e9", 2, ".stepbody", "Oersted's experiment: current makes a magnetic field"],
+    "e9-electromagnet": ["e9", 3, ".defbox", "the electromagnet"],
+    "e9-temporary": ["e9", 3, ".checks", "why it's temporary and why soft iron"],
+    "e9-factors": ["e9", 4, ".factors", "what makes an electromagnet stronger"],
+    "e9-crane": ["e9", 5, ".example", "the scrap crane"],
+    "e9-bell": ["e9", 5, ".bellbox", "how the electric bell works"],
+    "e9-compare": ["e9", 6, ".meters", "permanent magnet vs electromagnet"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
