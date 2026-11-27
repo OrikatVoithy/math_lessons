@@ -1,0 +1,953 @@
+<title>Ohm's Law</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 5 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.otable { border-collapse: collapse; font-family: var(--mono); font-size: 0.95rem; }
+.otable th, .otable td { border: 1px solid var(--line); padding: 6px 10px; text-align: center; }
+.otable th { background: var(--paper); font-family: var(--body); text-align: left; }
+.otable .k { color: var(--hyp); font-weight: 700; }
+.graphs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.graphs figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 8px; display: grid; gap: 4px; }
+.graphs svg { width: 100%; height: auto; }
+.step .graphs figure { grid-column: auto; }
+.wheel { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.wheel li { background: var(--paper); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; }
+.wheel b { font-family: var(--mono); }
+.labgrid { display: grid; gap: 10px; }
+.rec-table { width: 100%; }
+.rec-table td, .rec-table th { font-size: 0.85rem; padding: 4px 6px; }
+.legendrow { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 560px) { .wheel { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-4/">← Electricity 4: Resistance</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 5 of 8</div>
+    <h1>How do push, flow and resistance fit together? (Ohm's law)</h1>
+    <p class="lede">You know the flow (current), the push (potential difference) and what slows it (resistance). One simple rule joins all three. Go through the 7 short steps, then repeat Ohm's own experiment in the lab.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Can you predict the current before switching on?</h2>
+        <div class="in-short">A water heater's label says 240 V and 8 A. Our homes give 220 V. What current will it take here? Ohm's law answers it in two lines.</div>
+        <p>A water heater from abroad has a label: <b class="k-v">240 V</b>, <b class="k-i">8 A</b>. That's the current it takes at 240 volts.</p>
+        <p>But the sockets in Egypt give <b class="k-v">220 V</b>. Will it take more current, less, or the same? And exactly how much?</p>
+        <p>Electricians answer questions like this every day, before they switch anything on. By the end of this level, you can too.</p>
+        <div class="more">
+          <h3>Why predicting matters</h3>
+          <p>Too much current can overheat wires and blow fuses. Too little and a device won't work properly. Knowing the current in advance keeps people and equipment safe.</p>
+          <h3>Three quantities, one rule</h3>
+          <p>Current (Level 2), potential difference (Level 3) and resistance (Level 4) aren't separate facts. Change one and the others respond. Ohm found out exactly how.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 170" role="img" aria-label="A water heater with a label saying 240 volts and 8 amperes, next to a socket saying 220 volts.">
+          <rect x="30" y="20" width="90" height="130" rx="16" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="44" y="38" width="62" height="46" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="75" y="55" text-anchor="middle" class="t-opp num" font-size="13">240 V</text>
+          <text x="75" y="75" text-anchor="middle" class="t-adj num" font-size="13">8 A</text>
+          <text x="75" y="118" text-anchor="middle" class="t-ink" font-size="12">heater</text>
+          <rect x="160" y="50" width="70" height="70" rx="10" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <circle cx="182" cy="85" r="5" fill="var(--ink)"/><circle cx="208" cy="85" r="5" fill="var(--ink)"/>
+          <text x="195" y="140" text-anchor="middle" class="t-opp num" font-size="13">220 V</text>
+          <text x="140" y="90" text-anchor="middle" class="t-angle" font-size="22" font-weight="700">?</text>
+        </svg>
+        <figcaption>Label: 240 V, 8 A. Socket: 220 V. What current?</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">Ohm's experiment</div>
+        <h2>Double the push, double the flow</h2>
+        <div class="in-short">Ohm connected a resistor, an ammeter (in series) and a voltmeter (across it). Each time he raised the voltage, the current rose by the same proportion. Voltage ÷ current always came out the same: 10.</div>
+        <p>Here's the experiment from your book. A fixed resistor is connected to a battery and a rheostat, with an <a data-concept="e2-ammeter" href="#">ammeter in series</a> and a <a data-concept="e3-voltmeter" href="#">voltmeter across the resistor</a>. Moving the rheostat changes the voltage, and each pair of readings is recorded:</p>
+        <div class="tablewrap">
+          <table class="otable">
+            <tr><th scope="row">Voltmeter (V)</th><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td></tr>
+            <tr><th scope="row">Ammeter (A)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+            <tr><th scope="row">V ÷ I</th><td class="k">10</td><td class="k">10</td><td class="k">10</td><td class="k">10</td><td class="k">10</td></tr>
+          </table>
+        </div>
+        <p>Every time the voltage goes up, the current goes up by the same proportion. And voltage ÷ current is <b>always 10</b>. That constant number is the resistor's <b class="k-r">resistance</b>: 10 Ω.</p>
+        <div class="more">
+          <h3>Why use a rheostat?</h3>
+          <p>To change the voltage across the resistor step by step, <a data-concept="e4-rheostat" href="#">as in Level 4</a>. Your book also starts with the rheostat at its maximum (G.R.: so that the current is as low as possible, to protect the circuit from damage).</p>
+          <h3>The graph</h3>
+          <p>Plotting current against voltage gives a straight line through zero. Your book calls this a direct relationship.</p>
+          <h3>Who was Ohm?</h3>
+          <p>Georg Simon Ohm (1789–1854), a German physicist. He discovered this law, and the unit of resistance is named after him.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figOhm" viewBox="0 0 320 230" role="img" aria-label="Ohm's experiment: a battery, an ammeter, a fixed resistor with a voltmeter across it, and a rheostat, all in one loop."></svg>
+        <figcaption>Ammeter in series, voltmeter across the resistor, rheostat to change the voltage.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The law</div>
+        <h2>Ohm's law: I = V ÷ R</h2>
+        <div class="in-short">Ohm's law: at constant temperature, the current through a conductor is directly proportional to the potential difference across it. V ÷ I = R, so I = V ÷ R. 1 ohm = 1 volt per ampere.</div>
+        <div class="defbox"><div class="eyebrow">Your book's statement</div><p><b>Ohm's law</b><span class="ar" lang="ar"> قانون أوم</span>: the electric current intensity passing through a conductor is <b>directly proportional</b> to the potential difference between its terminals, <b>at constant temperature</b>.</p></div>
+        <div class="bigeq"><span class="k-i">I</span> = <span class="frac"><span class="k-v">V</span><span class="k-r">R</span></span><span style="font-size:1rem;font-weight:400">current = push ÷ resistance</span></div>
+        <p>It makes sense: a bigger <b class="k-v">push</b> drives more current, and more <b class="k-r">resistance</b> lets less through. Like water: a taller tank pushes more water through a pipe, and a narrower pipe lets less through.</p>
+        <p class="unitbox">From V ÷ I = R: <b>1 ohm = 1 volt per ampere</b> (1 Ω = 1 V/A). A 10 Ω resistor needs 10 V to push 1 A through it.</p>
+        <div class="more">
+          <h3>Why "at constant temperature"?</h3>
+          <p>Because <a data-concept="e4-temp" href="#">resistance changes with temperature</a> (Level 4). If the conductor heats up, its resistance rises and V ÷ I is no longer constant. A lamp filament, which gets very hot, doesn't follow Ohm's law well for exactly this reason.</p>
+          <h3>Same idea, three ways</h3>
+          <p>V ÷ I = R, I = V ÷ R and V = I × R are the same law written three ways. The next step shows how to switch between them.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Turn it around</div>
+        <h2>Finding V, I or R</h2>
+        <div class="in-short">Triangle with V on top: I = V ÷ R, V = I × R, R = V ÷ I. Want V (on top)? Multiply. Want I or R? Divide.</div>
+        <p>Same <a data-concept="e2-triangle" href="#">cover-up triangle</a> again, with <b class="k-v">V</b> on top and <b class="k-i">I</b> and <b class="k-r">R</b> underneath.</p>
+        <div class="cover">
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="28,58 60,58 60,94 6,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-opp" font-size="20" font-weight="700">V</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-hyp" font-size="18" font-weight="700">R</text></svg><figcaption>Want I? I = V ÷ R</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,6 92,58 28,58" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-opp" font-size="20" font-weight="700">V</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-hyp" font-size="18" font-weight="700">R</text></svg><figcaption>Want V? V = I × R</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,58 92,58 114,94 60,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-opp" font-size="20" font-weight="700">V</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-hyp" font-size="18" font-weight="700">R</text></svg><figcaption>Want R? R = V ÷ I</figcaption></figure>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Find R</div><p><b>A resistor carries 2 A when the potential difference across it is 12 V. What is its resistance?</b></p><ol class="recipe compact"><li>Want R: <span class="num">R = V ÷ I</span>.</li><li><span class="num">R = 12 ÷ 2 = 6 Ω</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find V</div><p><b>A current of 0.5 A flows through a 40 Ω resistor. What is the potential difference across it?</b></p><ol class="recipe compact"><li>Want V, on top: multiply.</li><li><span class="num">V = I × R = 0.5 × 40 = 20 V</span>.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>Units check</h3>
+          <p>Volts ÷ ohms = amperes. Amperes × ohms = volts. Volts ÷ amperes = ohms. If the units come out right, the rule is right.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Two relationships</div>
+        <h2>More push, more current. More resistance, less current.</h2>
+        <div class="in-short">At constant resistance, current and voltage are directly related (straight-line graph). At constant voltage, current and resistance are inversely related (falling curve). Double R → half the current. Double V → double the current.</div>
+        <div class="graphs">
+          <figure><svg viewBox="0 0 160 130" aria-hidden="true"><path d="M24,110 L150,110 M24,110 L24,12" stroke="var(--ink)" stroke-width="2" fill="none"/><path d="M24,110 L140,24" stroke="var(--adj)" stroke-width="3" fill="none"/><text x="146" y="126" text-anchor="end" class="t-opp" font-size="12" font-weight="700">V</text><text x="6" y="20" class="t-adj" font-size="12" font-weight="700">I</text></svg><figcaption>Same R: I rises with V (direct)</figcaption></figure>
+          <figure><svg viewBox="0 0 160 130" aria-hidden="true"><path d="M24,110 L150,110 M24,110 L24,12" stroke="var(--ink)" stroke-width="2" fill="none"/><path d="M34,18 Q44,92 146,100" stroke="var(--adj)" stroke-width="3" fill="none"/><text x="146" y="126" text-anchor="end" class="t-hyp" font-size="12" font-weight="700">R</text><text x="6" y="20" class="t-adj" font-size="12" font-weight="700">I</text></svg><figcaption>Same V: I falls as R grows (inverse)</figcaption></figure>
+        </div>
+        <div class="tablewrap">
+          <table class="whatif">
+            <thead><tr><th scope="col">If…</th><th scope="col">Example (start: 12 V across 6 Ω = 2 A)</th><th scope="col">Current</th></tr></thead>
+            <tbody>
+              <tr><td>Resistance doubles, same voltage</td><td class="num">12 ÷ 12 = 1 A</td><td class="res">÷ 2</td></tr>
+              <tr><td>Voltage doubles, same resistance</td><td class="num">24 ÷ 6 = 4 A</td><td class="res">× 2</td></tr>
+              <tr><td>Voltage doubles and resistance halves</td><td class="num">24 ÷ 3 = 8 A</td><td class="res">× 4</td></tr>
+              <tr><td>Voltage and resistance both double</td><td class="num">24 ÷ 12 = 2 A</td><td class="res">same</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>How your book says the consequences</h3>
+          <p>"Increasing the electrical resistance to double, while the temperature remains constant (with respect to the electric current): the electric current intensity decreases to its half."</p>
+          <p>"Increasing the potential difference between the two terminals of a conductor to double, while the temperature remains constant: the electric current intensity increases to double."</p>
+          <h3>Which one is the "controlled" variable?</h3>
+          <p>In each relationship, one quantity is kept the same on purpose (the controlled variable). For the straight line, resistance is kept constant. For the curve, voltage is kept constant.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Putting it all together</div>
+        <h2>One family of formulas and units</h2>
+        <div class="in-short">Four quantities, three rules: I = Q ÷ t, V = W ÷ Q, I = V ÷ R. Each unit can be written using the others: Ω = V/A, A = C/s = V/Ω, V = J/C = A × Ω, C = A × s, J = V × C. Some book problems need two rules in a row.</div>
+        <p>Everything from Levels 2 to 5 fits together. These are the units your book asks you to recognise:</p>
+        <ul class="wheel">
+          <li><b class="k-r">ohm (Ω)</b> = volt ÷ ampere</li>
+          <li><b class="k-i">ampere (A)</b> = coulomb ÷ second = volt ÷ ohm</li>
+          <li><b class="k-v">volt (V)</b> = joule ÷ coulomb = ampere × ohm</li>
+          <li><b>coulomb (C)</b> = ampere × second = joule ÷ volt</li>
+          <li><b class="k-e">joule (J)</b> = volt × coulomb</li>
+          <li><b>second (s)</b> = coulomb ÷ ampere</li>
+        </ul>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Two steps (book)</div><p><b>Find the charge that passes through a 1000 Ω resistor in 30 minutes, if the potential difference across it is 220 V.</b></p><ol class="recipe compact"><li>Ohm: <span class="num">I = V ÷ R = 220 ÷ 1000 = 0.22 A</span>.</li><li>Time: 30 × 60 = <span class="num">1800 s</span>.</li><li><span class="num">Q = I × t = 0.22 × 1800 = 396 C</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Two steps (book)</div><p><b>Find the work done to move 500 C through a 3 Ω conductor carrying 2 A.</b></p><ol class="recipe compact"><li>Ohm: <span class="num">V = I × R = 2 × 3 = 6 V</span>.</li><li><span class="num">W = V × Q = 6 × 500 = 3000 J</span>.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>A strategy for two-step problems</h3>
+          <p>Write down everything you're given. Find the quantity you want, then ask: which rule gives it? If that rule needs something you don't have, find that first with another rule.</p>
+          <h3>"What is measured by…?"</h3>
+          <p>Your book asks things like "Mention the quantity measured by V/A" (resistance) or "by J/C" (potential difference). Use the list above.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the heater</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">From the label: R = 240 ÷ 8 = 30 Ω. At 220 V: I = 220 ÷ 30 ≈ 7.33 A. Less push, same resistance, so a little less current.</div>
+        <ul class="checks">
+          <li>The heater's resistance stays the same. From the label: <span class="num"><span class="k-r">R</span> = V ÷ I = 240 ÷ 8 = <span class="k-r">30 Ω</span></span>.</li>
+          <li>At 220 V: <span class="num"><span class="k-i">I</span> = V ÷ R = 220 ÷ 30 ≈ <span class="k-i">7.33 A</span></span>.</li>
+          <li>Less push through the same resistance, so a little less current. The heater still works, but heats a little more slowly.</li>
+        </ul>
+        <ul class="uses d-extra">
+          <li><h3>Electricians</h3><p>Work out currents in advance to choose safe cables and fuses.</p></li>
+          <li><h3>Electronics</h3><p>Pick a resistor so an LED gets just the current it needs.</p></li>
+          <li><h3>Safety</h3><p>Wet skin has a lower resistance, so the same voltage pushes a bigger, more dangerous current.</p></li>
+        </ul>
+        <div class="more">
+          <h3>Why is the resistance the same at both voltages?</h3>
+          <p>Resistance depends on the heater's wire (its length, thickness and material; Level 4), not on the voltage. We're assuming its temperature, and so its resistance, stays about the same.</p>
+          <h3>Why it heats more slowly</h3>
+          <p>Less current at less voltage means less energy each second. Level 8 shows exactly how much less, with power.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: Ohm's experiment</h2>
+    <p class="lede" style="margin-top:8px">Pick a resistor, set the voltage, and record each reading. Plot a few for each resistor and see what shape you get.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Ohm's experiment lab">
+    <div class="stage">
+      <svg id="graph" class="circfig" viewBox="0 0 320 240" role="img" aria-label="A graph of current against voltage with the readings you record."></svg>
+      <div class="legendrow"><span>● 5 Ω</span><span>■ 10 Ω</span><span>▲ 20 Ω</span></div>
+    </div>
+    <div class="readout labgrid">
+      <div class="row"><span class="label">Resistor</span><div class="seg" id="rSeg"><button type="button" data-r="5">5 Ω</button><button type="button" data-r="10">10 Ω</button><button type="button" data-r="20">20 Ω</button></div></div>
+      <div class="slider-row"><label for="vIn">Voltage</label><input type="range" id="vIn" min="0" max="50" step="5" value="20"><output id="vOut"></output></div>
+      <div class="calc" id="calc" aria-live="polite"></div>
+      <div class="row"><button type="button" class="primary" id="recBtn">Record this reading</button><button type="button" id="clrBtn">Clear</button></div>
+      <div class="tablewrap"><table class="otable rec-table" id="recTable"></table></div>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">New numbers each time, including two-step problems from your book's style. Use a hint if you're stuck.</p>
+    </div>
+    <div class="panel pcard">
+      <p class="qtext" id="pq"></p>
+      <div class="answer-row"><label class="sr" for="pin">Your answer</label><input id="pin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 6"><span id="punit"></span><button type="button" class="primary" id="pcheck">Check</button><button type="button" id="phint">Hint</button></div>
+      <div class="hintbox" id="phintbox" aria-live="polite"></div>
+      <div class="feedback" id="pfb" aria-live="polite"></div>
+      <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next problem</button></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on Ohm's law</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, plus questions that join Levels 2 to 5. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><a class="golink" href="../electricity-3/">Review Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><a class="golink" href="../electricity-4/">Review Level 4 →</a></li>
+      <li class="panel now"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  const big = (x) => Number(x).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const close = (a, b) => Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.01);
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+
+  /* ---------- Step 2: Ohm's experiment circuit ---------- */
+  (function drawOhm() {
+    const svg = $("figOhm"), L = 40, R = 280, T = 60, B = 190;
+    const w = (x1, y1, x2, y2, extra = {}) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 3, "stroke-linecap": "round", ...extra }, svg);
+    w(L, T, L, 115); w(L, 135, L, B);
+    el("line", { x1: L - 20, y1: 115, x2: L + 20, y2: 115, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: L - 10, y1: 135, x2: L + 10, y2: 135, stroke: "var(--ink)", "stroke-width": 7 }, svg);
+    w(L, T, 104, T); w(136, T, 175, T); w(225, T, R, T); w(R, T, R, B); w(L, B, 130, B); w(190, B, R, B);
+    el("circle", { cx: 120, cy: T, r: 16, fill: "var(--surface)", stroke: "var(--adj)", "stroke-width": 3 }, svg);
+    el("text", { x: 120, y: 66, "text-anchor": "middle", class: "t-adj", "font-size": 15, "font-weight": 700 }, svg, "A");
+    el("rect", { x: 175, y: 51, width: 50, height: 18, fill: "var(--surface)", stroke: "var(--hyp)", "stroke-width": 2.5 }, svg);
+    const vw = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, stroke: "var(--opp)", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+    vw(175, T, 175, 18); vw(175, 18, 186, 18); vw(214, 18, 225, 18); vw(225, 18, 225, T);
+    el("circle", { cx: 200, cy: 18, r: 14, fill: "var(--surface)", stroke: "var(--opp)", "stroke-width": 3 }, svg);
+    el("text", { x: 200, y: 23, "text-anchor": "middle", class: "t-opp", "font-size": 14, "font-weight": 700 }, svg, "V");
+    el("rect", { x: 130, y: 181, width: 60, height: 18, fill: "var(--surface)", stroke: "var(--hyp)", "stroke-width": 2.5 }, svg);
+    w(136, 212, 184, 168, { stroke: "var(--hyp)", class: "", "stroke-width": 2 });
+    el("path", { d: "M184,168 L174,170 L180,177 Z", fill: "var(--hyp)" }, svg);
+    el("text", { x: 120, y: 96, "text-anchor": "middle", class: "t-adj", "font-size": 12, "font-weight": 700 }, svg, "ammeter");
+    el("text", { x: 200, y: 96, "text-anchor": "middle", class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "resistor");
+    el("text", { x: 234, y: 22, class: "t-opp", "font-size": 12, "font-weight": 700 }, svg, "voltmeter");
+    el("text", { x: 218, y: 214, class: "t-hyp", "font-size": 12, "font-weight": 700 }, svg, "rheostat");
+    el("text", { x: 68, y: 130, class: "t-ink", "font-size": 12 }, svg, "battery");
+    el("text", { x: 6, y: 120, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "+");
+    el("text", { x: 8, y: 146, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "−");
+  })();
+
+  /* ---------- Lab: Ohm's experiment with a graph ---------- */
+  const lab = { r: 10, v: 20, rec: [] };
+  const X0 = 46, Y0 = 200, SX = 5.1, SY = 18;
+  const px = (v) => X0 + v * SX, py = (i) => Y0 - i * SY;
+  function mark(svg, r, x, y, filled = true) {
+    const a = { fill: filled ? "var(--hyp)" : "none", stroke: "var(--hyp)", "stroke-width": 2 };
+    if (r === 5) el("circle", { cx: x, cy: y, r: 5, ...a }, svg);
+    else if (r === 10) el("rect", { x: x - 5, y: y - 5, width: 10, height: 10, ...a }, svg);
+    else el("path", { d: `M${x},${y - 6} L${x + 6},${y + 5} L${x - 6},${y + 5} Z`, ...a }, svg);
+  }
+  function drawGraph() {
+    const svg = $("graph");
+    svg.replaceChildren();
+    let grid = "";
+    for (let v = 10; v <= 50; v += 10) grid += `M${px(v)},${Y0} L${px(v)},${py(10)} `;
+    for (let i = 2; i <= 10; i += 2) grid += `M${X0},${py(i)} L${px(50)},${py(i)} `;
+    el("path", { d: grid, stroke: "var(--line)", "stroke-width": 1, fill: "none" }, svg);
+    el("path", { d: `M${X0},${py(10)} L${X0},${Y0} L${px(50)},${Y0}`, stroke: "var(--ink)", "stroke-width": 2, fill: "none" }, svg);
+    for (let v = 0; v <= 50; v += 10) el("text", { x: px(v), y: 216, "text-anchor": "middle", class: "t-ink num", "font-size": 11 }, svg, String(v));
+    for (let i = 0; i <= 10; i += 2) el("text", { x: X0 - 8, y: py(i) + 4, "text-anchor": "end", class: "t-ink num", "font-size": 11 }, svg, String(i));
+    el("text", { x: px(50), y: 236, "text-anchor": "end", class: "t-opp", "font-size": 12, "font-weight": 700 }, svg, "V (volts)");
+    el("text", { x: X0 + 8, y: 12, class: "t-adj", "font-size": 12, "font-weight": 700 }, svg, "I (amperes)");
+    for (const r of [5, 10, 20]) {
+      if (lab.rec.filter((x) => x.r === r).length >= 2) {
+        const vmax = Math.min(50, 10 * r);
+        el("path", { d: `M${px(0)},${py(0)} L${px(vmax)},${py(vmax / r)}`, stroke: "var(--hyp)", "stroke-width": 1.5, "stroke-dasharray": "4 3", fill: "none" }, svg);
+      }
+    }
+    lab.rec.forEach((x) => mark(svg, x.r, px(x.v), py(x.v / x.r)));
+    const I = lab.v / lab.r;
+    if (I <= 10) mark(svg, lab.r, px(lab.v), py(I), false);
+  }
+  function renderLab(msg = "") {
+    const I = lab.v / lab.r;
+    $("vIn").value = lab.v; $("vOut").textContent = `${lab.v} V`;
+    document.querySelectorAll("#rSeg button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.r === lab.r)));
+    $("calc").innerHTML = `Voltmeter: <b class="k-v">${lab.v} V</b> · Ammeter: <b class="k-i">${fmt(I)} A</b><br><span class="k-i">I</span> = V ÷ R = ${lab.v} ÷ ${lab.r} = <b class="k-i">${fmt(I)} A</b>`;
+    $("recTable").innerHTML = lab.rec.length ? `<tr><th>R</th><th>V</th><th>I</th><th>V ÷ I</th></tr>${lab.rec.map((x) => `<tr><td>${x.r} Ω</td><td>${x.v}</td><td>${fmt(x.v / x.r)}</td><td class="k">${x.v ? fmt(x.r) : "–"}</td></tr>`).join("")}` : "";
+    $("labMsg").textContent = msg;
+    drawGraph();
+  }
+  document.querySelectorAll("#rSeg button").forEach((b) => b.addEventListener("click", () => { lab.r = +b.dataset.r; renderLab(); }));
+  $("vIn").addEventListener("input", () => { lab.v = +$("vIn").value; renderLab(); });
+  $("recBtn").addEventListener("click", () => {
+    if (lab.rec.some((x) => x.r === lab.r && x.v === lab.v)) return renderLab("You've already recorded that reading. Change the voltage or the resistor.");
+    if (lab.rec.length >= 12) lab.rec.shift();
+    lab.rec.push({ r: lab.r, v: lab.v });
+    const same = lab.rec.filter((x) => x.r === lab.r && x.v > 0);
+    renderLab(same.length >= 2 ? `For ${lab.r} Ω, V ÷ I is always ${lab.r}. The points lie on a straight line through zero: that's Ohm's law.` : "Recorded. Record another voltage for the same resistor to see the pattern.");
+  });
+  $("clrBtn").addEventListener("click", () => { lab.rec = []; renderLab(); });
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const RS = [2, 3, 4, 5, 6, 8, 10, 12, 20, 30, 40, 100];
+  const IS = [0.2, 0.5, 1, 1.5, 2, 3, 4, 5];
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const type = f.type || pickOne(["I", "I", "V", "R", "R", "Q2", "W2"]);
+    const r = f.r ?? pickOne(RS), i = f.i ?? pickOne(IS), v = +(i * r).toFixed(2);
+    const mins = f.mins ?? pickOne([1, 2, 5, 10, 30]), q = f.q ?? pickOne([50, 100, 200, 500]);
+    p = { type, r, i, v, mins, q, hints: 0, done: false };
+    if (type === "I") { p.ans = i; p.unit = "A"; p.text = `A potential difference of ${big(v)} V is applied across a ${r} Ω resistor. What current flows?`; }
+    else if (type === "V") { p.ans = v; p.unit = "V"; p.text = `A current of ${i} A flows through a ${r} Ω resistor. What is the potential difference across it?`; }
+    else if (type === "R") { p.ans = r; p.unit = "Ω"; p.text = `A conductor carries ${i} A when the potential difference across it is ${big(v)} V. What is its resistance?`; }
+    else if (type === "Q2") { p.ans = +(i * mins * 60).toFixed(2); p.unit = "C"; p.text = `A potential difference of ${big(v)} V is applied across a ${r} Ω resistor for ${mins} minute${mins === 1 ? "" : "s"}. How much charge passes?`; }
+    else { p.ans = +(v * q).toFixed(2); p.unit = "J"; p.text = `${q} C of charge passes through a ${r} Ω conductor carrying ${i} A. How much work is done?`; }
+    $("pq").textContent = p.text;
+    $("punit").textContent = p.unit;
+    $("pin").value = ""; $("pin").disabled = false; $("pcheck").disabled = false; $("phint").disabled = false;
+    $("phintbox").textContent = ""; $("pfb").className = "feedback"; $("pfb").textContent = "";
+  }
+  function workLines(p) {
+    if (p.type === "I") return [`I = V ÷ R = ${big(p.v)} ÷ ${p.r} = <b>${fmt(p.i)} A</b>.`];
+    if (p.type === "V") return [`V = I × R = ${p.i} × ${p.r} = <b>${big(p.v)} V</b>.`];
+    if (p.type === "R") return [`R = V ÷ I = ${big(p.v)} ÷ ${p.i} = <b>${p.r} Ω</b>.`];
+    if (p.type === "Q2") return [`Ohm's law first: I = V ÷ R = ${big(p.v)} ÷ ${p.r} = ${fmt(p.i)} A.`, `Time in seconds: ${p.mins} × 60 = ${p.mins * 60} s.`, `Q = I × t = ${fmt(p.i)} × ${p.mins * 60} = <b>${big(p.ans)} C</b>.`];
+    return [`Ohm's law first: V = I × R = ${p.i} × ${p.r} = ${big(p.v)} V.`, `W = V × Q = ${big(p.v)} × ${p.q} = <b>${big(p.ans)} J</b>.`];
+  }
+  function hint() {
+    if (!p || p.done) return;
+    p.hints = Math.min(3, p.hints + 1);
+    const lines = {
+      I: ["You know V and R, and want I.", "Ohm's law: I = V ÷ R.", `Work out ${big(p.v)} ÷ ${p.r}.`],
+      V: ["You know I and R, and want V.", "V is on top of the triangle, so multiply: V = I × R.", `Work out ${p.i} × ${p.r}.`],
+      R: ["You know V and I, and want R.", "R = V ÷ I.", `Work out ${big(p.v)} ÷ ${p.i}.`],
+      Q2: ["Two steps. You need the current before you can find the charge.", "First I = V ÷ R. Then Q = I × t, with the time in seconds.", `I = ${big(p.v)} ÷ ${p.r} = ${fmt(p.i)} A, and t = ${p.mins * 60} s. Now multiply.`],
+      W2: ["Two steps. You need the potential difference before you can find the work.", "First V = I × R. Then W = V × Q.", `V = ${p.i} × ${p.r} = ${big(p.v)} V. Now work out ${big(p.v)} × ${p.q}.`],
+    }[p.type];
+    $("phintbox").textContent = lines.slice(0, p.hints).join(" ");
+    if (p.hints === 3) $("phint").disabled = true;
+  }
+  const readNum = (s) => parseFloat(String(s).replace(/,/g, "").replace(/[^\d.\-]/g, ""));
+  function check(raw) {
+    if (!p || p.done) return;
+    const val = readNum(raw);
+    if (!isFinite(val)) { $("pfb").className = "feedback bad"; $("pfb").textContent = "Type a number, like 6."; return; }
+    p.done = true;
+    $("pin").disabled = true; $("pcheck").disabled = true; $("phint").disabled = true;
+    const ok = close(val, p.ans);
+    let why = "", see = "e5-triangle";
+    if (!ok) {
+      if (p.type === "I") { see = "e5-formula"; if (close(val, p.v * p.r)) why = "You multiplied. Current = voltage <b>divided</b> by resistance."; else if (close(val, p.r / p.v)) why = "That's R ÷ V, upside down. I = V ÷ R."; }
+      else if (p.type === "V") { if (close(val, p.i / p.r) || close(val, p.r / p.i)) why = "You divided. V is on top of the triangle, so <b>multiply</b>: V = I × R."; }
+      else if (p.type === "R") { if (close(val, p.v * p.i)) why = "You multiplied. R = V ÷ I."; else if (close(val, p.i / p.v)) why = "That's I ÷ V, upside down. R = V ÷ I."; }
+      else if (p.type === "Q2") { see = "e5-multi"; if (close(val, p.i)) why = "That's the current, the first step. Now multiply by the time in seconds."; else if (close(val, p.i * p.mins)) why = "You used minutes. Change the time to seconds first."; }
+      else { see = "e5-multi"; if (close(val, p.v)) why = "That's the potential difference, the first step. Now multiply by the charge: W = V × Q."; else if (close(val, p.i * p.q)) why = "Current × charge isn't work. First find V = I × R, then W = V × Q."; }
+      if (!why) why = "Check each step below.";
+    }
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = (ok ? "<b>Right!</b>" : `<b>Not quite.</b> The answer is ${big(p.ans)} ${p.unit}. ${why} <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`)
+      + `<ol class="work">${workLines(p).map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pcheck").addEventListener("click", () => check($("pin").value));
+  $("pin").addEventListener("keydown", (e) => { if (e.key === "Enter") check($("pin").value); });
+  $("phint").addEventListener("click", hint);
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "The heater takes 8 A at 240 V. At 220 V, with the same resistance, it will take…", correct: 1, ok: "Right. Less push, same resistance, so a little less current. Let's find exactly how much.",
+       options: [["more than 8 A", "A smaller push drives less current, not more."], ["a little less than 8 A", null], ["exactly 8 A", "The current depends on the push. Less push, less current."]] }],
+    [{ type: "choice", q: "In Ohm's experiment, the voltage goes from 10 V to 30 V. The current goes from 1 A to…", correct: 2, ok: "Right. Three times the voltage, three times the current.", see: "e5-experiment",
+       options: [["1 A", "The current changes when the voltage changes."], ["2 A", "V ÷ I stays 10, so 30 V gives 3 A."], ["3 A", null]] }],
+    [{ type: "choice", q: "Ohm's law is true only at constant…", correct: 0, ok: "Right. Temperature changes resistance.", see: "e5-law",
+       options: [["temperature", null], ["current", "The current is what changes as the voltage changes."], ["time", "Time isn't part of Ohm's law."]] },
+     { type: "choice", q: "12 V is applied across a 4 Ω resistor. What current flows?", correct: 1, ok: "Right. 12 ÷ 4 = 3 A.", see: "e5-formula",
+       options: [["48 A", "You multiplied. I = V ÷ R."], ["3 A", null], ["0.33 A", "That's 4 ÷ 12, upside down. V goes on top."]] }],
+    [{ type: "choice", q: "A current of 2 A flows through a 5 Ω resistor. What is the potential difference?", correct: 0, ok: "Right. V = I × R = 2 × 5 = 10 V.", see: "e5-triangle",
+       options: [["10 V", null], ["2.5 V", "That's 5 ÷ 2. V is on top, so multiply."], ["0.4 V", "That's 2 ÷ 5. V is on top, so multiply."]] }],
+    [{ type: "choice", q: "The resistance doubles while the voltage stays the same. The current…", correct: 1, ok: "Right. Resistance is on the bottom: more R, less I.", see: "e5-relations",
+       options: [["doubles", "More resistance lets less current through."], ["halves", null], ["stays the same", "The same push through twice the resistance gives half the current."]] }],
+    [{ type: "choice", q: "Which quantity is measured by volt ÷ ampere?", correct: 2, ok: "Right. Ω = V/A.", see: "e5-units",
+       options: [["Current", "Current is coulomb ÷ second, or volt ÷ ohm."], ["Charge", "Charge is ampere × second."], ["Resistance", null]] }],
+    [{ type: "choice", q: "The heater's resistance is 240 ÷ 8 = 30 Ω. At 220 V, the current is…", correct: 0, ok: "Right. I = 220 ÷ 30 ≈ 7.33 A.", see: "e5-heater",
+       options: [["about 7.33 A", null], ["6,600 A", "You multiplied. I = V ÷ R."], ["about 0.14 A", "That's 30 ÷ 220, upside down."]] }],
+  ];
+  const AR = [
+    "سخان مكتوب عليه 240 فولت و 8 أمبير. البريزة عندنا 220 فولت. هيسحب تيار قد إيه؟ <b>قانون أوم</b> بيجاوب في سطرين.",
+    "في تجربة أوم: كل ما فرق الجهد يزيد، التيار يزيد بنفس النسبة، وفرق الجهد ÷ التيار بيطلع دايمًا نفس الرقم (١٠). الرقم الثابت ده هو <b>المقاومة</b>.",
+    "<b>قانون أوم</b>: شدة التيار المار في موصّل تتناسب <b>طرديًا</b> مع فرق الجهد بين طرفيه، عند ثبوت درجة الحرارة. <b>I = V ÷ R</b>، و ١ أوم = ١ فولت لكل أمبير.",
+    "المثلث و V فوق: <b>V = I × R</b> و <b>R = V ÷ I</b>. لو عايز V اضرب، ولو عايز I أو R اقسم.",
+    "عند ثبوت المقاومة: التيار وفرق الجهد <b>طردي</b> (خط مستقيم). عند ثبوت فرق الجهد: التيار والمقاومة <b>عكسي</b>. المقاومة لو اتضاعفت، التيار يقل للنص.",
+    "كل الوحدات مرتبطة: الأوم = فولت ÷ أمبير، الأمبير = كولوم ÷ ثانية، الفولت = جول ÷ كولوم = أمبير × أوم. بعض المسائل محتاجة قانونين ورا بعض.",
+    "مقاومة السخان = 240 ÷ 8 = 30 أوم. على 220 فولت: التيار = 220 ÷ 30 ≈ 7.33 أمبير، يعني أقل شوية.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-5-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const WHATIF = [
+    ["the resistance doubles while the voltage stays the same", "it halves", ["it doubles", "it stays the same", "it becomes 4 times as big"], "Resistance is on the bottom of I = V ÷ R: twice the resistance, half the current."],
+    ["the voltage doubles while the resistance stays the same", "it doubles", ["it halves", "it stays the same", "it becomes 4 times as big"], "Voltage is on top: twice the push, twice the current."],
+    ["the voltage doubles and the resistance halves", "it becomes 4 times as big", ["it doubles", "it stays the same", "it halves"], "× 2 from the top and another × 2 from the bottom: × 4."],
+    ["the voltage and the resistance both double", "it stays the same", ["it doubles", "it becomes 4 times as big", "it halves"], "2V ÷ 2R = V ÷ R: no change."],
+  ];
+  const UNITS = [["volt ÷ ampere", "Resistance", ["Current", "Charge", "Work"]], ["coulomb ÷ second", "Current", ["Resistance", "Charge", "Potential difference"]], ["joule ÷ coulomb", "Potential difference", ["Current", "Resistance", "Charge"]], ["ampere × ohm", "Potential difference", ["Current", "Resistance", "Charge"]], ["volt ÷ ohm", "Current", ["Resistance", "Charge", "Work"]], ["ampere × second", "Charge", ["Current", "Work", "Resistance"]], ["volt × coulomb", "Work", ["Charge", "Current", "Resistance"]]];
+  const E5_BANK = [
+    { id: "law", concept: "e5-law",
+      make: () => Q.mc("Which statement is Ohm's law?", "The current through a conductor is directly proportional to the potential difference across it, at constant temperature", ["The current is inversely proportional to the potential difference", "The resistance of a conductor is directly proportional to its length", "The current is the same everywhere in a loop"], "Ohm's law: I ∝ V at constant temperature. (Resistance and length is a Level 4 fact.)") },
+    { id: "temp-cond", concept: "e5-law", also: "e4-temp",
+      make: () => Q.mc("Why must the temperature stay constant for Ohm's law?", "Because a conductor's resistance changes with temperature", ["Because current only flows when it's cold", "Because voltage depends on temperature", "Because heat stops the charges"], "If the conductor heats up, its resistance rises, so V ÷ I no longer stays constant.") },
+    { id: "term", concept: "e5-law",
+      make: () => Q.mc("Write the scientific term: \"The current through a conductor is directly proportional to the potential difference between its terminals, at constant temperature.\"", "Ohm's law", ["Electric resistance", "Potential difference", "The coulomb"], "That's the statement of Ohm's law.") },
+    { id: "exp-table", concept: "e5-experiment",
+      make: () => { const r = pickOne([5, 10, 20]), v1 = pickOne([10, 20]), v2 = v1 * pickOne([2, 3]); return Q.mc(`In Ohm's experiment, a resistor carries ${fmt(v1 / r)} A at ${v1} V. What current will it carry at ${v2} V?`, `${fmt(v2 / r)} A`, [`${fmt(v1 / r)} A`, `${fmt((v1 / r) / (v2 / v1))} A`, `${fmt(v2 * r)} A`], `V ÷ I stays the same (${r}), so ${v2 / v1} times the voltage gives ${v2 / v1} times the current: ${fmt(v2 / r)} A.`); } },
+    { id: "constant", concept: "e5-experiment",
+      make: () => Q.mc("In Ohm's experiment, what stays the same each time the voltage is changed?", "Voltage ÷ current (the resistance)", ["The current", "The voltage", "Voltage × current"], "V ÷ I is constant: it's the resistance of the conductor.") },
+    { id: "graph", concept: "e5-relations",
+      make: () => Q.mc("What does a graph of current against voltage look like for a resistor (constant temperature)?", "A straight line through zero", ["A curve that falls", "A horizontal line", "A circle"], "Current is directly proportional to voltage, so the graph is a straight line through the origin.") },
+    { id: "graph-r", concept: "e5-relations",
+      make: () => Q.mc("At constant voltage, what happens to the current as the resistance increases?", "It decreases", ["It increases", "It stays the same", "It becomes zero at once"], "At constant voltage, current and resistance have an inverse relationship.") },
+    { id: "what-if", concept: "e5-relations",
+      make: () => { const [cond, right, wrongs, why] = pickOne(WHATIF); return Q.mc(`What happens to the current if ${cond}?`, right, wrongs, why); } },
+    { id: "find-i", concept: "e5-formula",
+      make: () => { const r = pickOne([2, 4, 5, 10, 20]), i = pickOne([1, 2, 3, 5]), v = r * i; return Q.mc(`${v} V is applied across a ${r} Ω resistor. What current flows?`, `${i} A`, [`${v * r} A`, `${fmt(r / v)} A`, `${v + r} A`], `I = V ÷ R = ${v} ÷ ${r} = ${i} A.`); } },
+    { id: "find-v", concept: "e5-triangle",
+      make: () => { const r = pickOne([3, 6, 10, 40]), i = pickOne([0.5, 2, 3, 4]); return Q.mc(`${i} A flows through a ${r} Ω resistor. What is the potential difference across it?`, `${fmt(i * r)} V`, [`${fmt(r / i)} V`, `${fmt(i / r)} V`, `${fmt(i + r)} V`], `V is on top, so multiply: V = I × R = ${i} × ${r} = ${fmt(i * r)} V.`); } },
+    { id: "find-r", concept: "e5-triangle",
+      make: () => { const r = pickOne([6, 12, 30, 50]), i = pickOne([2, 4, 5]), v = r * i; return Q.mc(`A conductor carries ${i} A when ${v} V is across it. What is its resistance?`, `${r} Ω`, [`${v * i} Ω`, `${fmt(i / v)} Ω`, `${v - i} Ω`], `R = V ÷ I = ${v} ÷ ${i} = ${r} Ω.`); } },
+    { id: "heater", concept: "e5-heater",
+      make: () => Q.mc("A heater takes 8 A at 240 V. What current will it take at 220 V (same resistance)?", "About 7.33 A", ["8 A", "About 8.7 A", "30 A"], "R = 240 ÷ 8 = 30 Ω. At 220 V: I = 220 ÷ 30 ≈ 7.33 A.") },
+    { id: "units", concept: "e5-units",
+      make: () => { const [u, right, wrongs] = pickOne(UNITS); return Q.mc(`Which physical quantity is measured in ${u}?`, right, wrongs, `${u} is a unit of ${right.toLowerCase()}.`); } },
+    { id: "ohm-unit", concept: "e5-units",
+      make: () => Q.mc("1 ohm is the same as…", "1 volt per ampere", ["1 ampere per volt", "1 coulomb per second", "1 joule per coulomb"], "R = V ÷ I, so ohms = volts ÷ amperes.") },
+    { id: "two-q", concept: "e5-multi", also: "e2-convert",
+      make: () => Q.mc("Find the charge passing through a 1000 Ω resistor in 30 minutes when 220 V is across it.", "396 C", ["0.22 C", "6.6 C", "6,600 C"], "I = 220 ÷ 1000 = 0.22 A; t = 1800 s; Q = 0.22 × 1800 = 396 C.") },
+    { id: "two-w", concept: "e5-multi", also: "e3-triangle",
+      make: () => Q.mc("Find the work done to move 500 C through a 3 Ω conductor carrying 2 A.", "3000 J", ["6 J", "1000 J", "1500 J"], "V = I × R = 2 × 3 = 6 V; W = V × Q = 6 × 500 = 3000 J.") },
+    { id: "wet-skin", concept: "e5-heater",
+      make: () => Q.mc("Why is touching a live wire with wet hands more dangerous?", "Wet skin has less resistance, so the same voltage pushes more current through you", ["Water raises the voltage", "Water makes the current flow backwards", "Wet skin has more resistance"], "I = V ÷ R: lower resistance, same voltage, bigger current.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E5_BANK, count: 10, storageKey: "elec-5-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-5-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e5" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e5", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-5-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["graph", "figOhm"],
+    prepare() { steps.prepare(); },
+    quizBank: E5_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e5",
+    cases() {
+      const out = [];
+      const full = [5, 10, 20].flatMap((r) => [0, 10, 20, 30, 40, 50].filter((v) => v / r <= 10).map((v) => ({ r, v })));
+      out.push({ kind: "lab", r: 10, v: 20, rec: [], name: "lab empty" });
+      out.push({ kind: "lab", r: 5, v: 50, rec: full, name: "lab all points" });
+      out.push({ kind: "lab", r: 20, v: 0, rec: full.slice(0, 4), name: "lab some points" });
+      for (const type of ["I", "V", "R", "Q2", "W2"]) for (const answered of ["no", "right", "wrong"])
+        out.push({ kind: "practice", f: { type, r: 1000, i: 0.22, mins: 30, q: 500 }, answered, name: `practice ${type} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { lab.r = c.r; lab.v = c.v; lab.rec = c.rec.slice(); renderLab(); }
+      else { newProblem(c.f); if (c.answered === "right") check(String(p.ans)); if (c.answered === "wrong") check(String(p.ans * 7)); }
+    },
+    practice: () => p, check, newProblem,
+  };
+})();
+</script>
