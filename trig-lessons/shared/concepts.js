@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -92,6 +92,16 @@
     "e7-faults": ["e7", 5, ".dirbox", "what happens when one part breaks; homes in parallel"],
     "e7-compare": ["e7", 5, ".meters", "series vs parallel: the full comparison"],
     "e7-pacemaker": ["e7", 6, ".pacer", "the pacemaker"],
+    // Electricity 8: Power, energy and the bill
+    "e8-why": ["e8", 0, ".stepbody", "LED vs CFL: which is cheaper"],
+    "e8-def": ["e8", 1, ".defbox", "electric power and the watt"],
+    "e8-label": ["e8", 1, ".labels", "the energy efficiency label"],
+    "e8-triangle": ["e8", 2, ".cover", "finding power, energy or time"],
+    "e8-what-if": ["e8", 3, ".whatif", "what happens to the power when energy or time changes"],
+    "e8-kwh": ["e8", 4, ".unitbox", "the kilowatt-hour"],
+    "e8-cost": ["e8", 5, ".recipe", "working out the cost of electricity"],
+    "e8-ledcfl": ["e8", 6, ".meters", "LED vs CFL: the monthly bill"],
+    "e8-safety": ["e8", 6, ".safety", "safety with household electricity"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
