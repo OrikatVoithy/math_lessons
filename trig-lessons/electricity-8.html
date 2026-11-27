@@ -1,0 +1,897 @@
+<title>Power and the Bill</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 8 additions */
+.defbox { border: 2px solid var(--angle); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.meters { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.meters th, .meters td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.meters th { background: var(--paper); }
+.labels { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.labels li { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 10px; align-items: center; font-size: 0.92rem; }
+.labels .tag { font-family: var(--display); font-weight: 800; text-align: center; border-radius: 6px; padding: 2px 0; color: #fff; }
+.apptable { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.apptable th, .apptable td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; }
+.apptable th { background: var(--paper); }
+.safety { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
+.billrow { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; gap: 8px; align-items: center; }
+.billrow select { font: inherit; font-size: 0.95rem; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-width: 0; }
+.billrow input { width: 100%; }
+.billhdr { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+.billtotal { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; }
+.done-card { padding: 20px; display: grid; gap: 8px; border: 2px solid var(--good); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-7/">← Electricity 7: Series and parallel</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 8 of 8</div>
+    <h1>Power, energy and the electricity bill</h1>
+    <p class="lede">Why does a heater cost more to run than a lamp? How is the electricity bill worked out? Go through the 7 short steps, then plan your own home's bill in the lab.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Two lamps give the same light. Which is cheaper to run?</h2>
+        <div class="in-short">An LED lamp (12 W) and a CFL lamp (20 W) give about the same light. Lit for 12 hours a day, which costs less each month, and how much less? The answer needs power, energy and the price of electricity.</div>
+        <p>In the shop, two lamps give about the same light: an <b>LED</b> lamp marked <b class="k-e">12 W</b>, and a <b>compact fluorescent (CFL)</b> lamp marked <b class="k-e">20 W</b>.</p>
+        <p>Your family lights it for 12 hours every day. Over a month, which one costs less on the electricity bill, and by how many pounds?</p>
+        <p>To answer, we need three ideas: <b>power</b> (what the W means), <b>energy</b>, and how the bill is calculated.</p>
+        <div class="more">
+          <h3>Why it matters</h3>
+          <p>Every home in Egypt pays for electricity by the kilowatt-hour. Choosing the right appliances and using them well saves money and protects the environment.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 170" role="img" aria-label="An LED lamp marked 12 watts and a CFL lamp marked 20 watts, both giving the same light.">
+          <circle cx="70" cy="60" r="34" class="f-glow"/><circle cx="70" cy="60" r="22" class="f-paper" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="58" y="82" width="24" height="22" rx="3" fill="var(--muted)"/>
+          <circle cx="190" cy="60" r="34" class="f-glow"/>
+          <path d="M178,82 L178,40 Q178,32 184,32 L184,74 M190,82 L190,36 M196,74 L196,32 Q202,32 202,40 L202,82" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+          <rect x="176" y="82" width="28" height="22" rx="3" fill="var(--muted)"/>
+          <text x="70" y="128" text-anchor="middle" class="t-ink" font-size="13" font-weight="700">LED</text>
+          <text x="70" y="146" text-anchor="middle" class="t-angle" font-size="13" font-weight="700">12 W</text>
+          <text x="190" y="128" text-anchor="middle" class="t-ink" font-size="13" font-weight="700">CFL</text>
+          <text x="190" y="146" text-anchor="middle" class="t-angle" font-size="13" font-weight="700">20 W</text>
+        </svg>
+        <figcaption>Same light. Different power. Which is cheaper per month?</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Power</div>
+        <h2>Power is how much energy is used each second</h2>
+        <div class="in-short">Electric power (P) is the electrical energy an appliance uses each second: P = E ÷ t. It's measured in watts: 1 W = 1 J per second. A 9 W lamp uses 9 J every second.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-e">Electric power (P)</b><span class="ar" lang="ar"> القدرة الكهربية</span> of an appliance: the amount of electrical energy (E) it consumes <b>per second</b>. It expresses the <b>rate</b> at which an appliance uses energy.</p></div>
+        <div class="bigeq"><span class="k-e">P</span> = <span class="frac"><span>E</span><span>t</span></span><span style="font-size:1rem;font-weight:400">power = energy ÷ time</span></div>
+        <p class="unitbox">Energy is in joules (J), time in seconds (s), so power is in <b>watts (W)</b>: <b>1 W = 1 J/s</b>. "An LED lamp of 9 W" means it uses <b>9 J of electrical energy every second</b>.</p>
+        <p><b>The energy label:</b> new appliances carry a label from <b>A</b> to <b>E</b>, so you can choose the most efficient one:</p>
+        <ul class="labels">
+          <li><span class="tag" style="background:#2E7D32">A</span><span>Green: the highest efficiency, the lowest energy use</span></li>
+          <li><span class="tag" style="background:#1565C0">B</span><span>Blue: in between</span></li>
+          <li><span class="tag" style="background:#9A7B00">C</span><span>Yellow: in between</span></li>
+          <li><span class="tag" style="background:#C2410C">D</span><span>Orange: in between</span></li>
+          <li><span class="tag" style="background:#B71C1C">E</span><span>Red: the lowest efficiency, the highest energy use</span></li>
+        </ul>
+        <div class="more">
+          <h3>How your book defines the watt</h3>
+          <p>"The watt: the power of an electrical appliance that consumes an electric energy of one joule in one second."</p>
+          <h3>"What is meant by…?" with numbers</h3>
+          <p>"An electric torch consumes 12,000 J per minute." <i>P = E ÷ t = 12,000 ÷ 60 = 200 W.</i></p>
+          <h3>Why the energy label matters</h3>
+          <p>It lets buyers choose the product with the highest efficiency and lowest energy use, and protects them from products that waste energy.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Turn it around</div>
+        <h2>Finding the energy or the time</h2>
+        <div class="in-short">Triangle with E on top: P = E ÷ t, E = P × t, t = E ÷ P. Time in seconds when using joules and watts.</div>
+        <p>The same <a data-concept="e2-triangle" href="#">cover-up triangle</a> again, with <b class="k-e">E</b> on top and <b class="k-e">P</b> and <b>t</b> underneath.</p>
+        <div class="cover">
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="28,58 60,58 60,94 6,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">E</text><text x="40" y="84" text-anchor="middle" class="t-angle" font-size="18" font-weight="700">P</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want P? P = E ÷ t</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,6 92,58 28,58" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">E</text><text x="40" y="84" text-anchor="middle" class="t-angle" font-size="18" font-weight="700">P</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want E? E = P × t</figcaption></figure>
+          <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,58 92,58 114,94 60,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-ink" font-size="20" font-weight="700">E</text><text x="40" y="84" text-anchor="middle" class="t-angle" font-size="18" font-weight="700">P</text><text x="80" y="84" text-anchor="middle" class="t-ink" font-size="18" font-weight="700">t</text></svg><figcaption>Want t? t = E ÷ P</figcaption></figure>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Find P (book)</div><p><b>An appliance uses 9 × 10⁵ J in 10 minutes. What is its power?</b></p><ol class="recipe compact"><li>t = 10 × 60 = <span class="num">600 s</span>.</li><li><span class="num">P = 900,000 ÷ 600 = 1500 W</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find E (book)</div><p><b>How much energy, in kJ, does an 88 W fan use in one minute?</b></p><ol class="recipe compact"><li><span class="num">E = P × t = 88 × 60 = 5280 J</span>.</li><li>In kJ: <span class="num">5280 ÷ 1000 = 5.28 kJ</span>.</li></ol></div>
+        </div>
+        <div class="example"><div class="eyebrow">Find t (book)</div><p><b>A 100 W bulb is lit for 5 hours. How long must a 250 W bulb be lit to use the same energy?</b></p><ol class="recipe compact"><li>First bulb: <span class="num">E = 100 × (5 × 3600) = 1,800,000 J</span>.</li><li>Second bulb: <span class="num">t = E ÷ P = 1,800,000 ÷ 250 = 7200 s = 2 hours</span>.</li></ol></div>
+        <div class="more">
+          <h3>Joule and watt-second</h3>
+          <p>Since E = P × t, a joule is the same as a watt × second. Your book asks for this: "the unit of energy equivalent to watt.second" is the joule.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">What happens if…?</div>
+        <h2>More energy each second means more power</h2>
+        <div class="in-short">At constant time, power and energy are directly related. At constant energy, power and time are inversely related: a more powerful appliance uses the same energy in less time.</div>
+        <div class="tablewrap">
+          <table class="whatif">
+            <thead><tr><th scope="col">If…</th><th scope="col">Example (start: 200 J in 20 s = 10 W)</th><th scope="col">Power</th></tr></thead>
+            <tbody>
+              <tr><td>Energy doubles, same time</td><td class="num">400 ÷ 20 = 20 W</td><td class="res">× 2</td></tr>
+              <tr><td>Time doubles, same energy</td><td class="num">200 ÷ 40 = 5 W</td><td class="res">÷ 2</td></tr>
+              <tr><td>Energy doubles and time halves</td><td class="num">400 ÷ 10 = 40 W</td><td class="res">× 4</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Your book's words: power and energy have a <b>direct relationship</b> (at constant time). Power and time have an <b>inverse relationship</b> (at constant energy): the higher the power, the less time it takes to use a given amount of energy.</p>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">A bigger unit</div>
+        <h2>The kilowatt-hour</h2>
+        <div class="in-short">The joule is too small for real life, so electricity is measured in kilowatt-hours (kWh). 1 kW = 1000 W, 1 h = 3600 s, so 1 kWh = 3.6 × 10⁶ J.</div>
+        <p><b>Give reason:</b> the kWh is used instead of the joule in practical life. <i>Because the joule is a very small unit of electrical energy.</i> A kettle uses about 90,000 J just to boil a cup of water.</p>
+        <p class="unitbox"><b>1 kW = 1000 W</b>, and <b>1 h = 60 × 60 = 3600 s</b>. So <b>1 kWh = 1000 × 3600 = 3,600,000 J = 3.6 × 10⁶ J</b>.</p>
+        <ul class="checks">
+          <li>From <b>kWh to J</b>: multiply by 3.6 × 10⁶.</li>
+          <li>From <b>J to kWh</b>: divide by 3.6 × 10⁶.</li>
+          <li>Energy in kWh = power in <b>kW</b> × time in <b>hours</b>.</li>
+        </ul>
+        <div class="example"><div class="eyebrow">Book example</div><p><b>A 20 W bulb is lit for 5 hours. How much energy does it use, in kWh?</b></p><ol class="recipe compact"><li>Power in kW: <span class="num">20 ÷ 1000 = 0.02 kW</span>.</li><li><span class="num">E = 0.02 × 5 = 0.1 kWh</span>.</li></ol></div>
+        <div class="more">
+          <h3>The meter at home</h3>
+          <p>The electricity meter in your home counts kilowatt-hours. Each "unit" on the bill is one kWh.</p>
+          <h3>A kWh isn't a unit of power</h3>
+          <p>kW is power (how fast energy is used). kWh is energy (how much was used in total). A 1 kW heater running for 1 hour uses 1 kWh.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The bill</div>
+        <h2>Working out what electricity costs</h2>
+        <div class="in-short">1) Watts ÷ 1000 = kW. 2) Count the hours. 3) kWh = kW × hours. 4) Cost = kWh × price per kWh (in Egyptian pounds).</div>
+        <ol class="recipe">
+          <li>Power in kilowatts: <b>kW = W ÷ 1000</b>.</li>
+          <li>The number of operating hours.</li>
+          <li>Energy used: <b>kWh = kW × hours</b>.</li>
+          <li>Cost: <b>pounds = kWh × price per kWh</b>.</li>
+        </ol>
+        <div class="example"><div class="eyebrow">Book example: the kettle</div><p><b>A family uses a 1500 W kettle for half an hour a day. The price is 1.55 pounds per kWh. What does it cost per week?</b></p><ol class="recipe compact"><li><span class="num">1500 ÷ 1000 = 1.5 kW</span>.</li><li><span class="num">0.5 h × 7 days = 3.5 h</span>.</li><li><span class="num">1.5 × 3.5 = 5.25 kWh</span>.</li><li><span class="num">5.25 × 1.55 ≈ 8.14 pounds</span> a week.</li></ol></div>
+        <p><b>Typical powers (book table):</b></p>
+        <div class="tablewrap">
+          <table class="apptable">
+            <tr><th>Laptop</th><td>50 W</td><th>Electric heater</th><td>1–2 kW</td></tr>
+            <tr><th>Television</th><td>100 W</td><th>Clothes iron</th><td>1–2.5 kW</td></tr>
+            <tr><th>Fan</th><td>50–100 W</td><th>Air conditioner</th><td>1.5–2.5 kW</td></tr>
+          </table>
+        </div>
+        <p class="tip">Air conditioners and things that heat (irons, heaters, kettles) use the most electricity.</p>
+        <div class="more">
+          <h3>Choosing an appliance (book)</h3>
+          <p>Four vacuum cleaners clean equally well: 2000 W, 2400 W, 1800 W and 1700 W. Choose the <b>1700 W</b> one: its power is the lowest, so it uses the least energy and costs the least to run.</p>
+          <h3>The rule</h3>
+          <p>"The lower the power rating of a lamp or an appliance, the lower its electricity consumption, and so the lower its cost."</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the lamps</div>
+        <h2>Now we can solve step 1, and stay safe</h2>
+        <div class="in-short">LED: 0.012 kW × 360 h = 4.32 kWh ≈ 6.7 pounds a month. CFL: 0.02 kW × 360 h = 7.2 kWh ≈ 11.2 pounds. The LED saves about 4.5 pounds a month for the same light. Plus five safety rules.</div>
+        <div class="tablewrap">
+          <table class="meters">
+            <thead><tr><th scope="col"></th><th scope="col">LED (12 W)</th><th scope="col">CFL (20 W)</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Power in kW</th><td>0.012 kW</td><td>0.02 kW</td></tr>
+              <tr><th scope="row">Hours a month</th><td colspan="2">12 h × 30 days = 360 h</td></tr>
+              <tr><th scope="row">Energy a month</th><td>0.012 × 360 = 4.32 kWh</td><td>0.02 × 360 = 7.2 kWh</td></tr>
+              <tr><th scope="row">Cost (1.55 pounds/kWh)</th><td>≈ 6.7 pounds</td><td>≈ 11.2 pounds</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Give reason:</b> LED lamps are preferred to CFL lamps of the same light. <i>Because they use less electrical energy for the same time, so they're more efficient and save energy and money, protecting financial and environmental resources.</i></p>
+        <h3>Safety with household electricity (book)</h3>
+        <ol class="safety">
+          <li>Never use household electricity for school experiments.</li>
+          <li>Don't touch wires or circuit parts with wet hands. <i>G.R.: because tap water conducts electricity.</i></li>
+          <li>Make sure wires are properly insulated. <i>G.R.: to avoid electric shock.</i></li>
+          <li>Don't connect several high-power appliances to one socket. <i>G.R.: to avoid a large increase in current, which may cause fires.</i></li>
+          <li>Disconnect the source before connecting or replacing any part of a circuit.</li>
+        </ol>
+        <div class="more">
+          <h3>Linking back</h3>
+          <p>Overloading a socket is <a data-concept="e7-current" href="#">Level 7</a> again: every appliance is a parallel branch, so each one adds to the total current through the socket's wires. Too much current makes them hot (<a data-concept="e4-heat" href="#">Level 4</a>).</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: plan a month's bill</h2>
+    <p class="lede" style="margin-top:8px">Pick three appliances and how many hours a day each runs. Guess which one costs the most before you look.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Electricity bill planner">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 220" role="img" aria-label="A bar chart of each appliance's monthly energy use."></svg>
+    </div>
+    <div class="readout">
+      <div class="billhdr"><span>Appliance</span><span>Hours a day</span></div>
+      <div id="billRows" style="display:grid;gap:8px"></div>
+      <div class="slider-row"><label for="priceIn">£E per kWh</label><input type="range" id="priceIn" min="1" max="3" step="0.05" value="1.55"><output id="priceOut"></output></div>
+      <div class="billtotal" id="billTotal" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">Power, energy, kilowatt-hours and the cost. New numbers each time.</p>
+    </div>
+    <div class="panel pcard">
+      <p class="qtext" id="pq"></p>
+      <div class="answer-row"><label class="sr" for="pin">Your answer</label><input id="pin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1500"><span id="punit"></span><button type="button" class="primary" id="pcheck">Check</button><button type="button" id="phint">Hint</button></div>
+      <div class="hintbox" id="phintbox" aria-live="polite"></div>
+      <div class="feedback" id="pfb" aria-live="polite"></div>
+      <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next problem</button></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on power and the bill</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><a class="golink" href="../electricity-3/">Review Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><a class="golink" href="../electricity-4/">Review Level 4 →</a></li>
+      <li class="panel"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><a class="golink" href="../electricity-5/">Review Level 5 →</a></li>
+      <li class="panel"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><a class="golink" href="../electricity-6/">Review Level 6 →</a></li>
+      <li class="panel"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><a class="golink" href="../electricity-7/">Review Level 7 →</a></li>
+      <li class="panel now"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">You are here</span></li>
+    </ol>
+    <div class="panel done-card"><div class="eyebrow">Course complete</div><h3>You've finished all 8 Electricity levels</h3><p>Flow, push, resistance, Ohm's law, batteries, circuits and the bill. Every quiz mistake links back to its explanation, so revisit any level whenever you like.</p></div>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  const big = (x) => Number(x).toLocaleString("en-US", { maximumFractionDigits: 3 });
+  const close = (a, b) => Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.01);
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+
+  /* ---------- Lab: plan a month's bill ---------- */
+  const APPS = [["LED lamp", 12], ["CFL lamp", 20], ["Laptop", 50], ["Fan", 75], ["Television", 100], ["Fridge (average)", 150], ["Washing machine", 500], ["Kettle", 1500], ["Clothes iron", 1800], ["Electric heater", 2000], ["Air conditioner", 2000]];
+  const lab = { rows: [[0, 12], [4, 4], [10, 6]], price: 1.55 };
+  function buildRows() {
+    $("billRows").innerHTML = lab.rows.map(([a, h], i) => `<div class="billrow"><select data-i="${i}" aria-label="Appliance ${i + 1}">${APPS.map(([n, w], k) => `<option value="${k}"${k === a ? " selected" : ""}>${n} (${w >= 1000 ? fmt(w / 1000) + " kW" : w + " W"})</option>`).join("")}</select><input type="range" min="0" max="24" step="0.5" value="${h}" data-h="${i}" aria-label="Hours a day for appliance ${i + 1}"></div>`).join("");
+    $("billRows").querySelectorAll("select").forEach((s) => s.addEventListener("change", () => { lab.rows[+s.dataset.i][0] = +s.value; renderLab(); }));
+    $("billRows").querySelectorAll("input").forEach((r) => r.addEventListener("input", () => { lab.rows[+r.dataset.h][1] = +r.value; renderLab(); }));
+  }
+  function renderLab() {
+    const svg = $("lab");
+    svg.replaceChildren();
+    const data = lab.rows.map(([a, h]) => { const [n, w] = APPS[a]; const kwh = (w / 1000) * h * 30; return { n, w, h, kwh, cost: kwh * lab.price }; });
+    const max = Math.max(1, ...data.map((d) => d.kwh));
+    data.forEach((d, i) => {
+      const y = 34 + i * 66;
+      el("text", { x: 10, y: y - 8, class: "t-ink", "font-size": 12, "font-weight": 700 }, svg, `${d.n}, ${d.h} h a day`);
+      el("rect", { x: 10, y, width: 300, height: 22, rx: 5, fill: "var(--line)" }, svg);
+      el("rect", { x: 10, y, width: Math.max(2, (300 * d.kwh) / max), height: 22, rx: 5, fill: "var(--angle)" }, svg);
+      el("text", { x: 10, y: y + 40, class: "t-angle", "font-size": 12, "font-weight": 700 }, svg, `${fmt(d.kwh)} kWh a month ≈ ${fmt(d.cost)} pounds`);
+    });
+    $("priceOut").textContent = fmt(lab.price);
+    const tot = data.reduce((s, d) => s + d.kwh, 0), top = data.slice().sort((a, b) => b.cost - a.cost)[0];
+    $("billTotal").innerHTML = `<span>Total: <b>${fmt(tot)} kWh</b> a month</span><span>Cost: <b class="k-e">${fmt(tot * lab.price)} pounds</b> a month</span><span style="font-family:var(--body);font-size:0.9rem">Most expensive: ${top.n} (${top.w} W × ${top.h} h × 30 days ÷ 1000 = ${fmt(top.kwh)} kWh).</span>`;
+  }
+  $("priceIn").addEventListener("input", () => { lab.price = +$("priceIn").value; renderLab(); });
+  buildRows(); renderLab();
+
+  /* ---------- Practice ---------- */
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const type = f.type || pickOne(["P", "E", "T", "kWh", "cost", "cost", "toJ"]);
+    p = { type, hints: 0, done: false };
+    if (type === "P") { const P = f.P ?? pickOne([500, 1000, 1500, 2000, 100]), m = f.m ?? pickOne([2, 5, 10, 20]); p.P = P; p.m = m; p.E = P * m * 60; p.ans = P; p.unit = "W"; p.text = `An appliance uses ${big(p.E)} J of electrical energy in ${m} minutes. What is its power?`; }
+    else if (type === "E") { const P = f.P ?? pickOne([60, 88, 100, 150, 500]), m = f.m ?? pickOne([1, 2, 5]); p.P = P; p.m = m; p.ans = (P * m * 60) / 1000; p.unit = "kJ"; p.text = `How much electrical energy, in kJ, does a ${P} W appliance use in ${m} minute${m > 1 ? "s" : ""}?`; }
+    else if (type === "T") { const [P1, t1, P2] = f.v ?? pickOne([[100, 5, 250], [60, 10, 150], [200, 3, 600], [40, 6, 120]]); p.P1 = P1; p.t1 = t1; p.P2 = P2; p.ans = (P1 * t1) / P2; p.unit = "h"; p.text = `A ${P1} W bulb is lit for ${t1} hours. How many hours must a ${P2} W bulb be lit to use the same energy?`; }
+    else if (type === "kWh") { const P = f.P ?? pickOne([20, 100, 500, 1500, 2000]), h = f.h ?? pickOne([2, 3, 5, 8]); p.P = P; p.h = h; p.ans = (P / 1000) * h; p.unit = "kWh"; p.text = `A ${P} W appliance runs for ${h} hours. How much energy does it use, in kWh?`; }
+    else if (type === "cost") { const P = f.P ?? pickOne([1000, 1500, 2000, 100, 500]), h = f.h ?? pickOne([0.5, 1, 2, 3]), d = f.d ?? pickOne([1, 7, 30]), pr = f.pr ?? pickOne([1.55, 2]); p.P = P; p.h = h; p.d = d; p.pr = pr; p.ans = (P / 1000) * h * d * pr; p.unit = "pounds"; p.text = `A ${P} W appliance runs for ${h} hour${h === 1 ? "" : "s"} a day. The price is ${pr} pounds per kWh. What does it cost ${d === 1 ? "per day" : d === 7 ? "per week" : "per month (30 days)"}?`; }
+    else { const k = f.k ?? pickOne([0.5, 2, 3, 10]); p.k = k; p.ans = k * 3.6e6; p.unit = "J"; p.text = `How many joules are there in ${k} kWh?`; }
+    $("pq").textContent = p.text; $("punit").textContent = p.unit;
+    $("pin").value = ""; $("pin").disabled = false; $("pcheck").disabled = false; $("phint").disabled = false;
+    $("phintbox").textContent = ""; $("pfb").className = "feedback"; $("pfb").textContent = "";
+  }
+  function workLines(p) {
+    if (p.type === "P") return [`t = ${p.m} × 60 = ${p.m * 60} s.`, `P = E ÷ t = ${big(p.E)} ÷ ${p.m * 60} = <b>${big(p.P)} W</b>.`];
+    if (p.type === "E") return [`E = P × t = ${p.P} × ${p.m * 60} = ${big(p.P * p.m * 60)} J.`, `In kJ: ÷ 1000 = <b>${fmt(p.ans)} kJ</b>.`];
+    if (p.type === "T") return [`Same energy: E = ${p.P1} × ${p.t1} (in watt-hours) = ${p.P1 * p.t1}.`, `t = E ÷ P = ${p.P1 * p.t1} ÷ ${p.P2} = <b>${fmt(p.ans)} h</b>.`];
+    if (p.type === "kWh") return [`Power in kW: ${p.P} ÷ 1000 = ${fmt(p.P / 1000)} kW.`, `E = kW × h = ${fmt(p.P / 1000)} × ${p.h} = <b>${fmt(p.ans)} kWh</b>.`];
+    if (p.type === "cost") return [`kW: ${p.P} ÷ 1000 = ${fmt(p.P / 1000)} kW.`, `Hours: ${p.h} × ${p.d} = ${fmt(p.h * p.d)} h.`, `kWh: ${fmt(p.P / 1000)} × ${fmt(p.h * p.d)} = ${fmt((p.P / 1000) * p.h * p.d)} kWh.`, `Cost: × ${p.pr} = <b>${fmt(p.ans)} pounds</b>.`];
+    return [`1 kWh = 3.6 × 10⁶ J, so ${p.k} kWh = ${p.k} × 3,600,000 = <b>${big(p.ans)} J</b>.`];
+  }
+  const HINTS = {
+    P: ["Power = energy ÷ time.", "Change the minutes to seconds first."], E: ["E = P × t, with t in seconds.", "Then divide by 1000 to get kJ."],
+    T: ["The two bulbs use the same energy.", "E = P × t for the first bulb, then t = E ÷ P for the second. You can keep the time in hours."],
+    kWh: ["kWh = kW × hours.", "Change watts to kilowatts first (÷ 1000)."], cost: ["Four steps: kW, hours, kWh, cost.", "kW = W ÷ 1000; total hours = hours a day × days; kWh = kW × hours; cost = kWh × price."],
+    toJ: ["1 kWh = 1000 W × 3600 s.", "So multiply by 3,600,000."],
+  };
+  function hint() {
+    if (!p || p.done) return;
+    p.hints = Math.min(2, p.hints + 1);
+    $("phintbox").textContent = HINTS[p.type].slice(0, p.hints).join(" ");
+    if (p.hints === 2) $("phint").disabled = true;
+  }
+  const readNum = (s) => parseFloat(String(s).replace(/,/g, "").replace(/[^\d.eE\-]/g, ""));
+  function check(raw) {
+    if (!p || p.done) return;
+    const v = readNum(raw);
+    if (!isFinite(v)) { $("pfb").className = "feedback bad"; $("pfb").textContent = "Type a number, like 1500."; return; }
+    p.done = true;
+    $("pin").disabled = true; $("pcheck").disabled = true; $("phint").disabled = true;
+    const ok = close(v, p.ans);
+    let why = "", see = "e8-triangle";
+    if (!ok) {
+      if (p.type === "P") { if (close(v, p.E / p.m)) why = "You divided by minutes. Change them to seconds first."; else if (close(v, p.E * p.m * 60)) why = "You multiplied. P = E ÷ t."; }
+      else if (p.type === "E") { if (close(v, p.P * p.m * 60)) why = "That's in joules. Divide by 1000 for kJ."; else if (close(v, (p.P * p.m) / 1000) || close(v, p.P * p.m)) why = "Change the minutes to seconds first."; }
+      else if (p.type === "T") { if (close(v, (p.P2 * p.t1) / p.P1)) why = "Upside down. A more powerful bulb uses the same energy in less time: t = E ÷ P."; }
+      else if (p.type === "kWh") { see = "e8-kwh"; if (close(v, p.P * p.h)) why = "Change watts to kilowatts first (÷ 1000)."; }
+      else if (p.type === "cost") { see = "e8-cost"; if (close(v, p.P * p.h * p.d * p.pr)) why = "Change watts to kilowatts first (÷ 1000)."; else if (close(v, (p.P / 1000) * p.h * p.pr)) why = "That's one day. Multiply by the number of days too."; else if (close(v, (p.P / 1000) * p.h * p.d)) why = "That's the energy in kWh. Multiply by the price to get the cost."; }
+      else { see = "e8-kwh"; if (close(v, p.k * 3600) || close(v, p.k * 1000)) why = "1 kWh = 1000 × 3600 = 3,600,000 J. Use both."; }
+      if (!why) why = "Check each step below.";
+    }
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = (ok ? "<b>Right!</b>" : `<b>Not quite.</b> The answer is ${big(p.ans)} ${p.unit}. ${why} <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`)
+      + `<ol class="work">${workLines(p).map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pcheck").addEventListener("click", () => check($("pin").value));
+  $("pin").addEventListener("keydown", (e) => { if (e.key === "Enter") check($("pin").value); });
+  $("phint").addEventListener("click", hint);
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "The LED lamp is 12 W and the CFL lamp is 20 W, with the same light. Which do you think costs less to run?", correct: 0, ok: "Right. Let's find out exactly how much less.",
+       options: [["The LED lamp", null], ["The CFL lamp", "The CFL uses more power for the same light, so it costs more."]] }],
+    [{ type: "choice", q: "\"A lamp's power is 9 W\" means…", correct: 1, ok: "Right. 1 W = 1 J each second.", see: "e8-def",
+       options: [["it uses 9 J in total", "Power is per second, not the total."], ["it uses 9 J of electrical energy every second", null], ["it gives 9 V", "Volts measure potential difference, not power."]] }],
+    [{ type: "choice", q: "A 100 W lamp is on for 60 s. How much energy does it use?", correct: 2, ok: "Right. E = P × t = 100 × 60 = 6000 J.", see: "e8-triangle",
+       options: [["1.67 J", "That's 100 ÷ 60. E is on top, so multiply."], ["0.6 J", "That's 60 ÷ 100. Multiply instead."], ["6000 J", null]] }],
+    [{ type: "choice", q: "The same energy is used in twice the time. The power…", correct: 1, ok: "Right. Time is on the bottom: more time, less power.", see: "e8-what-if",
+       options: [["doubles", "Time is on the bottom of P = E ÷ t."], ["halves", null]] }],
+    [{ type: "choice", q: "How many joules are in 1 kWh?", correct: 0, ok: "Right. 1000 W × 3600 s = 3.6 × 10⁶ J.", see: "e8-kwh",
+       options: [["3,600,000 J", null], ["1000 J", "That only counts the kilo. You also need the 3600 seconds in an hour."], ["3600 J", "That only counts the hour. You also need the 1000 watts in a kilowatt."]] }],
+    [{ type: "choice", q: "A 2000 W heater runs for 3 hours. The price is 2 pounds per kWh. What does it cost?", correct: 1, ok: "Right. 2 kW × 3 h = 6 kWh; 6 × 2 = 12 pounds.", see: "e8-cost",
+       options: [["12,000 pounds", "Change watts to kilowatts first (÷ 1000)."], ["12 pounds", null], ["6 pounds", "6 kWh is the energy. Multiply by the price."]] }],
+    [{ type: "choice", q: "Why shouldn't you plug several high-power appliances into one socket?", correct: 0, ok: "Right. The current adds up and could cause a fire.", see: "e8-safety",
+       options: [["The current would increase a lot, which may cause fires", null], ["The appliances would get less voltage", "Each gets the full voltage (parallel). The danger is the total current."]] }],
+  ];
+  const AR = [
+    "لمبة LED قدرتها 12 وات، ولمبة موفّرة (CFL) قدرتها 20 وات، والاتنين بيدّوا نفس النور. أنهي أرخص في الفاتورة الشهرية؟",
+    "<b>القدرة الكهربية</b>: كمية الطاقة الكهربية اللي الجهاز بيستهلكها في الثانية: <b>P = E ÷ t</b>. بتتقاس بالوات، و ١ وات = ١ جول في الثانية.",
+    "المثلث و E فوق: <b>E = P × t</b> و <b>t = E ÷ P</b>. الزمن بالثواني لما نستخدم الجول والوات.",
+    "عند ثبوت الزمن: القدرة والطاقة <b>طردية</b>. عند ثبوت الطاقة: القدرة والزمن <b>عكسية</b>.",
+    "الجول وحدة صغيرة جدًا، فبنستخدم <b>الكيلووات ساعة</b>. ١ كيلووات ساعة = ٣٫٦ × ١٠⁶ جول. الطاقة بالكيلووات ساعة = القدرة بالكيلووات × عدد الساعات.",
+    "حساب الفاتورة: الوات ÷ ١٠٠٠ = كيلووات، × عدد الساعات = كيلووات ساعة، × سعر الكيلووات ساعة = التكلفة بالجنيه.",
+    "LED: حوالي 6.7 جنيه في الشهر، CFL: حوالي 11.2 جنيه. وقواعد الأمان: ماتلمسش الكهربا بإيد مبلولة، والأسلاك لازم تكون معزولة، وماتوصّلش أجهزة كتير على بريزة واحدة.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-8-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E8_BANK = [
+    { id: "power-term", concept: "e8-def",
+      make: () => Q.mc("Write the scientific term: \"The amount of electrical energy an appliance consumes in one second.\"", "Electric power", ["Electric current", "Electrical energy", "Potential difference"], "Power is energy per second.") },
+    { id: "watt-term", concept: "e8-def",
+      make: () => Q.mc("Write the scientific term: \"The power of an appliance that consumes one joule of electrical energy in one second.\"", "The watt", ["The joule", "The volt", "The kilowatt-hour"], "1 W = 1 J/s.") },
+    { id: "rate", concept: "e8-def",
+      make: () => Q.mc("The rate at which electrical appliances consume energy expresses the concept of…", "electric power", ["electrical energy", "potential difference", "current intensity"], "Power is the rate of using energy: energy per second.") },
+    { id: "watt-eq", concept: "e8-def",
+      make: () => Q.mc("1 watt is the same as…", "1 joule per second", ["1 joule per coulomb", "1 coulomb per second", "1 volt per ampere"], "P = E ÷ t, so watts = joules ÷ seconds. (J/C is the volt, C/s the ampere, V/A the ohm.)") },
+    { id: "joule-ws", concept: "e8-triangle",
+      make: () => Q.mc("Which unit of energy is the same as a watt × second?", "The joule", ["The kilowatt-hour", "The volt", "The ampere"], "E = P × t, so joule = watt × second.") },
+    { id: "meant-9w", concept: "e8-def",
+      make: () => { const w = pickOne([9, 12, 60, 100]); return Q.mc(`"A lamp's power is ${w} W." What does this mean?`, `It uses ${w} J of electrical energy every second`, [`It uses ${w} J in total`, `It needs ${w} V`, `It carries ${w} A`], `${w} W = ${w} joules each second.`); } },
+    { id: "torch", concept: "e8-def",
+      make: () => Q.mc("An electric torch consumes 12,000 J per minute. What is its power?", "200 W", ["12,000 W", "720,000 W", "20 W"], "P = E ÷ t = 12,000 ÷ 60 = 200 W.") },
+    { id: "find-p", concept: "e8-triangle",
+      make: () => Q.mc("An appliance consumes 9 × 10⁵ J in 10 minutes. What is its power?", "1500 W", ["90,000 W", "15 W", "54,000,000 W"], "t = 600 s; P = 900,000 ÷ 600 = 1500 W.") },
+    { id: "fan-kj", concept: "e8-triangle",
+      make: () => Q.mc("How much energy, in kJ, does an 88 W fan use in one minute?", "5.28 kJ", ["5280 kJ", "1.47 kJ", "0.088 kJ"], "E = 88 × 60 = 5280 J = 5.28 kJ.") },
+    { id: "two-bulbs", concept: "e8-triangle",
+      make: () => Q.mc("A 100 W bulb is lit for 5 hours. How long must a 250 W bulb be lit to use the same energy?", "2 hours", ["12.5 hours", "5 hours", "0.5 hours"], "E = 100 × 5 = 500 Wh; t = 500 ÷ 250 = 2 hours.") },
+    { id: "what-if", concept: "e8-what-if",
+      make: () => { const [c, r, w] = pickOne([["the energy doubles while the time stays the same", "it doubles", ["it halves", "it stays the same"]], ["the time doubles while the energy stays the same", "it halves", ["it doubles", "it stays the same"]], ["the energy doubles and the time halves", "it becomes 4 times as big", ["it doubles", "it stays the same"]]]); return Q.mc(`What happens to the power if ${c}?`, r, w, "P = E ÷ t: energy on top, time on the bottom."); } },
+    { id: "kwh-gr", concept: "e8-kwh",
+      make: () => Q.mc("Give reason: the kWh is used instead of the joule to measure electrical energy in practical life.", "Because the joule is a very small unit of electrical energy", ["Because the joule is a unit of power", "Because the kWh is smaller", "Because meters can't count joules"], "The joule is tiny, so the larger kWh is more practical.") },
+    { id: "kwh-j", concept: "e8-kwh",
+      make: () => Q.mc("1 kWh equals…", "3.6 × 10⁶ J", ["1000 J", "3600 J", "3.6 × 10³ J"], "1 kWh = 1000 W × 3600 s = 3,600,000 J.") },
+    { id: "kwh-calc", concept: "e8-kwh",
+      make: () => { const [w, h] = pickOne([[20, 5], [100, 10], [1500, 2], [2000, 3]]); return Q.mc(`A ${w} W appliance runs for ${h} hours. How much energy does it use?`, `${fmt((w / 1000) * h)} kWh`, [`${w * h} kWh`, `${fmt(w / 1000 / h)} kWh`, `${fmt((w / 1000) * h * 3600)} kWh`], `${w} W = ${fmt(w / 1000)} kW; E = ${fmt(w / 1000)} × ${h} = ${fmt((w / 1000) * h)} kWh.`); } },
+    { id: "heater-cost", concept: "e8-cost",
+      make: () => Q.mc("A 2000 W heater runs 3 hours a day. The price is 2 pounds per kWh. What is the daily cost?", "12 pounds", ["12,000 pounds", "6 pounds", "1.5 pounds"], "2 kW × 3 h = 6 kWh; 6 × 2 = 12 pounds.") },
+    { id: "kettle", concept: "e8-cost",
+      make: () => Q.mc("A 1500 W kettle is used for half an hour a day. At 1.55 pounds per kWh, about what does it cost per week?", "About 8.14 pounds", ["About 1.16 pounds", "About 8137 pounds", "About 5.25 pounds"], "1.5 kW × 3.5 h = 5.25 kWh; 5.25 × 1.55 ≈ 8.14 pounds.") },
+    { id: "led-cfl", concept: "e8-ledcfl",
+      make: () => Q.mc("Give reason: LED lamps are preferred to CFL lamps that give the same light.", "They use less electrical energy in the same time, so they're more efficient and cheaper to run", ["They use more power, so they're brighter", "They don't need electricity", "CFL lamps can't be switched off"], "LED: 4.32 kWh ≈ 6.7 pounds a month; CFL: 7.2 kWh ≈ 11.2 pounds, for the same light.") },
+    { id: "vacuum", concept: "e8-cost",
+      make: () => Q.mc("Four vacuum cleaners clean equally well: 2000 W, 2400 W, 1800 W and 1700 W. Which is best to buy?", "The 1700 W one", ["The 2400 W one", "The 2000 W one", "They all cost the same to run"], "The lowest power uses the least energy, so it's the cheapest to run.") },
+    { id: "most", concept: "e8-cost",
+      make: () => Q.mc("Which uses the most electrical energy in the same time?", "An electric heater", ["An LED lamp", "A phone charger", "A wall clock"], "Heating appliances have the highest power (1–2 kW).") },
+    { id: "label", concept: "e8-label",
+      make: () => { const top = Math.random() < 0.5; return Q.mc(`On an energy label, what does the letter ${top ? "A (green)" : "E (red)"} mean?`, top ? "The highest efficiency and the lowest energy use" : "The lowest efficiency and the highest energy use", [top ? "The lowest efficiency and the highest energy use" : "The highest efficiency and the lowest energy use", "The appliance is broken", "The appliance runs on batteries"], "A (green) = most efficient; E (red) = least efficient."); } },
+    { id: "safety-wet", concept: "e8-safety",
+      make: () => Q.mc("Give reason: don't touch wires or circuit parts with wet hands.", "Because tap water conducts electricity", ["Because water is an insulator", "Because the wires will rust at once", "Because water raises the voltage"], "Tap water conducts electricity, so current could pass through you.") },
+    { id: "safety-socket", concept: "e8-safety", also: "e7-current",
+      make: () => Q.mc("Give reason: avoid connecting several high-power appliances to one socket.", "To avoid a large increase in current, which may cause fires", ["To keep the voltage from rising", "Because sockets only work in series", "To make appliances run faster"], "Each appliance is a parallel branch, so the currents add up in the socket's wires.") },
+    { id: "safety-insulate", concept: "e8-safety",
+      make: () => Q.mc("Why must circuit wires be properly insulated?", "To avoid electric shock", ["To make the current bigger", "To save electricity", "To make the wires lighter"], "Insulation stops current from passing into anyone who touches the wire.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E8_BANK, count: 10, storageKey: "elec-8-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-8-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e8" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e8", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-8-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab"],
+    prepare() { steps.prepare(); },
+    quizBank: E8_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e8",
+    cases() {
+      const out = [];
+      for (const rows of [[[0, 12], [4, 4], [10, 6]], [[10, 24], [9, 24], [8, 24]], [[0, 0], [1, 0], [2, 0]], [[5, 12], [6, 2], [7, 0.5]]]) for (const price of [1.55, 3])
+        out.push({ kind: "lab", rows, price, name: `lab ${JSON.stringify(rows)} ${price}` });
+      for (const type of ["P", "E", "T", "kWh", "cost", "toJ"]) for (const answered of ["no", "right", "wrong"])
+        out.push({ kind: "practice", f: { type, P: 1500, m: 10, h: 0.5, d: 7, pr: 1.55, k: 2, v: [100, 5, 250] }, answered, name: `practice ${type} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { lab.rows = c.rows.map((r) => r.slice()); lab.price = c.price; buildRows(); renderLab(); }
+      else { newProblem(c.f); if (c.answered === "right") check(String(p.ans)); if (c.answered === "wrong") check(String(p.ans * 7)); }
+    },
+    practice: () => p, check, newProblem,
+  };
+})();
+</script>
