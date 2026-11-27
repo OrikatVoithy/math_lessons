@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/", e9: "electricity-9/", e10: "electricity-10/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8", e9: "Electricity 9", e10: "Electricity 10" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/", e9: "electricity-9/", e10: "electricity-10/", e11: "electricity-11/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8", e9: "Electricity 9", e10: "Electricity 10", e11: "Electricity 11" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -122,6 +122,17 @@
     "e10-factors": ["e10", 5, ".factors", "what makes a motor more powerful"],
     "e10-reverse": ["e10", 5, ".checks", "reversing a motor, and the drill"],
     "e10-energy": ["e10", 6, ".energy", "the fan solved: electrical to kinetic energy"],
+    // Electricity 11: The electric generator
+    "e11-why": ["e11", 0, ".stepbody", "the bicycle dynamo problem"],
+    "e11-activity": ["e11", 1, ".recipe", "running a toy motor backwards to light an LED"],
+    "e11-gen": ["e11", 2, ".defbox", "the electric generator and its principle"],
+    "e11-factors": ["e11", 3, ".factors", "what increases a generator's current"],
+    "e11-bike": ["e11", 3, ".bike", "why the bicycle lamp gets brighter"],
+    "e11-dcac": ["e11", 4, ".dcac", "direct current and alternating current"],
+    "e11-gens": ["e11", 4, ".gens", "DC and AC generators"],
+    "e11-stations": ["e11", 5, ".stations", "power stations, turbines and emergency generators"],
+    "e11-compare": ["e11", 6, ".compare", "motor vs generator"],
+    "e11-dual": ["e11", 6, ".dual", "one device as a motor or a generator"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
