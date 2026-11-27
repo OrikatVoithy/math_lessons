@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/", e9: "electricity-9/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8", e9: "Electricity 9" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/", e8: "electricity-8/", e9: "electricity-9/", e10: "electricity-10/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7", e8: "Electricity 8", e9: "Electricity 9", e10: "Electricity 10" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -112,6 +112,16 @@
     "e9-crane": ["e9", 5, ".example", "the scrap crane"],
     "e9-bell": ["e9", 5, ".bellbox", "how the electric bell works"],
     "e9-compare": ["e9", 6, ".meters", "permanent magnet vs electromagnet"],
+    // Electricity 10: The electric motor
+    "e10-why": ["e10", 0, ".stepbody", "how electricity makes a fan spin"],
+    "e10-force": ["e10", 1, ".stepbody", "the force on a current-carrying wire in a magnet"],
+    "e10-torque": ["e10", 2, ".defbox", "torque"],
+    "e10-motor": ["e10", 3, ".defbox", "the electric motor"],
+    "e10-parts": ["e10", 3, ".parts", "the motor's parts: coil, magnet, commutator, brushes"],
+    "e10-how": ["e10", 4, ".recipe", "how the motor's coil turns"],
+    "e10-factors": ["e10", 5, ".factors", "what makes a motor more powerful"],
+    "e10-reverse": ["e10", 5, ".checks", "reversing a motor, and the drill"],
+    "e10-energy": ["e10", 6, ".energy", "the fan solved: electrical to kinetic energy"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
