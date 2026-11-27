@@ -1,0 +1,932 @@
+<title>Cells and Batteries</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 6 additions */
+.defbox { border: 2px solid var(--opp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.meters, .otable { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.meters th, .meters td, .otable th, .otable td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.meters th, .otable th { background: var(--paper); }
+.otable td { font-family: var(--mono); }
+.graphs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.graphs figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 8px; display: grid; gap: 4px; }
+.step .graphs figure { grid-column: auto; }
+.graphs svg { width: 100%; height: auto; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.figrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.figrow figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 6px; display: grid; gap: 4px; }
+.step .figrow figure { grid-column: auto; }
+.figrow svg { width: 100%; height: auto; }
+.figrow figcaption { font-size: 0.78rem; }
+@media (max-width: 560px) { .figrow { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-5/">← Electricity 5: Ohm's law</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 6 of 8</div>
+    <h1>How do you build a battery? (Cells and electromotive force)</h1>
+    <p class="lede">One cell gives only 1.5 volts. Join several and you can get more push, or make it last longer, depending on how you join them. Go through the 7 short steps, then build batteries in the lab.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>A torch and a power bank both use several cells. Why join them differently?</h2>
+        <div class="in-short">A torch joins its cells end to end, + to −, to get more push. A power bank joins its cells side by side, + to + and − to −, so it lasts longer. This level shows why.</div>
+        <p>A single cell gives only about <b class="k-v">1.5 V</b>. That's not enough for many devices.</p>
+        <p>Open a torch: the cells sit <b>end to end</b>, the + of one touching the − of the next. Open a power bank: its cells sit <b>side by side</b>, all the + ends joined together and all the − ends joined together.</p>
+        <p>Same cells, joined two different ways. What does each way do, and how do you choose?</p>
+        <div class="more">
+          <h3>Cells and batteries</h3>
+          <p>In everyday speech we call one cell a "battery", but in science a <b>cell</b> is one unit and a <b>battery</b> is two or more cells joined together. An electric car's battery is thousands of cells.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figHook" viewBox="0 0 260 170" role="img" aria-label="Left: two cells end to end, as in a torch. Right: three cells side by side, as in a power bank."></svg>
+        <figcaption>Torch: end to end. Power bank: side by side.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The push of a source</div>
+        <h2>Electromotive force (emf): the total push of a cell</h2>
+        <div class="in-short">Every cell or battery has an electromotive force (emf, symbol ε): the total work it does to move one coulomb round the whole circuit. It's measured in volts, with a voltmeter across the cell.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-v">Electromotive force (emf)</b><span class="ar" lang="ar"> القوة الدافعة الكهربية</span> of a source: the <b>total work</b> done by the source to move <b>one coulomb</b> of electric charge through the <b>whole</b> electric circuit.</p></div>
+        <p>Its symbol is <b class="k-v">ε</b>, the Greek letter <b>epsilon</b>. Like <a data-concept="e3-units" href="#">potential difference</a>, it's measured in <b>volts</b>, with a voltmeter connected across the cell's two ends.</p>
+        <p>Cells and batteries are <a data-concept="e1-dc-ac" href="#">direct-current sources</a>: they push current one way, at a steady strength.</p>
+        <div class="more">
+          <h3>Emf vs potential difference</h3>
+          <p>Potential difference is the work per coulomb between <b>two points</b>, like across one bulb. Emf is the work per coulomb round the <b>whole circuit</b>: the source's entire push.</p>
+          <h3>Isn't it a "force"?</h3>
+          <p>No, the name is old and misleading. It's measured in volts, not in units of force. Just think of it as "the source's total push per coulomb".</p>
+          <h3>Your book's definitions of the two kinds of current</h3>
+          <p><b>Direct current:</b> "an electric current that has a constant intensity and flows in one direction in the circuit." <b>Alternating current:</b> "an electric current whose value and direction change with time."</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Open and closed</div>
+        <h2>Why a battery reads a little less when it's working</h2>
+        <div class="in-short">Circuit open: the voltage across the battery equals its emf. Circuit closed: current also flows inside the battery, which has a small internal resistance, so the voltage across its ends is a little less than the emf. In problems we ignore the internal resistance, so V = ε.</div>
+        <ul class="checks">
+          <li><b>Circuit open</b> (no current): the voltmeter across the battery shows its <b class="k-v">emf</b>: V = ε.</li>
+          <li><b>Circuit closed</b> (current flowing): current flows <b>inside</b> the battery too. Part of the emf is used up inside, so the voltage across its ends is a little <b>less</b> than the emf.</li>
+        </ul>
+        <p><b>Give reason:</b> part of the emf is used inside the battery. <i>To overcome the resistance opposing the current inside the battery (its internal resistance).</i></p>
+        <p><b>Give reason:</b> in problems, we take the internal resistance as negligible. <i>Because it is very small compared with the external resistance.</i> So in problems, <b>the voltage across the battery = its emf</b>.</p>
+        <div class="tablewrap">
+          <table class="meters">
+            <thead><tr><th scope="col"></th><th scope="col">Potential difference</th><th scope="col">Electromotive force</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Definition</th><td>Work to move 1 C between two points</td><td>Total work to move 1 C round the whole circuit</td></tr>
+              <tr><th scope="row">Unit</th><td>Volt (V)</td><td>Volt (V)</td></tr>
+              <tr><th scope="row">Symbol</th><td>V</td><td>ε (epsilon)</td></tr>
+              <tr><th scope="row">Measured when</th><td>The circuit is closed</td><td>The circuit is open</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>Water idea</h3>
+          <p>A pump has to push water through its own insides too. A little of its push is used up there, so slightly less is left for the pipes outside.</p>
+          <h3>Why a weak battery reads fine but won't work</h3>
+          <p>An old battery's internal resistance grows. With nothing connected, a voltmeter still reads nearly the full emf. Connect a device, and most of the emf is used up inside, so the device barely runs.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Joining cells</div>
+        <h2>Two ways to join cells: series and parallel</h2>
+        <div class="in-short">Series: unlike ends joined (+ to −), in a line. Parallel: like ends joined (all + together, all − together). In the book's activity with 1.5 V cells: two in series give 3 V and a bulb twice as bright; two in parallel give 1.5 V and the same brightness as one cell.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b>Battery</b><span class="ar" lang="ar"> بطارية</span>: two or more electric cells connected together in an electric circuit.</p></div>
+        <div class="dirbox">
+          <div><h3>In series<span class="ar" lang="ar"> على التوالي</span></h3><p><b>Unlike</b> ends are joined: the + of one cell to the − of the next, and so on. The free − of the first cell and the free + of the last cell are the battery's two ends.</p></div>
+          <div><h3>In parallel<span class="ar" lang="ar"> على التوازي</span></h3><p><b>Like</b> ends are joined: all the + ends together as one + pole, and all the − ends together as one − pole.</p></div>
+        </div>
+        <p><b>The book's activity:</b> three circuits, each with the same bulb and cells of 1.5 V.</p>
+        <div class="figrow">
+          <figure><svg id="figA1" viewBox="0 0 140 110" role="img" aria-label="Circuit 1: one cell and a bulb."></svg><figcaption>(1) one cell</figcaption></figure>
+          <figure><svg id="figA2" viewBox="0 0 140 110" role="img" aria-label="Circuit 2: two cells in series and a brighter bulb."></svg><figcaption>(2) two in series</figcaption></figure>
+          <figure><svg id="figA3" viewBox="0 0 140 110" role="img" aria-label="Circuit 3: two cells in parallel and a bulb as bright as circuit 1."></svg><figcaption>(3) two in parallel</figcaption></figure>
+        </div>
+        <div class="tablewrap">
+          <table class="otable">
+            <thead><tr><th scope="col">Circuit</th><th scope="col">(1)</th><th scope="col">(2) series</th><th scope="col">(3) parallel</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Voltmeter reading</th><td>1.5 V</td><td>3 V</td><td>1.5 V</td></tr>
+              <tr><th scope="row">Brightness</th><td>X</td><td>2X</td><td>X</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>Why does series add up?</h3>
+          <p>Each cell gives every coulomb a push, one after another, like climbing two flights of stairs: you end up twice as high. In parallel, each coulomb goes through only one cell, so it gets one cell's push.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The rules</div>
+        <h2>Series adds up. Parallel stays the same.</h2>
+        <div class="in-short">Identical cells in series: ε (total) = ε (one cell) × n. In parallel: ε (total) = ε (one cell). More cells in series means more emf (direct); more cells in parallel leaves the emf the same.</div>
+        <div class="bigeq"><span>Series: <span class="k-v">ε<sub>total</sub></span> = ε<sub>cell</sub> × n</span></div>
+        <div class="bigeq"><span>Parallel: <span class="k-v">ε<sub>total</sub></span> = ε<sub>cell</sub></span></div>
+        <div class="graphs">
+          <figure><svg viewBox="0 0 160 130" aria-hidden="true"><path d="M24,110 L150,110 M24,110 L24,12" stroke="var(--ink)" stroke-width="2" fill="none"/><path d="M24,110 L140,24" stroke="var(--opp)" stroke-width="3" fill="none"/><text x="146" y="126" text-anchor="end" class="t-ink" font-size="11">cells in series</text><text x="30" y="14" class="t-opp" font-size="11" font-weight="700">ε total</text></svg><figcaption>Series: emf grows with the number of cells</figcaption></figure>
+          <figure><svg viewBox="0 0 160 130" aria-hidden="true"><path d="M24,110 L150,110 M24,110 L24,12" stroke="var(--ink)" stroke-width="2" fill="none"/><path d="M24,70 L146,70" stroke="var(--opp)" stroke-width="3" fill="none"/><text x="146" y="126" text-anchor="end" class="t-ink" font-size="11">cells in parallel</text><text x="30" y="14" class="t-opp" font-size="11" font-weight="700">ε total</text></svg><figcaption>Parallel: emf stays the same</figcaption></figure>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Book example</div><p><b>A lamp is connected to three cells in series, each 3 V. What is the potential difference across the lamp?</b></p><ol class="recipe compact"><li>V across the lamp = ε of the battery (internal resistance negligible).</li><li><span class="num">ε = 3 × 3 = 9 V</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Book example</div><p><b>Four cells of 1.5 V are joined with all + ends together and all − ends together. Series or parallel? What is the emf?</b></p><ol class="recipe compact"><li>Like ends joined: <b>parallel</b>.</li><li><span class="num">ε = 1.5 V</span>, the same as one cell.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>Comparing the two (book)</h3>
+          <p><b>Series:</b> + of one to − of the next; emf = the sum of the cells' emfs; a lamp is brighter than with one cell. <b>Parallel:</b> + ends together and − ends together; emf = one cell's emf; a lamp is about as bright as with one cell.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Mixed and designed</div>
+        <h2>Mixed batteries, and building one for a job</h2>
+        <div class="in-short">Mixed battery: ε = ε (the parallel group, counts as one cell) + ε (the cells in series). To design: target = one cell → all in parallel; target = all cells added → all in series; in between → put cells in series until you reach the target, then join the rest in parallel with one of them.</div>
+        <p class="unitbox"><b>Mixed battery:</b> ε<sub>battery</sub> = ε<sub>parallel group</sub> + ε<sub>remaining cells in series</sub>. A parallel group counts as just <b>one</b> cell.</p>
+        <div class="example"><div class="eyebrow">Book example</div><p><b>Battery X has two cells in parallel, then two more in series with that group. Each cell is 1.5 V. What is its emf?</b></p><ol class="recipe compact"><li>Parallel group: 1.5 V (counts as one cell).</li><li>Plus two cells in series: <span class="num">1.5 + 1.5 × 2 = 4.5 V</span>.</li></ol></div>
+        <p><b>Designing a battery (book guidelines):</b></p>
+        <ol class="recipe">
+          <li>Target = one cell's emf → join <b>all</b> the cells in <b>parallel</b>.</li>
+          <li>Target = all the cells added together → join <b>all</b> in <b>series</b>.</li>
+          <li>Target in between → join cells in <b>series</b> until you reach the target, then join the <b>remaining</b> cells in <b>parallel</b> with one of the series cells.</li>
+        </ol>
+        <div class="example"><div class="eyebrow">Book example</div><p><b>Three 1.5 V cells. How do you get 1.5 V, 4.5 V and 3 V?</b></p><ol class="recipe compact"><li>1.5 V (one cell's worth): all three in parallel.</li><li>4.5 V (all three added): all three in series.</li><li>3 V (in between): two in series = 3 V, then the third in parallel with one of them.</li></ol></div>
+        <div class="more">
+          <h3>Why put the spare cell in parallel instead of leaving it out?</h3>
+          <p>A cell in parallel adds no push, but it shares the work with its partner, so that pair runs down more slowly. Nothing is wasted.</p>
+          <h3>Two parallel groups</h3>
+          <p>Your book also shows two series groups of three 1.5 V cells, joined in parallel. Each group is 4.5 V, and joining equal groups in parallel keeps it at 4.5 V.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the torch</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">Torch: cells in series to get a bigger emf, enough to power it. Power bank: cells in parallel so the current lasts longer without raising the output voltage, so it can charge a phone several times.</div>
+        <ul class="checks">
+          <li><b>Torch: give reason, its cells are in series.</b> <i>To get a greater electromotive force, enough to power it.</i> Two 1.5 V cells in series give 3 V.</li>
+          <li><b>Power bank: give reason, its cells are in parallel.</b> <i>To keep the current going for a longer time without increasing its output voltage, so the phone can be charged several times.</i></li>
+        </ul>
+        <p>So: <b>series for more push</b>, <b>parallel for more time</b>.</p>
+        <ul class="uses d-extra">
+          <li><h3>TV remotes</h3><p>Two 1.5 V cells in series make 3 V.</p></li>
+          <li><h3>Electric cars</h3><p>Thousands of cells, in series for high voltage and in parallel for long range.</p></li>
+          <li><h3>Solar lamps</h3><p>Store energy in cells joined to suit the lamp.</p></li>
+        </ul>
+        <div class="more">
+          <h3>Never mix old and new cells</h3>
+          <p>In series, a weak cell drags the whole battery down. In parallel, a strong cell can push current backwards into a weak one, heating it up. Always use identical cells, as your book's rules assume.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: build a battery</h2>
+    <p class="lede" style="margin-top:8px">Choose how many 1.5 V cells and how to join them. Guess the emf before you look.</p>
+  </div>
+
+  <section class="panel lab" aria-label="Battery builder">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 240" role="img" aria-label="The battery you build, joined to a lamp."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="nIn">Cells</label><input type="range" id="nIn" min="1" max="6" step="1" value="3"><output id="nOut"></output></div>
+      <div class="row"><span class="label">Join them</span><div class="seg" id="modeSeg"><button type="button" data-m="series">In series</button><button type="button" data-m="parallel">In parallel</button><button type="button" data-m="mixed">Mixed</button></div></div>
+      <div class="slider-row" id="gRow"><label for="gIn">In parallel</label><input type="range" id="gIn" min="2" max="6" step="1" value="2"><output id="gOut"></output></div>
+      <div class="calc" id="calc" aria-live="polite"></div>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">Find the emf of a battery, or choose how to build one. A new question each time.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 200" role="img" aria-label="A battery for the practice question."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next question</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on cells and batteries</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><a class="golink" href="../electricity-3/">Review Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><a class="golink" href="../electricity-4/">Review Level 4 →</a></li>
+      <li class="panel"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><a class="golink" href="../electricity-5/">Review Level 5 →</a></li>
+      <li class="panel now"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const W = (svg, x1, y1, x2, y2, sw = 2.5) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": sw, "stroke-linecap": "round" }, svg);
+  // One cell, drawn left to right: short thick plate (−) then long thin plate (+). Unit width 40.
+  function cell(svg, x, y, s = 1) {
+    W(svg, x, y, x + 16 * s, y);
+    el("line", { x1: x + 16 * s, y1: y - 6 * s, x2: x + 16 * s, y2: y + 6 * s, stroke: "var(--ink)", "stroke-width": 5 * s }, svg);
+    el("line", { x1: x + 24 * s, y1: y - 11 * s, x2: x + 24 * s, y2: y + 11 * s, stroke: "var(--ink)", "stroke-width": 2 * s }, svg);
+    W(svg, x + 24 * s, y, x + 40 * s, y);
+    return x + 40 * s;
+  }
+  const series = (svg, x, y, n, s = 1) => { for (let i = 0; i < n; i++) x = cell(svg, x, y, s); return x; };
+  function parallel(svg, x, y, g, s = 1, gap = 34) {
+    const ys = Array.from({ length: g }, (_, i) => y + (i - (g - 1) / 2) * gap * s);
+    ys.forEach((yy) => cell(svg, x, yy, s));
+    W(svg, x, ys[0], x, ys[g - 1]); W(svg, x + 40 * s, ys[0], x + 40 * s, ys[g - 1]);
+    return x + 40 * s;
+  }
+  // A battery: { mode: "series"|"parallel"|"mixed", n, g } (mixed: a parallel group of g cells, then n − g in series)
+  function battery(svg, x, y, b, s = 1, gap = 34) {
+    if (b.mode === "series") return series(svg, x, y, b.n, s);
+    if (b.mode === "parallel") return parallel(svg, x, y, b.n, s, gap);
+    return series(svg, parallel(svg, x, y, b.g, s, gap), y, b.n - b.g, s);
+  }
+  const emfOf = (b, e) => (b.mode === "series" ? e * b.n : b.mode === "parallel" ? e : e + e * (b.n - b.g));
+  function lamp(svg, cx, cy, frac, r = 14) {
+    if (frac > 0) el("circle", { cx, cy, r: r + 4 + 14 * frac, fill: "var(--angle)", "fill-opacity": (0.12 + 0.4 * frac).toFixed(2) }, svg);
+    el("circle", { cx, cy, r, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    const c = frac > 0 ? "var(--angle)" : "var(--ink)", k = r * 0.6;
+    el("line", { x1: cx - k, y1: cy - k, x2: cx + k, y2: cy + k, stroke: c, "stroke-width": 1.8 }, svg);
+    el("line", { x1: cx + k, y1: cy - k, x2: cx - k, y2: cy + k, stroke: c, "stroke-width": 1.8 }, svg);
+  }
+  // Battery + lamp in one loop. The loop goes over the top.
+  function loopCircuit(svg, b, opts) {
+    const { x0, yc, top, lampX, right, s, gap, frac } = opts;
+    const xb = battery(svg, x0, yc, b, s, gap);
+    W(svg, xb, yc, lampX - 14 * s, yc, 2.5 * s);
+    lamp(svg, lampX, yc, frac, 14 * s);
+    W(svg, lampX + 14 * s, yc, right, yc, 2.5 * s); W(svg, right, yc, right, top, 2.5 * s); W(svg, right, top, x0 - 8 * s, top, 2.5 * s);
+    W(svg, x0 - 8 * s, top, x0 - 8 * s, yc, 2.5 * s); W(svg, x0 - 8 * s, yc, x0, yc, 2.5 * s);
+  }
+
+  /* ---------- Step figures ---------- */
+  (function hook() {
+    const svg = $("figHook");
+    series(svg, 26, 70, 2);
+    el("rect", { x: 18, y: 50, width: 96, height: 40, rx: 10, fill: "none", stroke: "var(--muted)", "stroke-width": 1.5, "stroke-dasharray": "4 3" }, svg);
+    el("text", { x: 66, y: 40, "text-anchor": "middle", class: "t-ink", "font-size": 13, "font-weight": 700 }, svg, "torch");
+    el("text", { x: 66, y: 112, "text-anchor": "middle", class: "t-opp", "font-size": 12, "font-weight": 700 }, svg, "1.5 + 1.5 = 3 V");
+    parallel(svg, 180, 80, 3);
+    el("text", { x: 200, y: 26, "text-anchor": "middle", class: "t-ink", "font-size": 13, "font-weight": 700 }, svg, "power bank");
+    el("text", { x: 200, y: 146, "text-anchor": "middle", class: "t-opp", "font-size": 12, "font-weight": 700 }, svg, "still 1.5 V");
+  })();
+  const act = (id, b, frac) => loopCircuit($(id), b, { x0: 16, yc: 72, top: 14, lampX: 112, right: 132, s: 0.9, gap: 34, frac });
+  act("figA1", { mode: "series", n: 1 }, 0.4); act("figA2", { mode: "series", n: 2 }, 0.9); act("figA3", { mode: "parallel", n: 2 }, 0.4);
+
+  /* ---------- Lab: battery builder ---------- */
+  const lab = { n: 3, mode: "series", g: 2 };
+  function renderLab() {
+    const svg = $("lab");
+    svg.replaceChildren();
+    if (lab.mode === "mixed") { lab.g = Math.min(Math.max(2, lab.g), Math.max(2, lab.n - 1)); }
+    const okMixed = lab.n >= 3;
+    if (lab.mode === "mixed" && !okMixed) lab.mode = "series";
+    const b = { mode: lab.mode, n: lab.n, g: lab.g }, e = emfOf(b, 1.5);
+    const gap = lab.mode === "series" ? 34 : Math.min(34, 170 / Math.max(1, (lab.mode === "parallel" ? lab.n : lab.g) - 1));
+    loopCircuit(svg, b, { x0: 22, yc: 120, top: 14, lampX: 290, right: 312, s: 1, gap, frac: Math.min(1, e / 9) });
+    el("text", { x: 150, y: 234, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "each cell: 1.5 V");
+    $("nIn").value = lab.n; $("nOut").textContent = `${lab.n}`;
+    $("gIn").max = Math.max(2, lab.n - 1); $("gIn").value = lab.g; $("gOut").textContent = `${lab.g}`;
+    $("gRow").hidden = lab.mode !== "mixed";
+    document.querySelectorAll("#modeSeg button").forEach((x) => { x.setAttribute("aria-pressed", String(x.dataset.m === lab.mode)); x.disabled = x.dataset.m === "mixed" && !okMixed; });
+    const how = lab.mode === "series" ? `In series: ε = 1.5 × ${lab.n} = <b class="k-v">${fmt(e)} V</b>`
+      : lab.mode === "parallel" ? `In parallel: ε = one cell = <b class="k-v">1.5 V</b>`
+      : `Mixed: ${lab.g} in parallel (= 1.5 V) + ${lab.n - lab.g} in series: ε = 1.5 + 1.5 × ${lab.n - lab.g} = <b class="k-v">${fmt(e)} V</b>`;
+    $("calc").innerHTML = how;
+    const lasts = lab.mode === "parallel" ? `${lab.n} cells share the work, so it lasts about ${lab.n} times as long as one cell.` : lab.mode === "series" ? "Each coulomb passes through every cell, so more push, but it doesn't last any longer than one cell." : "The parallel group shares its work, so that part runs down more slowly.";
+    $("labMsg").textContent = `Lamp brightness grows with the emf. ${lasts}`;
+  }
+  $("nIn").addEventListener("input", () => { lab.n = +$("nIn").value; renderLab(); });
+  $("gIn").addEventListener("input", () => { lab.g = +$("gIn").value; renderLab(); });
+  document.querySelectorAll("#modeSeg button").forEach((x) => x.addEventListener("click", () => { lab.mode = x.dataset.m; renderLab(); }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const kind = f.kind || pickOne(["emf", "emf", "emf", "design", "which"]);
+    const svg = $("pfig");
+    svg.replaceChildren();
+    p = { kind, done: false };
+    if (kind === "emf" || kind === "which") {
+      const n = f.n ?? pickOne([2, 3, 4, 5]);
+      const mode = f.mode ?? (kind === "which" ? pickOne(["series", "parallel"]) : pickOne(n >= 3 ? ["series", "parallel", "mixed"] : ["series", "parallel"]));
+      const g = f.g ?? (mode === "mixed" ? pickOne([2, ...(n >= 4 ? [3] : [])].filter((x) => x < n)) : 0);
+      const e = f.e ?? pickOne([1.5, 2, 3]);
+      const b = { mode, n, g };
+      const gap = 30;
+      const sc = 1.4, wid = (mode === "series" ? n * 40 : mode === "parallel" ? 40 : 40 + (n - g) * 40) * sc;
+      battery(svg, 160 - wid / 2, 90, b, sc, mode === "series" ? 30 : Math.min(30, 110 / ((mode === "parallel" ? n : g) - 1) / sc));
+      el("text", { x: 160, y: 190, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, `${n} identical cells, each ${e} V`);
+      if (kind === "emf") {
+        const ans = emfOf(b, e);
+        const cands = [...new Set([ans, e * n, e, e * (n - 1), e * 2].map((x) => fmt(x)))].slice(0, 4);
+        p.q = "What is the emf of this battery?";
+        p.opts = Q.shuffle(cands.map((c) => [c, `${c} V`]));
+        p.ans = fmt(ans);
+        p.why = mode === "series" ? `In series, the emfs add up: ε = ${e} × ${n} = ${fmt(ans)} V.` : mode === "parallel" ? `In parallel, the emf is the same as one cell: ${e} V.` : `The parallel group of ${g} counts as one cell (${e} V), plus ${n - g} in series: ${e} + ${e} × ${n - g} = ${fmt(ans)} V.`;
+        p.see = mode === "mixed" ? "e6-mixed" : "e6-rules";
+      } else {
+        p.q = "Are these cells joined in series or in parallel?";
+        p.opts = [["series", "In series: + of one to − of the next"], ["parallel", "In parallel: like ends joined together"]];
+        p.ans = mode;
+        p.why = mode === "series" ? "The cells are in one line, each + joined to the next −: series." : "All the + ends are joined together and all the − ends are joined together: parallel.";
+        p.see = "e6-connect";
+      }
+    } else {
+      const n = f.n ?? pickOne([3, 4]), e = f.e ?? pickOne([1.5, 2, 3]);
+      const targetK = f.k ?? pickOne([1, n, 2, ...(n === 4 ? [3] : [])]);
+      const T = fmt(e * targetK);
+      const opt = (k) => (k === 1 ? ["all-par", "Join all of them in parallel"] : k === n ? ["all-ser", "Join all of them in series"] : [`mix${k}`, `Join ${k} in series, then the rest in parallel with one of them`]);
+      const keys = [1, n, 2, ...(n === 4 ? [3] : [])];
+      p.q = `You have ${n} identical cells, each ${e} V. How do you join them to get a battery of ${T} V?`;
+      p.opts = [...new Map(keys.map((k) => opt(k))).entries()];
+      p.ans = opt(targetK)[0];
+      p.why = targetK === 1 ? `${T} V is one cell's emf, so join all the cells in parallel.` : targetK === n ? `${T} V is all ${n} cells added (${e} × ${n}), so join all in series.` : `${T} V = ${targetK} × ${e}: put ${targetK} in series to reach it, then join the rest in parallel with one of the series cells.`;
+      p.see = "e6-design";
+      series(svg, 160 - n * 20, 90, n);
+      el("text", { x: 160, y: 150, "text-anchor": "middle", class: "t-opp num", "font-size": 16 }, svg, `target: ${T} V`);
+      el("text", { x: 160, y: 50, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, `${n} cells of ${e} V`);
+    }
+    $("pq").textContent = p.q;
+    $("popts").innerHTML = p.opts.map(([k, t]) => `<button type="button" data-k="${k}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.ans;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.ans) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = `${ok ? "<b>Right!</b>" : "<b>Not quite.</b>"} ${p.why}${ok ? "" : ` <a class="kb-link" data-concept="${p.see}" href="#">Show me where this is explained →</a>`}`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "In a torch, how are the cells joined?", correct: 0, ok: "Right. End to end, + to −. Let's see what that does.",
+       options: [["End to end, + of one to − of the next", null], ["Side by side, all + ends together", "That's how a power bank joins its cells."]] }],
+    [{ type: "choice", q: "What is the unit of electromotive force?", correct: 1, ok: "Right. Volts, like potential difference.", see: "e6-emf",
+       options: [["Newtons", "Despite the name, it isn't a force. It's measured in volts."], ["Volts", null], ["Amperes", "Amperes measure current."]] }],
+    [{ type: "choice", q: "When is the voltage across a battery equal to its emf?", correct: 0, ok: "Right. With no current, nothing is used up inside.", see: "e6-open-closed",
+       options: [["When the circuit is open", null], ["When a big current flows", "With current flowing, part of the emf is used inside the battery."]] }],
+    [{ type: "choice", q: "Two 1.5 V cells in series light a bulb. Compared with one cell, the bulb is…", correct: 1, ok: "Right. 3 V instead of 1.5 V: twice as bright in the book's activity.", see: "e6-activity",
+       options: [["just as bright", "That's what happens in parallel."], ["brighter", null], ["dimmer", "Series adds the emfs, so the push is bigger."]] }],
+    [{ type: "choice", q: "Four 2 V cells in parallel. What is the emf?", correct: 2, ok: "Right. Parallel: the same as one cell.", see: "e6-rules",
+       options: [["8 V", "That's series (2 × 4)."], ["0.5 V", "Parallel doesn't divide the emf."], ["2 V", null]] },
+     { type: "choice", q: "Three 1.5 V cells in series. What is the emf?", correct: 0, ok: "Right. 1.5 × 3 = 4.5 V.", see: "e6-rules",
+       options: [["4.5 V", null], ["1.5 V", "That's parallel."], ["0.5 V", "Series adds up, it doesn't divide."]] }],
+    [{ type: "choice", q: "Three 1.5 V cells. How do you get 3 V?", correct: 2, ok: "Right. Two in series give 3 V; the third goes in parallel with one of them.", see: "e6-design",
+       options: [["All three in series", "That gives 4.5 V."], ["All three in parallel", "That gives 1.5 V."], ["Two in series, the third in parallel with one of them", null]] }],
+    [{ type: "choice", q: "Why are a power bank's cells joined in parallel?", correct: 1, ok: "Right. Parallel for more time, series for more push.", see: "e6-torch",
+       options: [["To raise its output voltage", "Parallel keeps the voltage the same."], ["So the current lasts longer without raising the voltage", null]] }],
+  ];
+  const AR = [
+    "الكشاف بيوصّل الخلايا ورا بعض (+ في −) عشان يزوّد الدفع. الباور بانك بيوصّلها جنب بعض (+ مع + و − مع −) عشان تعيش أطول.",
+    "<b>القوة الدافعة الكهربية (ε)</b> للمصدر: الشغل الكلي اللي بيبذله المصدر لنقل ١ كولوم في الدايرة كلها. بتتقاس بالفولت بالفولتميتر.",
+    "الدايرة مفتوحة: فرق الجهد بين طرفي البطارية = قوتها الدافعة. الدايرة مقفولة: جزء بيضيع جوّه البطارية (<b>المقاومة الداخلية</b>)، فالفرق بيقل شوية. في المسائل بنهمل المقاومة الداخلية.",
+    "<b>التوالي</b>: نوصّل الأطراف المختلفة (+ في −). <b>التوازي</b>: نوصّل الأطراف المتشابهة. خليتين 1.5 فولت توالي = 3 فولت ولمبة أنور الضعف، وتوازي = 1.5 فولت ونفس النور.",
+    "توالي: ε الكلية = ε الخلية × عددها. توازي: ε الكلية = ε خلية واحدة.",
+    "البطارية المختلطة: مجموعة التوازي بتتحسب كخلية واحدة + خلايا التوالي. ولو عايز رقم بين الاتنين: وصّل توالي لحد ما توصله، والباقي توازي مع واحدة منهم.",
+    "الكشاف: توالي عشان قوة دافعة أكبر. الباور بانك: توازي عشان التيار يستمر مدة أطول من غير ما الجهد يزيد.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-6-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E6_BANK = [
+    { id: "emf-def", concept: "e6-emf",
+      make: () => Q.mc("Write the scientific term: \"The total work done by an electrical source to move one coulomb of charge through the whole circuit.\"", "Electromotive force (emf)", ["Potential difference", "Electric current", "Internal resistance"], "That's the emf of the source.") },
+    { id: "emf-unit", concept: "e6-emf",
+      make: () => Q.mc("Electromotive force is measured in…", "volts", ["newtons", "amperes", "ohms"], "Emf, like potential difference, is measured in volts.") },
+    { id: "emf-symbol", concept: "e6-emf",
+      make: () => Q.mc("What is the symbol for electromotive force?", "ε (epsilon)", ["V", "Ω (omega)", "I"], "Emf is written with the Greek letter epsilon, ε.") },
+    { id: "battery-def", concept: "e6-connect",
+      make: () => Q.mc("Write the scientific term: \"Two or more electric cells connected together in an electric circuit.\"", "A battery", ["A cell", "A rheostat", "A generator"], "Two or more cells together make a battery.") },
+    { id: "dc-ac", concept: "e6-emf", also: "e1-dc-ac",
+      make: () => { const [d, right, wrong] = pickOne([["An electric current that has a constant intensity and flows in one direction.", "Direct current", "Alternating current"], ["An electric current whose value and direction change with time.", "Alternating current", "Direct current"]]); return Q.mc(`Write the scientific term: "${d}"`, right, [wrong, "Electromotive force"], `${right}: ${d}`); } },
+    { id: "open", concept: "e6-open-closed",
+      make: () => Q.mc("When the circuit is open, the potential difference across a battery's terminals is…", "equal to its emf", ["zero", "greater than its emf", "half its emf"], "With no current, nothing is used up inside the battery, so V = ε.") },
+    { id: "closed", concept: "e6-open-closed",
+      make: () => Q.mc("Give reason: when the circuit is closed, the voltage across a battery's terminals is less than its emf.", "Part of the emf is used to overcome the battery's internal resistance", ["The emf increases when current flows", "The voltmeter is connected in series", "The wires store some of the charge"], "Current also flows inside the battery, and part of the emf is used to overcome its internal resistance.") },
+    { id: "negligible", concept: "e6-open-closed",
+      make: () => Q.mc("Give reason: in problems, the internal resistance of the battery is taken as negligible.", "Because it is very small compared with the external resistance", ["Because batteries have no resistance at all", "Because it is very large", "Because the current inside is zero"], "It's tiny compared with the rest of the circuit, so we take V = ε.") },
+    { id: "compare", concept: "e6-compare",
+      make: () => { const [ask, right, wrongs] = pickOne([["Which is measured when the circuit is open?", "Electromotive force", ["Potential difference across a lamp", "Current"]], ["Which one is the work per coulomb between two points?", "Potential difference", ["Electromotive force", "Resistance"]], ["What unit do emf and potential difference share?", "The volt", ["The ampere", "The ohm"]]]); return Q.mc(ask, right, wrongs, "Potential difference: work per coulomb between two points, measured with the circuit closed. Emf: total work per coulomb round the whole circuit, measured with the circuit open. Both in volts."); } },
+    { id: "series-how", concept: "e6-connect",
+      make: () => Q.mc("How are cells joined in series?", "The + of each cell to the − of the next", ["All + ends together and all − ends together", "Only the + ends are joined", "They aren't joined at all"], "Series: unlike ends joined, in a line.") },
+    { id: "parallel-how", concept: "e6-connect",
+      make: () => Q.mc("How are cells joined in parallel?", "All + ends together and all − ends together", ["The + of each cell to the − of the next", "Every cell to the lamp separately", "In a circle"], "Parallel: like ends joined.") },
+    { id: "activity", concept: "e6-activity",
+      make: () => { const ser = Math.random() < 0.5; return Q.mc(`In the book's activity, a bulb is lit by two 1.5 V cells in ${ser ? "series" : "parallel"}. Compared with one cell (brightness X), its brightness is…`, ser ? "2X" : "X", ser ? ["X", "X/2", "4X"] : ["2X", "X/2", "4X"], ser ? "Series: 3 V instead of 1.5 V, so twice as bright." : "Parallel: still 1.5 V, so the same brightness."); } },
+    { id: "series-calc", concept: "e6-rules",
+      make: () => { const e = pickOne([1.5, 2, 3]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical cells of ${e} V each are joined in series. What is the total emf?`, `${fmt(e * n)} V`, [`${e} V`, `${fmt(e / n)} V`, `${fmt(e + n)} V`], `Series: ε = ${e} × ${n} = ${fmt(e * n)} V.`); } },
+    { id: "parallel-calc", concept: "e6-rules",
+      make: () => { const e = pickOne([1.5, 2, 3]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical cells of ${e} V each are joined in parallel. What is the total emf?`, `${e} V`, [`${fmt(e * n)} V`, `${fmt(e / n)} V`, "0 V"], `Parallel: ε = one cell = ${e} V.`); } },
+    { id: "graph", concept: "e6-rules",
+      make: () => Q.mc("As more identical cells are added in parallel, the total emf…", "stays the same", ["increases", "decreases", "doubles each time"], "In parallel, the emf equals one cell's emf, however many cells there are.") },
+    { id: "lamp-9", concept: "e6-rules",
+      make: () => Q.mc("A lamp is connected to three 3 V cells in series. What is the potential difference across the lamp?", "9 V", ["3 V", "1 V", "6 V"], "V across the lamp = ε of the battery = 3 × 3 = 9 V (internal resistance negligible).") },
+    { id: "mixed", concept: "e6-mixed",
+      make: () => { const g = 2, s = pickOne([1, 2, 3]), e = pickOne([1.5, 2]); return Q.mc(`A battery has ${g} cells in parallel, joined in series with ${s} more cell${s > 1 ? "s" : ""}. Each cell is ${e} V. What is its emf?`, `${fmt(e + e * s)} V`, [`${fmt(e * (g + s))} V`, `${e} V`, `${fmt(e * s)} V`], `The parallel group counts as one cell (${e} V), plus ${s} in series: ${e} + ${e} × ${s} = ${fmt(e + e * s)} V.`); } },
+    { id: "design", concept: "e6-design",
+      make: () => { const [t, right] = pickOne([["1.5 V", "Join all three in parallel"], ["4.5 V", "Join all three in series"], ["3 V", "Two in series, then the third in parallel with one of them"]]); return Q.mc(`You have three 1.5 V cells. How do you get a battery of ${t}?`, right, ["Join all three in parallel", "Join all three in series", "Two in series, then the third in parallel with one of them", "Use only one cell"].filter((x) => x !== right).slice(0, 3), "Equal to one cell → all parallel. All added → all series. In between → series to the target, then the rest in parallel with one of them."); } },
+    { id: "torch", concept: "e6-torch",
+      make: () => Q.mc("Give reason: a torch has two or more cells connected in series.", "To get a greater electromotive force, enough to power it", ["So the cells last longer", "To lower the voltage", "To stop the current"], "Series adds the emfs: more push for the torch.") },
+    { id: "powerbank", concept: "e6-torch",
+      make: () => Q.mc("Give reason: some power banks contain several cells connected in parallel.", "To keep the current going longer without raising the output voltage", ["To raise the output voltage", "To make the phone charge faster", "Because parallel cells are smaller"], "Parallel keeps the voltage the same but shares the work, so the charge lasts longer.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E6_BANK, count: 10, storageKey: "elec-6-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-6-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e6" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e6", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-6-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig", "figHook", "figA1", "figA2", "figA3"],
+    prepare() { steps.prepare(); },
+    quizBank: E6_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e6",
+    cases() {
+      const out = [];
+      for (let n = 1; n <= 6; n++) for (const mode of ["series", "parallel", "mixed"]) for (const g of mode === "mixed" ? [2, 3, 4, 5].filter((x) => x < n) : [2])
+        out.push({ kind: "lab", s: { n, mode, g }, name: `lab ${n} ${mode} g=${g}` });
+      for (const n of [2, 3, 4, 5]) for (const mode of ["series", "parallel", "mixed"]) for (const g of mode === "mixed" ? [2, 3].filter((x) => x < n) : [0]) for (const answered of [false, true])
+        out.push({ kind: "practice", f: { kind: "emf", n, mode, g, e: 1.5 }, answered, name: `practice emf ${n} ${mode} ${g} ${answered}` });
+      for (const n of [3, 4]) for (const k of [1, 2, 3, 4].filter((x) => x <= n)) out.push({ kind: "practice", f: { kind: "design", n, k, e: 2 }, answered: true, name: `practice design ${n} ${k}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(p.ans); }
+    },
+  };
+})();
+</script>

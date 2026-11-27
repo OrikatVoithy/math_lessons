@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -70,6 +70,17 @@
     "e5-units": ["e5", 5, ".wheel", "how the units fit together"],
     "e5-multi": ["e5", 5, ".pair", "two-step problems"],
     "e5-heater": ["e5", 6, ".checks", "solving the heater problem"],
+    // Electricity 6: Cells and batteries
+    "e6-why": ["e6", 0, ".stepbody", "torch vs power bank"],
+    "e6-emf": ["e6", 1, ".defbox", "electromotive force (emf)"],
+    "e6-open-closed": ["e6", 2, ".checks", "emf vs terminal voltage, open and closed"],
+    "e6-compare": ["e6", 2, ".meters", "potential difference vs emf"],
+    "e6-connect": ["e6", 3, ".dirbox", "joining cells in series and in parallel"],
+    "e6-activity": ["e6", 3, ".otable", "the book's activity: brightness and voltage"],
+    "e6-rules": ["e6", 4, ".graphs", "emf rules for series and parallel cells"],
+    "e6-mixed": ["e6", 5, ".unitbox", "mixed batteries"],
+    "e6-design": ["e6", 5, ".recipe", "designing a battery for a target emf"],
+    "e6-torch": ["e6", 6, ".checks", "why torches use series and power banks parallel"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
