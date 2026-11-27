@@ -1,0 +1,983 @@
+<title>Electric Resistance</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 4 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.factors { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.factors th, .factors td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.factors th { background: var(--paper); }
+.factors td.rel { font-weight: 700; white-space: nowrap; }
+.materials { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.materials li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 10px; align-items: center; font-size: 0.95rem; }
+.materials .bar { height: 12px; border-radius: 6px; background: var(--hyp); }
+.symbols { display: flex; flex-wrap: wrap; gap: 14px; }
+.symbols figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 8px 12px; display: grid; gap: 4px; justify-items: center; }
+.symbols svg { width: 120px; height: auto; }
+.rheo-ctl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; font-size: 0.9rem; }
+.labrow { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 10px; align-items: center; }
+.rbar { height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; }
+.rbar span { display: block; height: 100%; background: var(--hyp); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-3/">← Electricity 3: Potential difference</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 4 of 8</div>
+    <h1>What slows the flow? (Resistance)</h1>
+    <p class="lede">Current is the flow and potential difference is the push. Now: what gets in the way? Go through the 7 short steps, then design your own wire in the lab and try the practice.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Why does the filament glow, but not the wires?</h2>
+        <div class="in-short">In an old-style light bulb, the same current flows through the thin filament and the thick wires holding it. Yet the filament glows white-hot and the wires stay cool. The difference is resistance.</div>
+        <p>Look inside an old-style light bulb. A very thin, coiled wire (the <b>filament</b>) is held up by two thicker wires.</p>
+        <p>They're all part of the same loop, so <a data-concept="e2-idea" href="#">the same current flows through all of them</a>. Yet the filament glows white-hot, while the thick wires stay much cooler.</p>
+        <p>What's different about the filament? By the end of this level, you'll be able to explain it in your book's words.</p>
+        <div class="more">
+          <h3>Same current, very different heat</h3>
+          <p>Charges pass through every part of a single loop at the same rate. So the glow isn't about how much current flows. It's about how hard the charges find it to get through each part.</p>
+          <h3>Why it matters</h3>
+          <p>The same idea explains kettles, hair dryers, toasters and electric heaters (all made to get hot), and why cables are made thick enough <b>not</b> to get hot.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 200" role="img" aria-label="An old-style light bulb. A thin coiled filament glows, held up by two thicker connecting wires.">
+          <circle cx="130" cy="78" r="58" class="f-glow"/>
+          <path d="M88,120 Q60,70 90,36 Q130,0 170,36 Q200,70 172,120 Z" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="104" y="120" width="52" height="34" rx="4" fill="var(--muted)" fill-opacity="0.5" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="116" y1="120" x2="110" y2="70" stroke="var(--adj)" stroke-width="5" stroke-linecap="round"/>
+          <line x1="144" y1="120" x2="150" y2="70" stroke="var(--adj)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M110,70 q4,-10 8,0 q4,-10 8,0 q4,-10 8,0 q4,-10 8,0 q4,-10 8,0" fill="none" stroke="var(--angle)" stroke-width="2.5"/>
+          <text x="130" y="48" text-anchor="middle" class="t-angle" font-size="12" font-weight="700">thin filament</text>
+          <text x="196" y="104" class="t-adj" font-size="12" font-weight="700">thick</text>
+          <text x="196" y="118" class="t-adj" font-size="12" font-weight="700">wires</text>
+          <text x="130" y="182" text-anchor="middle" class="t-ink" font-size="12">same current through both</text>
+        </svg>
+        <figcaption>Same current, but only the thin filament glows.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The big idea</div>
+        <h2>Resistance is what gets in the way of the charges</h2>
+        <div class="in-short">Electric resistance is the opposition charges meet as they move through a conductor, like road humps slowing cars. It's measured in ohms (Ω) with an ohmmeter.</div>
+        <p>Road humps slow cars down. In the same way, every conductor has something that slows down the charges moving through it.</p>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Electric resistance (R)</b><span class="ar" lang="ar"> المقاومة الكهربية</span>: the opposition encountered by electric charges as they move through conductors.</p></div>
+        <p>It's measured in <b class="k-r">ohms (Ω)</b><span class="ar" lang="ar"> أوم</span>. Ω is the Greek letter omega.</p>
+        <p>To measure it, connect an <b class="k-r">ohmmeter</b><span class="ar" lang="ar"> الأوميتر</span> to the two ends (terminals) of the resistor.</p>
+        <div class="symbols">
+          <figure><svg viewBox="0 0 120 40" aria-hidden="true"><line x1="4" y1="20" x2="30" y2="20" class="s-ink" stroke-width="2"/><rect x="30" y="11" width="60" height="18" fill="none" stroke="var(--hyp)" stroke-width="2.5"/><line x1="90" y1="20" x2="116" y2="20" class="s-ink" stroke-width="2"/></svg><figcaption>fixed resistor</figcaption></figure>
+          <figure><svg viewBox="0 0 120 40" aria-hidden="true"><line x1="4" y1="24" x2="30" y2="24" class="s-ink" stroke-width="2"/><rect x="30" y="15" width="60" height="18" fill="none" stroke="var(--hyp)" stroke-width="2.5"/><line x1="90" y1="24" x2="116" y2="24" class="s-ink" stroke-width="2"/><line x1="36" y1="38" x2="84" y2="6" stroke="var(--hyp)" stroke-width="2"/><path d="M84,6 L74,8 L80,15 Z" fill="var(--hyp)"/></svg><figcaption>variable resistor</figcaption></figure>
+        </div>
+        <div class="more">
+          <h3>Why do charges meet opposition?</h3>
+          <p>A wire is made of particles (atoms). As the free electrons move through, they keep bumping into these particles, like people hurrying through a crowded hall. Every bump slows them down. That's resistance.</p>
+          <h3>Who was Ohm?</h3>
+          <p>Georg Simon Ohm, a German physicist, studied how current depends on voltage and resistance in the 1820s. You'll meet his law in Level 5.</p>
+          <h3>Water idea</h3>
+          <p>A long, narrow, rough pipe resists water more than a short, wide, smooth one. Wires work the same way, as the next step shows.</p>
+        </div>
+      </div>
+      <figure>
+        <svg viewBox="0 0 260 150" role="img" aria-label="Cars slowed down by road humps, compared with charges slowed down inside a wire.">
+          <rect x="10" y="40" width="240" height="6" rx="3" fill="var(--muted)"/>
+          <path d="M70,40 q12,-12 24,0 Z" fill="var(--hyp)"/><path d="M150,40 q12,-12 24,0 Z" fill="var(--hyp)"/>
+          <rect x="24" y="22" width="30" height="14" rx="4" fill="var(--opp)"/>
+          <text x="130" y="18" text-anchor="middle" class="t-hyp" font-size="12" font-weight="700">road humps slow the cars</text>
+          <rect x="10" y="92" width="240" height="26" rx="13" fill="var(--adj)" fill-opacity="0.14" stroke="var(--ink)" stroke-width="2"/>
+          <circle cx="60" cy="100" r="4" fill="var(--hyp)"/><circle cx="96" cy="110" r="4" fill="var(--hyp)"/><circle cx="132" cy="100" r="4" fill="var(--hyp)"/><circle cx="168" cy="110" r="4" fill="var(--hyp)"/><circle cx="204" cy="100" r="4" fill="var(--hyp)"/>
+          <circle cx="40" cy="105" r="5" class="f-charge"/><circle cx="114" cy="105" r="5" class="f-charge"/><circle cx="186" cy="105" r="5" class="f-charge"/>
+          <text x="130" y="140" text-anchor="middle" class="t-ink" font-size="12">particles in the wire slow the charges</text>
+        </svg>
+        <figcaption>Teal: moving charges. Indigo: the particles they bump into.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">What it depends on</div>
+        <h2>Three things decide a wire's resistance</h2>
+        <div class="in-short">Longer wire → more resistance. Thicker wire (bigger cross-section) → less resistance. A material with higher resistivity → more resistance.</div>
+        <p>At a given temperature, every wire's resistance depends on three things:</p>
+        <div class="tablewrap">
+          <table class="factors">
+            <thead><tr><th scope="col">Factor</th><th scope="col">Relationship</th><th scope="col">Which means</th><th scope="col">Picture it</th></tr></thead>
+            <tbody>
+              <tr><td><b>1. Length</b></td><td class="rel">Directly proportional</td><td>Longer wire → more resistance</td><td>A longer corridor full of people: more bumps on the way</td></tr>
+              <tr><td><b>2. Cross-sectional area</b> (thickness)</td><td class="rel">Inversely proportional</td><td>Thicker wire → less resistance</td><td>A wider door: more people get through at once</td></tr>
+              <tr><td><b>3. Resistivity</b> of the material</td><td class="rel">Directly proportional</td><td>Higher resistivity → more resistance</td><td>Some halls are more crowded than others</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Resistivity</b><span class="ar" lang="ar"> المقاومة النوعية</span>: a characteristic physical property of a material that expresses how much it resists the passage of electric current through it.</p></div>
+        <div class="more">
+          <h3>Cross-sectional area?</h3>
+          <p>Cut the wire straight across and look at the cut end: that circle is the cross-section. Its area (in mm²) tells you how thick the wire is.</p>
+          <h3>"Characteristic" means it belongs to the material</h3>
+          <p>Every piece of copper has the same resistivity, whatever its shape. That's why resistivity helps tell materials apart, just like density does.</p>
+          <h3>How your book asks it</h3>
+          <p>"Mention the factors that increase the resistance of a conductor at a given temperature." <i>Increasing its length; decreasing its cross-sectional area (thickness); increasing the resistivity of its material.</i></p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Comparing wires</div>
+        <h2>Which wire has more resistance?</h2>
+        <div class="in-short">Same material: compare length (longer = more) and thickness (thinner = more). If both changes push the same way, the answer is clear. A quick trick: compare length ÷ area.</div>
+        <p>Your book often gives two or more wires of the <b>same material</b> and asks which resists more. Check both factors:</p>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Example from your book</div><p><b>A wire 8 m long with a cross-section of 8 mm² is replaced by one of the same material, 12 m long and 2 mm². What happens to the resistance?</b></p><ol class="recipe compact"><li>Longer (8 → 12 m): resistance goes <b>up</b>.</li><li>Thinner (8 → 2 mm²): resistance goes <b>up</b>.</li><li>Both push the same way: the resistance <b>increases</b>.</li></ol></div>
+          <div class="example"><div class="eyebrow">A quick trick</div><p>For the same material, work out <b>length ÷ area</b> for each wire. The bigger number has the bigger resistance.</p><ol class="recipe compact"><li>Old wire: <span class="num">8 ÷ 8 = 1</span>.</li><li>New wire: <span class="num">12 ÷ 2 = 6</span>.</li><li>6 is bigger, so the new wire resists more (about 6 times as much).</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>When the factors push opposite ways</h3>
+          <p>A wire that is twice as long <b>and</b> twice as thick has the same resistance as the original: twice the length doubles it, twice the thickness halves it. Length ÷ area: 2 ÷ 2 = 1, no change. That's why the trick is useful.</p>
+          <h3>Only for the same material</h3>
+          <p>If the materials are different, resistivity matters too, and you'd need to know how they compare (next step).</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Materials and heat</div>
+        <h2>The material, and the temperature, matter too</h2>
+        <div class="in-short">Copper has a low resistivity, so it's used for wires. Tungsten's is higher. Plastic barely lets current through at all. Heating a wire makes its particles vibrate faster, so the charges bump into them more and the resistance goes up.</div>
+        <p>Some materials let current through easily. Others resist it strongly. Here's roughly how much more some metals resist than copper, for wires of the same size:</p>
+        <ul class="materials">
+          <li><b>Copper</b><span class="bar" style="width:3%"></span></li>
+          <li><b>Aluminium</b><span class="bar" style="width:5%"></span></li>
+          <li><b>Tungsten</b><span class="bar" style="width:10%"></span></li>
+          <li><b>Iron</b><span class="bar" style="width:18%"></span></li>
+          <li><b>Nichrome</b><span class="bar" style="width:100%"></span></li>
+        </ul>
+        <p class="tip">Copper is used for wires because it resists least. Nichrome is used in heaters because it resists a lot. Plastic and rubber resist so strongly that almost no current passes, so they cover wires to keep us safe.</p>
+        <p><b>Temperature:</b> as a wire gets hotter, its particles vibrate faster. The moving charges bump into them more often, so the <b class="k-r">resistance increases</b>.</p>
+        <div class="more">
+          <h3>The numbers behind the bars</h3>
+          <p>For wires of the same size, aluminium resists about 1.6 times as much as copper, tungsten about 3.3 times, iron about 6 times, and nichrome about 65 times.</p>
+          <h3>Why aren't all wires copper, then?</h3>
+          <p>Copper is expensive and heavy. The huge overhead power lines use aluminium, which is lighter and cheaper, and they make up for its higher resistivity by being thicker.</p>
+          <h3>How your book says it</h3>
+          <p>"As the temperature of the conductor increases, the vibration speed of its particles increases; consequently, the number of collisions with electric charges and with one another increases, hindering the movement of free electrons and increasing the conductor's resistance."</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody">
+        <div class="eyebrow">Changing resistance on purpose</div>
+        <h2>The rheostat: a resistor you can adjust</h2>
+        <div class="in-short">A sliding rheostat is a variable resistor. Moving its slider changes how much wire the current goes through: more wire, more resistance, less current, dimmer lamp. A radio's volume knob works the same way.</div>
+        <p>A <b class="k-r">sliding rheostat</b><span class="ar" lang="ar"> الريوستات</span> is a long coil of wire with a slider. The current only goes through the part of the coil between the end and the slider.</p>
+        <p>Move the slider to put <b>more</b> wire in the circuit: the resistance goes up, the current goes down and the lamp gets dimmer. Less wire: the lamp gets brighter. Try it with the slider below the picture.</p>
+        <p><b>Life application:</b> turning a radio's volume knob changes a resistance, which changes the current, which changes how loud it is.</p>
+        <div class="more">
+          <h3>The scientific basis, in your book's words</h3>
+          <p>"By increasing the length of wire inserted into the circuit by the slider, the wire's electric resistance increases, so the circuit's total resistance increases and the current intensity flowing through it decreases."</p>
+          <h3>A typical exam question</h3>
+          <p>"The slider is moved so less of the rheostat's wire is in the circuit. What happens to the ammeter reading and the lamp's brightness?" <i>Both increase: less wire means less resistance, so more current flows, and the lamp is brighter.</i></p>
+        </div>
+      </div>
+      <figure>
+        <svg id="rheo" viewBox="0 0 320 220" role="img" aria-label="A circuit with a battery, a lamp, an ammeter and a sliding rheostat. Moving the slider changes how much wire the current passes through."></svg>
+        <div class="rheo-ctl"><label for="rheoIn">Slider</label><input type="range" id="rheoIn" min="0" max="100" step="1" value="30" aria-label="Rheostat slider: how much wire is in the circuit"></div>
+        <figcaption id="rheoCap" aria-live="polite"></figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to the light bulb</div>
+        <h2>Now we can solve step 1</h2>
+        <div class="in-short">The filament is thin, long and made of tungsten (higher resistivity), so its resistance is high. High resistance turns part of the electrical energy into heat as well as light, so it glows. The connecting wires are thick, short copper with low resistance, so they stay cool.</div>
+        <ul class="checks">
+          <li><b>The filament</b> is <b>thin</b>, <b>long</b> (coiled up to fit) and made of <b>tungsten</b>, which has a high resistivity. All three factors make its resistance high.</li>
+          <li><b>The connecting wires</b> are <b>thick</b>, <b>short</b> and made of <b>copper</b>, which has a low resistivity, so their resistance is low.</li>
+          <li><b>Give reason:</b> the filament glows when current passes. <i>Because its high resistance converts part of the electrical energy into heat energy, as well as light energy.</i></li>
+        </ul>
+        <p>The rule: for the same current, <b>the higher the resistance, the more heat</b> is made in that part.</p>
+        <ul class="uses d-extra">
+          <li><h3>Heaters and kettles</h3><p>Use high-resistance nichrome coils to make heat on purpose.</p></li>
+          <li><h3>Cable makers</h3><p>Use thick copper so cables stay cool and safe.</p></li>
+          <li><h3>LED lamps</h3><p>Replaced filament bulbs, which wasted most of their energy as heat.</p></li>
+        </ul>
+        <div class="more">
+          <h3>Why tungsten?</h3>
+          <p>A filament has to glow at over 2500 °C without melting. Tungsten melts at about 3400 °C, higher than almost any other metal.</p>
+          <h3>Thomas Edison</h3>
+          <p>An American inventor who developed a long-lasting incandescent light bulb, and also the phonograph (sound recorder) and the movie camera. He held 1093 patents in the United States.</p>
+          <h3>Why do bulbs usually blow when switched on?</h3>
+          <p>A cold filament has a lower resistance (step 5), so a big rush of current flows at the moment you switch on. That rush is when a worn, thin spot is most likely to snap.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: design a wire</h2>
+    <p class="lede" style="margin-top:8px">Choose the material, length, thickness and temperature. Guess first: will the lamp get brighter or dimmer?</p>
+  </div>
+
+  <section class="panel lab" aria-label="Wire designer">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A battery and lamp connected through the wire you design."></svg>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="label">Material</span><div class="seg" id="matSeg"><button type="button" data-m="copper">Copper</button><button type="button" data-m="tungsten">Tungsten</button><button type="button" data-m="nichrome">Nichrome</button></div></div>
+      <div class="slider-row"><label for="lenIn">Length</label><input type="range" id="lenIn" min="1" max="10" step="1" value="4"><output id="lenOut"></output></div>
+      <div class="slider-row"><label for="areaIn">Thickness</label><input type="range" id="areaIn" min="1" max="8" step="1" value="2"><output id="areaOut"></output></div>
+      <div class="row"><span class="label">Temperature</span><div class="seg" id="tempSeg"><button type="button" data-t="cold">Cold</button><button type="button" data-t="hot">Hot</button></div></div>
+      <div class="labrow"><span class="label">Resistance</span><div class="rbar"><span id="rbar"></span></div></div>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Think it through</h2>
+      <p class="lede" style="margin-top:8px">A new question each time: compare wires, predict what changes, and work the rheostat.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 200" role="img" aria-label="Wires for the practice question."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next question</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on resistance</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><a class="golink" href="../electricity-3/">Review Level 3 →</a></li>
+      <li class="panel now"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><span class="pill">Coming next</span></li>
+      <li class="panel later"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">Coming soon</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming soon</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const shuffle = (a) => Q.shuffle(a);
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const RHO = { copper: 1, tungsten: 3.3, nichrome: 65 };
+  const MATCOL = { copper: "var(--opp)", tungsten: "var(--muted)", nichrome: "var(--hyp)" };
+  const word3 = (x, lo, hi, a, b, c) => (x < lo ? a : x < hi ? b : c);
+  function battery(svg, L, top, gapTop, gapBot, bottom) {
+    const w = (x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    w(L, top, L, gapTop); w(L, gapBot, L, bottom);
+    el("line", { x1: L - 20, y1: gapTop, x2: L + 20, y2: gapTop, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: L - 10, y1: gapBot, x2: L + 10, y2: gapBot, stroke: "var(--ink)", "stroke-width": 7 }, svg);
+    el("text", { x: L - 34, y: gapTop + 5, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "+");
+    el("text", { x: L - 32, y: gapBot + 11, class: "t-ink", "font-size": 15, "font-weight": 700 }, svg, "−");
+    return w;
+  }
+  function lamp(svg, cx, cy, I) {
+    if (I > 0.03) el("circle", { cx, cy, r: 18 + 16 * I, fill: "var(--angle)", "fill-opacity": (0.12 + 0.45 * I).toFixed(2) }, svg);
+    el("circle", { cx, cy, r: 16, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2.5 }, svg);
+    const c = I > 0.03 ? "var(--angle)" : "var(--ink)";
+    el("line", { x1: cx - 9, y1: cy - 9, x2: cx + 9, y2: cy + 9, stroke: c, "stroke-width": 2 }, svg);
+    el("line", { x1: cx + 9, y1: cy - 9, x2: cx - 9, y2: cy + 9, stroke: c, "stroke-width": 2 }, svg);
+  }
+
+  /* ---------- Step 6: the sliding rheostat ---------- */
+  function drawRheo(v) {
+    const svg = $("rheo");
+    svg.replaceChildren();
+    const L = 40, R = 280, T = 50, f = Math.max(0.05, v / 100), sx = 230 - 140 * f;
+    const I = 1 / (1 + 4 * f);
+    const w = battery(svg, L, T, 95, 115, 150);
+    w(L, T, 184, T); w(216, T, R, T); w(R, T, R, 99); w(R, 131, R, 180); w(R, 180, 230, 180);
+    w(L, 150, sx, 150); w(sx, 150, sx, 166);
+    lamp(svg, 200, T, I);
+    el("circle", { cx: R, cy: 115, r: 16, fill: "var(--surface)", stroke: "var(--adj)", "stroke-width": 3 }, svg);
+    el("text", { x: R, y: 121, "text-anchor": "middle", class: "t-adj", "font-size": 15, "font-weight": 700 }, svg, "A");
+    el("rect", { x: 90, y: 172, width: 140, height: 16, rx: 3, fill: "var(--line)" }, svg);
+    el("rect", { x: sx, y: 172, width: 230 - sx, height: 16, rx: 3, fill: "var(--hyp)", "fill-opacity": 0.75 }, svg);
+    el("path", { d: `M${sx},170 L${sx - 7},160 L${sx + 7},160 Z`, fill: "var(--ink)" }, svg);
+    el("text", { x: 68, y: 110, class: "t-ink", "font-size": 13 }, svg, "battery");
+    el("text", { x: 200, y: 22, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "lamp");
+    el("text", { x: 256, y: 120, "text-anchor": "end", class: "t-adj", "font-size": 13, "font-weight": 700 }, svg, "ammeter");
+    el("text", { x: 160, y: 210, "text-anchor": "middle", class: "t-hyp", "font-size": 13, "font-weight": 700 }, svg, "rheostat");
+    $("rheoCap").textContent = `About ${Math.round(f * 100)}% of the coil is in the circuit (the indigo part). Resistance: ${word3(f, 0.35, 0.7, "low", "medium", "high")}. Current: ${word3(I, 0.35, 0.6, "low", "medium", "high")}. Lamp: ${word3(I, 0.35, 0.6, "dim", "medium", "bright")}.`;
+  }
+  $("rheoIn").addEventListener("input", () => drawRheo(+$("rheoIn").value));
+  drawRheo(30);
+
+  /* ---------- Lab: design a wire ---------- */
+  const lab = { mat: "tungsten", len: 4, area: 2, temp: "cold" };
+  let lastR = null;
+  const resistance = (s) => (RHO[s.mat] * s.len) / s.area * (s.temp === "hot" ? 1.5 : 1);
+  function renderLab(note = "") {
+    const svg = $("lab");
+    svg.replaceChildren();
+    const L = 40, Rx = 280, T = 50, B = 180, R = resistance(lab), I = 1 / (1 + R / 3);
+    const w = battery(svg, L, T, 105, 125, B);
+    w(L, T, Rx, T); w(Rx, T, Rx, 99); w(Rx, 131, Rx, B);
+    lamp(svg, Rx, 115, I);
+    const len = 30 + (lab.len - 1) * 19, th = 3 + (lab.area - 1) * 1.9, x0 = 160 - len / 2;
+    w(L, B, x0, B); w(x0 + len, B, Rx, B);
+    if (lab.temp === "hot") el("rect", { x: x0 - 6, y: B - th / 2 - 8, width: len + 12, height: th + 16, rx: 8, fill: "var(--bad)", "fill-opacity": 0.18 }, svg);
+    el("rect", { x: x0, y: B - th / 2, width: len, height: th, rx: Math.min(4, th / 2), fill: MATCOL[lab.mat] }, svg);
+    el("text", { x: 68, y: 120, class: "t-ink", "font-size": 13 }, svg, "battery");
+    el("text", { x: 256, y: 120, "text-anchor": "end", class: "t-ink", "font-size": 13 }, svg, "lamp");
+    el("text", { x: 160, y: 216, "text-anchor": "middle", class: "t-hyp", "font-size": 13, "font-weight": 700 }, svg, `${lab.mat}, ${lab.len} m, ${lab.area} mm²${lab.temp === "hot" ? ", hot" : ""}`);
+    $("lenIn").value = lab.len; $("areaIn").value = lab.area;
+    $("lenOut").textContent = `${lab.len} m`; $("areaOut").textContent = `${lab.area} mm²`;
+    document.querySelectorAll("#matSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.m === lab.mat)));
+    document.querySelectorAll("#tempSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.t === lab.temp)));
+    $("rbar").style.width = `${Math.max(2, Math.min(100, (Math.log10(R * 8) / Math.log10(8000)) * 100))}%`;
+    const trend = lastR == null || Math.abs(R - lastR) < 1e-9 ? "" : R > lastR ? "Resistance went up, so less current flows: the lamp is dimmer. " : "Resistance went down, so more current flows: the lamp is brighter. ";
+    $("labMsg").textContent = `${note}${trend}This wire resists about ${fmt(R)} times as much as 1 m of 1 mm² copper.`;
+    lastR = R;
+  }
+  document.querySelectorAll("#matSeg button").forEach((b) => b.addEventListener("click", () => { lab.mat = b.dataset.m; renderLab(); }));
+  document.querySelectorAll("#tempSeg button").forEach((b) => b.addEventListener("click", () => { lab.temp = b.dataset.t; renderLab(b.dataset.t === "hot" ? "Hotter particles vibrate faster, so more bumps. " : ""); }));
+  $("lenIn").addEventListener("input", () => { lab.len = +$("lenIn").value; renderLab(); });
+  $("areaIn").addEventListener("input", () => { lab.area = +$("areaIn").value; renderLab(); });
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  function drawWires(svg, list) {
+    svg.replaceChildren();
+    const rowH = list.length > 2 ? 48 : 80, top = list.length > 2 ? 18 : 40;
+    list.forEach((wv, i) => {
+      const y = top + i * rowH, len = 16 * wv.L, th = 2 + 2 * wv.A;
+      if (wv.hot) el("rect", { x: 46, y: y - th / 2 - 6, width: len + 8, height: th + 12, rx: 6, fill: "var(--bad)", "fill-opacity": 0.18 }, svg);
+      el("rect", { x: 50, y: y - th / 2, width: len, height: th, rx: Math.min(4, th / 2), fill: MATCOL[wv.mat || "copper"] }, svg);
+      el("text", { x: 22, y: y + 5, "text-anchor": "middle", class: "t-ink", "font-size": 16, "font-weight": 700 }, svg, wv.name);
+      el("text", { x: 50, y: y + th / 2 + 15, class: "t-ink num", "font-size": 12 }, svg, `${wv.L} m, ${wv.A} mm²${wv.mat && wv.mat !== "copper" ? `, ${wv.mat}` : ""}${wv.hot ? ", hot" : ""}`);
+    });
+  }
+  function drawRheoMini(svg, more) {
+    svg.replaceChildren();
+    el("rect", { x: 40, y: 90, width: 240, height: 22, rx: 4, fill: "var(--line)" }, svg);
+    const a = more ? 180 : 120, b = more ? 100 : 220;
+    // the part of the coil in the circuit: from the slider's new place to the right end
+    el("rect", { x: b, y: 90, width: 280 - b, height: 22, rx: 4, fill: "var(--hyp)", "fill-opacity": 0.75 }, svg);
+    el("path", { d: `M${a},86 L${a - 7},74 L${a + 7},74 Z`, fill: "var(--muted)" }, svg);
+    el("path", { d: `M${b},86 L${b - 7},74 L${b + 7},74 Z`, fill: "var(--ink)" }, svg);
+    el("path", { d: `M${a + (b > a ? 12 : -12)},56 L${b + (b > a ? -6 : 6)},56`, stroke: "var(--hyp)", "stroke-width": 3, fill: "none" }, svg);
+    el("path", { d: b > a ? `M${b},56 L${b - 10},50 L${b - 10},62 Z` : `M${b},56 L${b + 10},50 L${b + 10},62 Z`, fill: "var(--hyp)" }, svg);
+    el("text", { x: 160, y: 36, "text-anchor": "middle", class: "t-hyp", "font-size": 13, "font-weight": 700 }, svg, "slider moves");
+    el("text", { x: 160, y: 140, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, "current enters at the right end");
+    el("text", { x: 160, y: 162, "text-anchor": "middle", class: "t-ink", "font-size": 13 }, svg, more ? "more coil now in the circuit" : "less coil now in the circuit");
+  }
+  const LS = [2, 4, 6, 8, 10, 12], AS = [1, 2, 4, 8];
+  const CHANGES = [
+    { txt: "Its length is doubled.", before: { L: 4, A: 2 }, after: { L: 8, A: 2 }, ans: "up", why: "Resistance is directly proportional to length: twice as long, twice the resistance." },
+    { txt: "Its length is halved.", before: { L: 8, A: 2 }, after: { L: 4, A: 2 }, ans: "down", why: "Shorter wire, fewer bumps: resistance goes down." },
+    { txt: "It's replaced by a thicker wire of the same length.", before: { L: 6, A: 1 }, after: { L: 6, A: 4 }, ans: "down", why: "Resistance is inversely proportional to cross-sectional area: thicker wire, less resistance." },
+    { txt: "Its length and its cross-sectional area are both doubled.", before: { L: 4, A: 2 }, after: { L: 8, A: 4 }, ans: "same", why: "Twice the length doubles it, twice the thickness halves it: no change (length ÷ area stays the same)." },
+    { txt: "It gets hot.", before: { L: 6, A: 2 }, after: { L: 6, A: 2, hot: true }, ans: "up", why: "Hotter particles vibrate faster, so the charges collide more often: resistance increases." },
+    { txt: "A nichrome wire of the same size replaces the copper one.", before: { L: 6, A: 2 }, after: { L: 6, A: 2, mat: "nichrome" }, ans: "up", why: "Nichrome has a much higher resistivity than copper, so the same size wire resists far more." },
+  ];
+  const RHEO_OPTS = [["bothUp", "Ammeter reading up, lamp brighter"], ["bothDown", "Ammeter reading down, lamp dimmer"], ["mixA", "Ammeter reading up, lamp dimmer"], ["mixB", "Ammeter reading down, lamp brighter"]];
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const kind = f.kind || pickOne(["pair", "pair", "four", "change", "change", "rheo"]);
+    p = { kind, done: false };
+    if (kind === "pair") {
+      let a, b;
+      do { a = { name: "A", L: f.aL ?? pickOne(LS), A: f.aA ?? pickOne(AS) }; b = { name: "B", L: f.bL ?? pickOne(LS), A: f.bA ?? pickOne(AS) }; } while (!f.aL && a.L === b.L && a.A === b.A);
+      const ra = a.L / a.A, rb = b.L / b.A;
+      p.ans = Math.abs(ra - rb) < 1e-9 ? "eq" : ra > rb ? "A" : "B";
+      p.why = `Length ÷ area: A = ${a.L} ÷ ${a.A} = ${fmt(ra)}, B = ${b.L} ÷ ${b.A} = ${fmt(rb)}. ${p.ans === "eq" ? "Equal, so the same resistance." : `The bigger number has more resistance: wire ${p.ans}.`}`;
+      p.q = "Both wires are copper. Which one has the greater resistance?";
+      p.opts = [["A", "Wire A"], ["B", "Wire B"], ["eq", "They're equal"]];
+      drawWires($("pfig"), [a, b]);
+    } else if (kind === "four") {
+      let ws, best;
+      do { ws = ["A", "B", "C", "D"].map((n) => ({ name: n, L: pickOne(LS), A: pickOne(AS) })); const v = ws.map((w) => w.L / w.A); const m = Math.max(...v); best = v.filter((x) => Math.abs(x - m) < 1e-9).length === 1 ? ws[v.indexOf(m)].name : null; } while (!best);
+      if (f.ws) { ws = f.ws; const v = ws.map((w) => w.L / w.A); best = ws[v.indexOf(Math.max(...v))].name; }
+      p.ans = best;
+      p.why = `Length ÷ area: ${ws.map((w) => `${w.name} = ${fmt(w.L / w.A)}`).join(", ")}. The biggest is ${best}.`;
+      p.q = "All four wires are made of the same material. Which has the greatest resistance?";
+      p.opts = ws.map((w) => [w.name, `Wire ${w.name}`]);
+      drawWires($("pfig"), ws);
+    } else if (kind === "change") {
+      const c = f.c != null ? CHANGES[f.c] : pickOne(CHANGES);
+      p.ans = c.ans; p.why = c.why;
+      p.q = `A copper wire (top) is changed (bottom): ${c.txt} What happens to its resistance?`;
+      p.opts = [["up", "It increases"], ["down", "It decreases"], ["same", "It stays the same"]];
+      drawWires($("pfig"), [{ name: "1", ...c.before }, { name: "2", ...c.after }]);
+    } else {
+      const more = f.more ?? Math.random() < 0.5;
+      p.ans = more ? "bothDown" : "bothUp";
+      p.why = more ? "More coil in the circuit means more resistance, so less current: the ammeter reading falls and the lamp gets dimmer." : "Less coil in the circuit means less resistance, so more current: the ammeter reading rises and the lamp gets brighter.";
+      p.q = `In a circuit with a lamp and an ammeter, the rheostat's slider is moved so that ${more ? "more" : "less"} of its coil is in the circuit. What happens?`;
+      p.opts = RHEO_OPTS;
+      drawRheoMini($("pfig"), more);
+    }
+    $("pq").textContent = p.q;
+    $("popts").innerHTML = p.opts.map(([k, t]) => `<button type="button" data-k="${k}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.ans;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.ans) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    streak = ok ? streak + 1 : 0;
+    const see = p.kind === "rheo" ? "e4-rheostat" : p.kind === "change" ? "e4-factors" : "e4-compare";
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = `${ok ? "<b>Right!</b>" : "<b>Not quite.</b>"} ${p.why}${ok ? "" : ` <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`}`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "In one single loop, the filament and the thick wires carry…", correct: 0, ok: "Right. The same current, so something else makes the filament glow.", see: "e2-idea",
+       options: [["the same current", null], ["different currents: more through the filament", "In a single loop, the current is the same everywhere (Level 2)."]] }],
+    [{ type: "choice", q: "What is electric resistance measured in?", correct: 1, ok: "Right. Ohms (Ω), with an ohmmeter.", see: "e4-def",
+       options: [["Volts", "Volts measure potential difference."], ["Ohms", null], ["Amperes", "Amperes measure current."]] }],
+    [{ type: "choice", q: "Which change makes a wire's resistance bigger?", correct: 2, ok: "Right. Thinner wire, more resistance.", see: "e4-factors",
+       options: [["Making it shorter", "Shorter means less resistance."], ["Making it thicker", "Thicker means less resistance."], ["Making it thinner", null]] },
+     { type: "choice", q: "Resistivity is a property of…", correct: 0, ok: "Right. It belongs to the material, whatever the wire's size.", see: "e4-resistivity",
+       options: [["the material", null], ["the wire's length", "Length is a separate factor. Resistivity depends only on the material."]] }],
+    [{ type: "choice", q: "Same material. Wire A: 6 m, 2 mm². Wire B: 6 m, 3 mm². Which resists more?", correct: 0, ok: "Right. Same length, and A is thinner.", see: "e4-compare",
+       options: [["Wire A", null], ["Wire B", "B is thicker, so it resists less."], ["They're equal", "Same length, but A is thinner, so A resists more."]] }],
+    [{ type: "choice", q: "What happens to a wire's resistance as it gets hotter?", correct: 0, ok: "Right. Faster-vibrating particles mean more collisions.", see: "e4-temp",
+       options: [["It increases", null], ["It decreases", "Heat makes the particles vibrate faster, so the charges bump into them more."], ["It stays the same", "Temperature changes resistance: hotter means more."]] }],
+    [{ type: "choice", q: "The slider puts more of the rheostat's coil in the circuit. The lamp gets…", correct: 1, ok: "Right. More wire, more resistance, less current.", see: "e4-rheostat",
+       options: [["brighter", "More wire means more resistance, so less current."], ["dimmer", null]] }],
+    [{ type: "choice", q: "Why does the filament glow but the connecting wires don't?", correct: 2, ok: "Right. High resistance turns electrical energy into heat and light.", see: "e4-heat",
+       options: [["More current flows through the filament", "The same current flows through both."], ["The filament is made of copper", "The filament is tungsten. The connecting wires are copper."], ["The filament has a much higher resistance", null]] }],
+  ];
+  const AR = [
+    "جوّه اللمبة القديمة، نفس التيار بيعدي في <b>الفتيلة</b> الرفيعة والأسلاك التخينة، بس الفتيلة بس اللي بتنور وتسخن. السبب: <b>المقاومة</b>.",
+    "<b>المقاومة الكهربية</b>: المعاوقة اللي بتقابلها الشحنات وهي بتتحرك في الموصّل، زي المطبات للعربيات. بتتقاس بـ<b>الأوم (Ω)</b> بجهاز <b>الأوميتر</b>.",
+    "المقاومة بتعتمد على ٣ حاجات: <b>الطول</b> (طردية)، <b>مساحة المقطع</b> أو التخانة (عكسية)، و<b>المقاومة النوعية</b> لمادة السلك (طردية).",
+    "لو السلكين من نفس المادة: الأطول والأرفع مقاومته أكبر. حيلة سريعة: قارن الطول ÷ المساحة.",
+    "النحاس مقاومته النوعية قليلة، عشان كده بيتعمل منه الأسلاك. التنجستن أعلى. ولما السلك يسخن، جزيئاته بتهتز أسرع والمقاومة <b>تزيد</b>.",
+    "<b>الريوستات</b> مقاومة متغيرة: لما تزوّد طول السلك اللي في الدايرة، المقاومة تزيد والتيار يقل واللمبة تضعف. زي زرار الصوت في الراديو.",
+    "الفتيلة رفيعة وطويلة ومن التنجستن، فمقاومتها عالية، وبتحوّل جزء من الطاقة الكهربية لحرارة وضوء. الأسلاك من نحاس تخين وقصير، فبتفضل باردة.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-4-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E4_BANK = [
+    { id: "def", concept: "e4-def",
+      make: () => Q.mc("What is electric resistance?", "The opposition charges meet as they move through a conductor", ["The amount of charge passing each second", "The work done to move one coulomb", "How long a wire is"], "Resistance is the opposition to the movement of charges. (Charge per second is current; work per coulomb is potential difference.)") },
+    { id: "unit", concept: "e4-def",
+      make: () => Q.mc("What is the unit of electric resistance?", "The ohm (Ω)", ["The volt (V)", "The ampere (A)", "The coulomb (C)"], "Resistance is measured in ohms, written with the Greek letter omega, Ω.") },
+    { id: "ohmmeter", concept: "e4-def",
+      make: () => Q.mc("Which device measures electric resistance?", "The ohmmeter", ["The ammeter", "The voltmeter", "The rheostat"], "Ohmmeter: connected to the two terminals of the resistor being measured.") },
+    { id: "term", concept: "e4-def", also: "e4-resistivity",
+      make: () => { const [d, right, wrongs] = pickOne([
+        ["The opposition encountered by electric charges as they move through conductors.", "Electric resistance", ["Electric current", "Potential difference", "Resistivity"]],
+        ["A characteristic physical property of a material that expresses how much it resists the passage of electric current.", "Resistivity", ["Electric resistance", "Cross-sectional area", "Electric current"]],
+        ["A variable resistor used to control the current by changing the length of wire in the circuit.", "The sliding rheostat", ["The ohmmeter", "The ammeter", "The fixed resistor"]]]);
+        return Q.mc(`Write the scientific term: "${d}"`, right, wrongs, `${right}: ${d}`); } },
+    { id: "factors", concept: "e4-factors",
+      make: () => Q.mc("Which of these increases a conductor's resistance (at a given temperature)?", "Increasing its length", ["Increasing its cross-sectional area", "Using a material with lower resistivity", "Making it shorter"], "Resistance goes up with more length, less thickness, or a material with higher resistivity.") },
+    { id: "length-rel", concept: "e4-factors",
+      make: () => { const [f, right] = pickOne([["its length", "Directly proportional"], ["its cross-sectional area", "Inversely proportional"], ["the resistivity of its material", "Directly proportional"]]); return Q.mc(`How is a conductor's resistance related to ${f}?`, right, [right === "Directly proportional" ? "Inversely proportional" : "Directly proportional", "Not related at all"], `Length: direct. Cross-sectional area: inverse. Resistivity: direct.`); } },
+    { id: "book-8-12", concept: "e4-compare",
+      make: () => Q.mc("A wire 8 m long and 8 mm² thick is replaced by one of the same material, 12 m long and 2 mm² thick. What happens to the resistance?", "It increases", ["It decreases", "It stays the same", "It becomes zero"], "Longer (8 → 12 m) and thinner (8 → 2 mm²): both increase the resistance. Length ÷ area goes from 1 to 6.") },
+    { id: "double-both", concept: "e4-compare",
+      make: () => Q.mc("A wire's length and cross-sectional area are both doubled (same material). Its resistance…", "stays the same", ["doubles", "halves", "becomes 4 times as big"], "Twice the length doubles it; twice the thickness halves it. Length ÷ area is unchanged.") },
+    { id: "compare-pair", concept: "e4-compare",
+      make: () => { const [a, b] = pickOne([[[6, 2], [6, 4]], [[4, 2], [8, 2]], [[10, 5], [4, 1]], [[3, 1], [12, 2]]]); const ra = a[0] / a[1], rb = b[0] / b[1]; const right = ra > rb ? "Wire A" : "Wire B";
+        return Q.mc(`Same material. Wire A: ${a[0]} m, ${a[1]} mm². Wire B: ${b[0]} m, ${b[1]} mm². Which has the greater resistance?`, right, [right === "Wire A" ? "Wire B" : "Wire A", "They're equal"], `Length ÷ area: A = ${fmt(ra)}, B = ${fmt(rb)}. The bigger one resists more: ${right}.`); } },
+    { id: "temp", concept: "e4-temp",
+      make: () => Q.mc("Why does a conductor's resistance increase when it gets hotter?", "Its particles vibrate faster, so the charges collide with them more", ["It gets longer", "Heat removes its charges", "Its resistivity becomes zero"], "Faster vibrations mean more collisions, which hinder the free electrons.") },
+    { id: "copper", concept: "e4-materials",
+      make: () => Q.mc("Why are most electric wires made of copper?", "Copper has a low resistivity, so it lets current through easily", ["Copper has a high resistivity", "Copper doesn't conduct electricity", "Copper glows when current passes"], "Low resistivity means low resistance, so the wires stay cool and waste little energy.") },
+    { id: "heater", concept: "e4-materials", also: "e4-heat",
+      make: () => Q.mc("A heater's coil is made of nichrome. Why?", "Its high resistivity makes plenty of heat", ["Its low resistivity keeps it cool", "It doesn't let any current through", "It is the cheapest metal"], "High resistance turns more electrical energy into heat: exactly what a heater needs.") },
+    { id: "filament-gr", concept: "e4-heat",
+      make: () => Q.mc("Give reason: a lamp's filament glows when current passes through it.", "Its high resistance converts part of the electrical energy into heat and light", ["It has a low resistance", "Less current flows through it than through the wires", "It is made of copper"], "High resistance → part of the electrical energy becomes heat (and light), so it glows.") },
+    { id: "filament-build", concept: "e4-heat", also: "e4-factors",
+      make: () => Q.mc("What makes a filament's resistance high?", "It is thin, long and made of tungsten", ["It is thick, short and made of copper", "It is thick and made of plastic", "It is cold"], "Thin (small area), long, and a higher-resistivity metal: all three raise the resistance.") },
+    { id: "heat-rule", concept: "e4-heat",
+      make: () => Q.mc("For the same current, which part of a circuit gets hottest?", "The part with the highest resistance", ["The part with the lowest resistance", "The battery", "They all get equally hot"], "The higher the resistance, the more heat is made for a given current.") },
+    { id: "rheo-function", concept: "e4-rheostat",
+      make: () => Q.mc("What is a sliding rheostat used for?", "To control the current by changing the length of wire in the circuit", ["To measure the resistance", "To store charge", "To measure the potential difference"], "Moving the slider changes how much wire is in the circuit, which changes the resistance and the current.") },
+    { id: "rheo-q", concept: "e4-rheostat",
+      make: () => { const more = Math.random() < 0.5; return Q.mc(`The slider moves so that ${more ? "more" : "less"} of the rheostat's wire is in the circuit. What happens to the ammeter reading and the lamp?`, more ? "The reading falls and the lamp gets dimmer" : "The reading rises and the lamp gets brighter", [more ? "The reading rises and the lamp gets brighter" : "The reading falls and the lamp gets dimmer", "The reading rises and the lamp gets dimmer", "Nothing changes"], more ? "More wire → more resistance → less current: lower reading, dimmer lamp." : "Less wire → less resistance → more current: higher reading, brighter lamp."); } },
+    { id: "radio", concept: "e4-rheostat",
+      make: () => Q.mc("How does a radio's volume knob work?", "Turning it changes a resistance, which changes the current and the volume", ["It changes the battery", "It opens and closes the circuit", "It changes the radio station"], "It's a variable resistor: different resistance, different current, different volume.") },
+    { id: "humps", concept: "e4-def",
+      make: () => Q.mc("Road humps slowing cars are a good picture of…", "electric resistance", ["electric current", "potential difference", "a closed circuit"], "Resistance opposes the movement of charges, as road humps oppose the movement of cars.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E4_BANK, count: 10, storageKey: "elec-4-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-4-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e4" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e4", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-4-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig", "rheo"],
+    prepare() { steps.prepare(); },
+    quizBank: E4_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e4",
+    cases() {
+      const out = [];
+      for (const v of [0, 5, 30, 60, 100]) out.push({ kind: "rheo", v, name: `rheostat ${v}` });
+      for (const mat of ["copper", "tungsten", "nichrome"]) for (const [len, area] of [[1, 1], [1, 8], [10, 1], [10, 8], [5, 4]]) for (const temp of ["cold", "hot"])
+        out.push({ kind: "lab", s: { mat, len, area, temp }, name: `lab ${mat} ${len}m ${area}mm2 ${temp}` });
+      const fixed = [{ kind: "pair", aL: 12, aA: 1, bL: 2, bA: 8 }, { kind: "pair", aL: 4, aA: 2, bL: 8, bA: 4 }, { kind: "four", ws: [{ name: "A", L: 12, A: 1 }, { name: "B", L: 2, A: 8 }, { name: "C", L: 10, A: 4 }, { name: "D", L: 6, A: 2 }] },
+        ...CHANGES.map((_, c) => ({ kind: "change", c })), { kind: "rheo", more: true }, { kind: "rheo", more: false }];
+      for (const f of fixed) for (const answered of [false, true]) out.push({ kind: "practice", f, answered, name: `practice ${JSON.stringify(f)} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "rheo") drawRheo(c.v);
+      else if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(p.ans); }
+    },
+  };
+})();
+</script>
