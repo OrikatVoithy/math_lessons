@@ -1,0 +1,920 @@
+<title>Series and Parallel Circuits</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 7 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.meters { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.meters th, .meters td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.meters th { background: var(--paper); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.pacer { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 8px; }
+.pacer .eyebrow { margin: 0; }
+.readings { font-family: var(--mono); font-size: 0.95rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; display: grid; gap: 4px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-6/">← Electricity 6: Cells and batteries</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity · Level 7 of 8</div>
+    <h1>Series and parallel circuits (joining resistors)</h1>
+    <p class="lede">Real circuits have many parts. Join them in a line or in branches, and the resistance, the current and the voltage all behave differently. Go through the 7 short steps, then wire up bulbs in the lab and break one.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>One lamp in your home breaks, and the others stay on. Why?</h2>
+        <div class="in-short">When one lamp in your home blows, the rest keep working. In an old string of fairy lights, one broken bulb makes them all go dark. The difference is how the parts are joined: in series or in parallel.</div>
+        <p>When a lamp in your bedroom blows, the kitchen light, the fridge and the TV all keep working.</p>
+        <p>But in some old strings of fairy lights, one broken bulb makes the <b>whole string</b> go dark, as you saw in <a data-concept="e1-conditions" href="#">Level 1</a>.</p>
+        <p>Both are circuits with many parts. What's different about how they're joined?</p>
+        <div class="more">
+          <h3>Why it matters</h3>
+          <p>How parts are joined decides how bright each lamp is, how much current the battery gives, and what happens when something breaks. Electricians choose the joining on purpose.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figHook" viewBox="0 0 260 210" role="img" aria-label="Top: three bulbs in one line, all dark because one is broken. Bottom: three bulbs on separate branches, two still lit."></svg>
+        <figcaption>Top: one path, one break, all dark. Bottom: separate paths, the others stay lit.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Two ways to join</div>
+        <h2>In series: one path. In parallel: branches.</h2>
+        <div class="in-short">Several resistors can be replaced by one equivalent resistance (R′) with the same effect. Series: the current goes through all of them along one continuous path. Parallel: the current splits into branching paths.</div>
+        <p>Practical circuits use several resistors. Their combined effect is called the <b class="k-r">equivalent resistance</b>.</p>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Equivalent resistance (R′)</b><span class="ar" lang="ar"> المقاومة المكافئة</span>: the single resistance that produces the same effect on the properties of an electric circuit as a group of interconnected resistors.</p></div>
+        <div class="dirbox">
+          <div><h3>In series<span class="ar" lang="ar"> على التوالي</span></h3><p>The current flows through the resistors along <b>one continuous path</b>, one after another.</p></div>
+          <div><h3>In parallel<span class="ar" lang="ar"> على التوازي</span></h3><p>The current flows through the resistors along <b>branching paths</b>, splitting and joining again.</p></div>
+        </div>
+        <p>Your book compares the two in five ways: how they're joined, the equivalent resistance, the purpose, the current, and the potential difference. The next steps take them one at a time.</p>
+        <div class="more">
+          <h3>Water idea</h3>
+          <p>Series is like one pipe with several narrow parts in a row. Parallel is like a pipe that splits into several side-by-side pipes, then joins up again.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Equivalent resistance</div>
+        <h2>Series makes a bigger resistance. Parallel makes a smaller one.</h2>
+        <div class="in-short">For n identical resistors R: series R′ = R × n (bigger, like one longer wire); parallel R′ = R ÷ n (smaller, like one thicker wire).</div>
+        <div class="bigeq"><span>Series: <span class="k-r">R′</span> = R × n</span></div>
+        <div class="bigeq"><span>Parallel: <span class="k-r">R′</span> = R ÷ n</span></div>
+        <p>Why? Think back to <a data-concept="e4-factors" href="#">Level 4's three factors</a>:</p>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Series: one longer resistor</div><p>Resistors in a row act like <b>one longer resistor</b>. Longer means more resistance, so R′ is <b>larger</b> than any one of them.</p><p class="tip">Purpose: to get a large equivalent resistance.</p></div>
+          <div class="example"><div class="eyebrow">Parallel: one thicker resistor</div><p>Resistors side by side act like <b>one thicker resistor</b> (a bigger cross-section). Thicker means less resistance, so R′ is <b>smaller</b> than any one of them.</p><p class="tip">Purpose: to get a small equivalent resistance.</p></div>
+        </div>
+        <div class="example"><div class="eyebrow">Book example</div><p><b>Three identical 6 Ω resistors. Find the equivalent resistance in series and in parallel.</b></p><ol class="recipe compact"><li>Series: <span class="num">R′ = 6 × 3 = 18 Ω</span>.</li><li>Parallel: <span class="num">R′ = 6 ÷ 3 = 2 Ω</span>.</li></ol></div>
+        <div class="more">
+          <h3>Different resistors?</h3>
+          <p>In series, you can always just add them: R′ = R₁ + R₂ + R₃. Your book only asks about identical resistors in parallel, where R′ = R ÷ n.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The current</div>
+        <h2>Series: the same current. Parallel: the current splits.</h2>
+        <div class="in-short">Total current = V ÷ R′. Series: the same current flows through every resistor. Parallel: the total current is shared equally among identical resistors (each gets total ÷ n), and the branch currents add up to the total.</div>
+        <p>First find the total current with <a data-concept="e5-formula" href="#">Ohm's law</a>, using the equivalent resistance: <b class="num">I = V ÷ R′</b>.</p>
+        <div class="dirbox">
+          <div><h3>In series</h3><p>There's only one path, so the <b>same current</b> flows through every resistor: I = I₁ = I₂ = I₃.</p></div>
+          <div><h3>In parallel</h3><p>The total current is <b>shared</b> among the branches: I = I₁ + I₂ + I₃. With identical resistors, each gets <b>total ÷ n</b>.</p></div>
+        </div>
+        <div class="pair">
+          <div class="example"><div class="eyebrow">Series example</div><p><b>Three identical 60 Ω resistors in series with a 45 V source. Find the current through each.</b></p><ol class="recipe compact"><li><span class="num">R′ = 60 × 3 = 180 Ω</span>.</li><li><span class="num">I = 45 ÷ 180 = 0.25 A</span>, the same through each.</li></ol></div>
+          <div class="example"><div class="eyebrow">Parallel example</div><p><b>Three identical 30 Ω resistors in parallel with a 45 V source. Find the total current and the current through each.</b></p><ol class="recipe compact"><li><span class="num">R′ = 30 ÷ 3 = 10 Ω</span>.</li><li><span class="num">I = 45 ÷ 10 = 4.5 A</span> in total.</li><li>Each: <span class="num">4.5 ÷ 3 = 1.5 A</span>.</li></ol></div>
+        </div>
+        <div class="more">
+          <h3>Why does parallel draw more total current?</h3>
+          <p>Each new branch is an extra path for the charges, so the equivalent resistance falls and the battery pushes more current in total. Like opening more checkout lanes in a shop: more people get through each minute.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">The potential difference</div>
+        <h2>Series: the voltage is shared. Parallel: each gets the full voltage.</h2>
+        <div class="in-short">Series: the source's emf is shared equally among identical resistors (each gets emf ÷ n), and the voltages add up to the emf. Parallel: every resistor gets the full emf of the source.</div>
+        <div class="dirbox">
+          <div><h3>In series</h3><p>The source's emf is <b>shared</b> among the resistors: V = V₁ + V₂ + V₃. With identical resistors, each gets <b>emf ÷ n</b>.</p></div>
+          <div><h3>In parallel</h3><p>Every resistor is connected straight across the source, so each gets the <b>full emf</b>: V = V₁ = V₂ = V₃.</p></div>
+        </div>
+        <div class="example"><div class="eyebrow">Book example</div><p><b>A battery of emf 12 V is connected to two identical 3 Ω resistors. Find the potential difference across each resistor (1) in series, (2) in parallel.</b></p><ol class="recipe compact"><li>Series: <span class="num">12 ÷ 2 = 6 V</span> each.</li><li>Parallel: <span class="num">12 V</span> each, the full emf.</li></ol></div>
+        <div class="more">
+          <h3>Why are bulbs in series dimmer?</h3>
+          <p>Each bulb gets only part of the voltage, so less current is pushed through it. Two identical bulbs in series each get half the voltage and half the current: each one is much dimmer than a single bulb on its own.</p>
+          <h3>Using what you know from Level 6</h3>
+          <p>We take the battery's internal resistance as negligible, so the voltage across the resistors equals the emf.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">When something breaks</div>
+        <h2>Series: everything stops. Parallel: only that branch stops.</h2>
+        <div class="in-short">Series: if one part breaks, the only path is broken, so the current stops everywhere. Parallel: only the broken branch stops; the others still have their own paths. That's why homes are wired in parallel.</div>
+        <div class="dirbox">
+          <div><h3>In series</h3><p>If one component is damaged, the current stops in the <b>whole circuit</b> and every part stops working. <b>G.R.:</b> <i>because the only path of the current is broken.</i></p></div>
+          <div><h3>In parallel</h3><p>If one component is damaged, current stops only through <b>that</b> component; the rest keep working. <b>G.R.:</b> <i>because the current flows through several separate paths.</i></p></div>
+        </div>
+        <p><b>Life application:</b> household appliances are connected in parallel. <b>G.R.:</b> <i>so that each appliance can be operated on its own, and if one is switched off or damaged, the others keep working.</i></p>
+        <div class="tablewrap">
+          <table class="meters">
+            <thead><tr><th scope="col"></th><th scope="col">In series</th><th scope="col">In parallel</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Path</th><td>One continuous path</td><td>Branching paths</td></tr>
+              <tr><th scope="row">Equivalent resistance</th><td>R′ = R × n (greater than each)</td><td>R′ = R ÷ n (less than each)</td></tr>
+              <tr><th scope="row">Purpose</th><td>A large equivalent resistance</td><td>A small equivalent resistance</td></tr>
+              <tr><th scope="row">Current</th><td>The same through each</td><td>Shared equally (total ÷ n)</td></tr>
+              <tr><th scope="row">Potential difference</th><td>Shared equally (emf ÷ n)</td><td>The full emf across each</td></tr>
+              <tr><th scope="row">One part breaks</th><td>All stop</td><td>Only that branch stops</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Back to your home</div>
+        <h2>Now we can solve step 1, and meet the pacemaker</h2>
+        <div class="in-short">Homes are wired in parallel, so each lamp has its own path and gets the full 220 V. Old fairy lights were in series, so one break stopped them all. The pacemaker uses a tiny battery and microcircuits to send regular electrical pulses to the heart.</div>
+        <ul class="checks">
+          <li><b>Your home</b> is wired in <b>parallel</b>: every lamp and appliance has its own branch, gets the full 220 V, and works on its own. One blown lamp only breaks its own branch.</li>
+          <li><b>Old fairy lights</b> were in <b>series</b>: one path through every bulb. One broken bulb breaks the only path, so all go dark.</li>
+        </ul>
+        <div class="pacer">
+          <div class="eyebrow">Integration with medicine</div>
+          <h3>The pacemaker</h3>
+          <p>A practical application that joins electric circuits with the human body. It's used by people whose heartbeat is irregular.</p>
+          <p><b>Location:</b> implanted under the skin, near the shoulder. <b>Structure:</b> a battery; a smart microchip with microcircuits that manage the device; and wires that connect the microcircuit directly to the heart muscle.</p>
+          <p><b>How it works:</b> when the natural heartbeat becomes irregular, the microchip sends small electrical pulses at regular intervals to the heart, stimulating the heart muscle to contract regularly.</p>
+        </div>
+        <div class="more">
+          <h3>Christmas lights today</h3>
+          <p>Modern light strings use cleverer wiring, so one failed bulb usually doesn't switch off the rest, but the old series problem is why they changed.</p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: wire up bulbs, then break one</h2>
+    <p class="lede" style="margin-top:8px">Each bulb is a 6 Ω resistor. Choose how many and how to join them, then break one. Guess first!</p>
+  </div>
+
+  <section class="panel lab" aria-label="Series and parallel lab">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 240" role="img" aria-label="A battery connected to identical bulbs in series or in parallel."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="nIn">Bulbs</label><input type="range" id="nIn" min="1" max="4" step="1" value="3"><output id="nOut"></output></div>
+      <div class="row"><span class="label">Join them</span><div class="seg" id="modeSeg"><button type="button" data-m="series">In series</button><button type="button" data-m="parallel">In parallel</button></div></div>
+      <div class="row"><span class="label">Battery</span><div class="seg" id="vSeg"><button type="button" data-v="6">6 V</button><button type="button" data-v="12">12 V</button></div></div>
+      <div class="row"><span class="label">Bulb 1</span><div class="seg" id="bSeg"><button type="button" data-b="ok">Working</button><button type="button" data-b="broken">Broken</button></div></div>
+      <div class="readings" id="readings" aria-live="polite"></div>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Work it out</h2>
+      <p class="lede" style="margin-top:8px">New numbers each time: equivalent resistance, current and voltage, in series and in parallel.</p>
+    </div>
+    <div class="panel pcard">
+      <p class="qtext" id="pq"></p>
+      <div class="answer-row"><label class="sr" for="pin">Your answer</label><input id="pin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 4"><span id="punit"></span><button type="button" class="primary" id="pcheck">Check</button><button type="button" id="phint">Hint</button></div>
+      <div class="hintbox" id="phintbox" aria-live="polite"></div>
+      <div class="feedback" id="pfb" aria-live="polite"></div>
+      <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next problem</button></div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on series and parallel</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity, step by step</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Level 1</span><h3>What makes it flow</h3><p>A source and a closed loop. The water model.</p><a class="golink" href="../electricity/">Review Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 2</span><h3>Current</h3><p>How much charge flows each second: I = Q ÷ t. The ammeter.</p><a class="golink" href="../electricity-2/">Review Level 2 →</a></li>
+      <li class="panel"><span class="lv">Level 3</span><h3>Potential difference</h3><p>The push: V = W ÷ Q. The voltmeter.</p><a class="golink" href="../electricity-3/">Review Level 3 →</a></li>
+      <li class="panel"><span class="lv">Level 4</span><h3>Resistance</h3><p>What slows the flow, and what it depends on.</p><a class="golink" href="../electricity-4/">Review Level 4 →</a></li>
+      <li class="panel"><span class="lv">Level 5</span><h3>Ohm's law</h3><p>How current, push and resistance fit together: I = V ÷ R.</p><a class="golink" href="../electricity-5/">Review Level 5 →</a></li>
+      <li class="panel"><span class="lv">Level 6</span><h3>Cells and batteries</h3><p>Electromotive force, and cells in series and parallel.</p><a class="golink" href="../electricity-6/">Review Level 6 →</a></li>
+      <li class="panel now"><span class="lv">Level 7</span><h3>Series and parallel circuits</h3><p>Joining resistors, and how homes are wired.</p><span class="pill">You are here</span></li>
+      <li class="panel later"><span class="lv">Level 8</span><h3>Power, energy and the bill</h3><p>P = E ÷ t, kilowatt-hours, and what electricity costs.</p><span class="pill">Coming next</span></li>
+    </ol>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  const fmt = (x) => String(parseFloat(Number(x).toFixed(2)));
+  const close = (a, b) => Math.abs(a - b) <= Math.max(0.01, Math.abs(b) * 0.01);
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const W = (svg, x1, y1, x2, y2) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+  function bulb(svg, cx, cy, frac, broken, r = 13) {
+    if (!broken && frac > 0.01) el("circle", { cx, cy, r: r + 3 + 9 * Math.min(1, frac), fill: "var(--angle)", "fill-opacity": (0.12 + 0.45 * Math.min(1, frac)).toFixed(2) }, svg);
+    el("circle", { cx, cy, r, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    const k = r * 0.6;
+    if (broken) {
+      el("line", { x1: cx - k, y1: cy - k, x2: cx - 2, y2: cy - 2, stroke: "var(--bad)", "stroke-width": 2 }, svg);
+      el("line", { x1: cx + 2, y1: cy + 2, x2: cx + k, y2: cy + k, stroke: "var(--bad)", "stroke-width": 2 }, svg);
+    } else {
+      const c = frac > 0.01 ? "var(--angle)" : "var(--ink)";
+      el("line", { x1: cx - k, y1: cy - k, x2: cx + k, y2: cy + k, stroke: c, "stroke-width": 1.8 }, svg);
+      el("line", { x1: cx + k, y1: cy - k, x2: cx - k, y2: cy + k, stroke: c, "stroke-width": 1.8 }, svg);
+    }
+  }
+  // A row of bulbs along a horizontal wire from x1 to x2
+  function seriesRow(svg, x1, x2, y, n, fracs, brokenIdx) {
+    const xs = Array.from({ length: n }, (_, i) => x1 + ((i + 1) * (x2 - x1)) / (n + 1));
+    let prev = x1;
+    xs.forEach((x, i) => { W(svg, prev, y, x - 13, y); bulb(svg, x, y, fracs[i], i === brokenIdx); prev = x + 13; });
+    W(svg, prev, y, x2, y);
+  }
+  // Parallel branches between rails at xa and xb, starting at y0, gap dy
+  function parallelLadder(svg, xa, xb, y0, dy, n, fracs, brokenIdx) {
+    const cx = (xa + xb) / 2;
+    for (let i = 0; i < n; i++) {
+      const y = y0 + i * dy;
+      W(svg, xa, y, cx - 13, y); bulb(svg, cx, y, fracs[i], i === brokenIdx); W(svg, cx + 13, y, xb, y);
+    }
+    if (n > 1) { W(svg, xa, y0, xa, y0 + (n - 1) * dy); W(svg, xb, y0, xb, y0 + (n - 1) * dy); }
+  }
+  function batt(svg, x, y1, y2) {
+    el("line", { x1: x - 18, y1, x2: x + 18, y2: y1, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    el("line", { x1: x - 9, y1: y2, x2: x + 9, y2, stroke: "var(--ink)", "stroke-width": 7 }, svg);
+    el("text", { x: x - 32, y: y1 + 5, class: "t-ink", "font-size": 14, "font-weight": 700 }, svg, "+");
+    el("text", { x: x - 30, y: y2 + 10, class: "t-ink", "font-size": 14, "font-weight": 700 }, svg, "−");
+  }
+
+  /* ---------- Step 1 figure ---------- */
+  (function hook() {
+    const svg = $("figHook");
+    el("text", { x: 20, y: 24, class: "t-ink", "font-size": 12, "font-weight": 700 }, svg, "series: one path");
+    seriesRow(svg, 20, 240, 52, 3, [0, 0, 0], 1);
+    el("text", { x: 4, y: 94, class: "t-ink", "font-size": 12, "font-weight": 700 }, svg, "parallel: branches");
+    W(svg, 20, 108, 60, 108);
+    parallelLadder(svg, 60, 200, 108, 42, 3, [0.5, 0, 0.5], 1);
+    W(svg, 200, 108, 240, 108);
+  })();
+
+  /* ---------- Lab ---------- */
+  const R0 = 6;
+  const lab = { n: 3, mode: "series", v: 12, broken: false };
+  function state(s) {
+    const n = s.n, V = s.v;
+    if (s.mode === "series") {
+      if (s.broken) return { Req: R0 * n, I: 0, Ieach: 0, Veach: 0, fracs: Array(n).fill(0), open: true };
+      const I = V / (R0 * n), Ve = V / n;
+      return { Req: R0 * n, I, Ieach: I, Veach: Ve, fracs: Array(n).fill((Ve * Ve) / R0 / 24) };
+    }
+    const working = s.broken ? n - 1 : n, Ie = V / R0;
+    return { Req: working ? R0 / working : Infinity, I: Ie * working, Ieach: Ie, Veach: V, fracs: Array.from({ length: n }, (_, i) => (s.broken && i === 0 ? 0 : (V * V) / R0 / 24)) };
+  }
+  function renderLab() {
+    const svg = $("lab");
+    svg.replaceChildren();
+    const L = 40, R = 292, T = 30, B = 220, st = state(lab), bi = lab.broken ? 0 : -1;
+    W(svg, L, T, L, 112); W(svg, L, 132, L, B); batt(svg, L, 112, 132);
+    el("text", { x: 62, y: 127, class: "t-opp", "font-size": 13, "font-weight": 700 }, svg, `${lab.v} V`);
+    if (lab.mode === "series") { seriesRow(svg, L, R, T, lab.n, st.fracs, bi); }
+    else { W(svg, L, T, 110, T); parallelLadder(svg, 110, 250, T, 56, lab.n, st.fracs, bi); W(svg, 250, T, R, T); }
+    W(svg, R, T, R, B); W(svg, L, B, R, B);
+    $("nIn").value = lab.n; $("nOut").textContent = `${lab.n}`;
+    document.querySelectorAll("#modeSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.m === lab.mode)));
+    document.querySelectorAll("#vSeg button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.v === lab.v)));
+    document.querySelectorAll("#bSeg button").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.b === "broken") === lab.broken)));
+    const reqTxt = lab.mode === "series" ? `R′ = 6 × ${lab.n} = ${fmt(st.Req)} Ω` : lab.broken && lab.n === 1 ? "no working branch" : `R′ = 6 ÷ ${lab.broken ? lab.n - 1 : lab.n} = ${fmt(st.Req)} Ω`;
+    $("readings").innerHTML = `<span>${reqTxt}</span><span>Total current: <b class="k-i">${fmt(st.I)} A</b></span><span>Each working bulb: <b class="k-i">${fmt(st.Ieach)} A</b>, <b class="k-v">${fmt(st.Veach)} V</b></span>`;
+    let msg;
+    if (lab.broken) msg = lab.mode === "series" ? "One bulb is broken, so the only path is broken: every bulb goes dark and no current flows." : lab.n === 1 ? "The only bulb is broken, so nothing is lit." : "Only the broken branch stops. The other bulbs still have their own paths, so they stay lit at the same brightness.";
+    else msg = lab.mode === "series" ? (lab.n === 1 ? "One bulb gets the full voltage." : `The voltage is shared: each bulb gets ${fmt(lab.v / lab.n)} V, so each is dimmer than one bulb alone.`) : "Each bulb gets the full voltage, so each is as bright as one bulb alone. But the battery gives more current in total.";
+    $("labMsg").textContent = msg;
+  }
+  $("nIn").addEventListener("input", () => { lab.n = +$("nIn").value; renderLab(); });
+  document.querySelectorAll("#modeSeg button").forEach((b) => b.addEventListener("click", () => { lab.mode = b.dataset.m; renderLab(); }));
+  document.querySelectorAll("#vSeg button").forEach((b) => b.addEventListener("click", () => { lab.v = +b.dataset.v; renderLab(); }));
+  document.querySelectorAll("#bSeg button").forEach((b) => b.addEventListener("click", () => { lab.broken = b.dataset.b === "broken"; renderLab(); }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const RS = [2, 3, 4, 6, 10, 12, 20, 30, 60], NS2 = [2, 3, 4], VS = [6, 12, 24, 45, 60];
+  let p = null, streak = 0;
+  function newProblem(f = {}) {
+    const type = f.type || pickOne(["Rs", "Rp", "Is", "Ip", "Itp", "Vs", "Vp", "Rfind"]);
+    const R = f.R ?? pickOne(RS), n = f.n ?? pickOne(NS2), V = f.V ?? pickOne(VS);
+    p = { type, R, n, V, hints: 0, done: false };
+    const T = {
+      Rs: [`${n} identical ${R} Ω resistors are connected in series. What is the equivalent resistance?`, R * n, "Ω"],
+      Rp: [`${n} identical ${R} Ω resistors are connected in parallel. What is the equivalent resistance?`, R / n, "Ω"],
+      Is: [`${n} identical ${R} Ω resistors are connected in series to a ${V} V source. What current flows through each resistor?`, V / (R * n), "A"],
+      Ip: [`${n} identical ${R} Ω resistors are connected in parallel to a ${V} V source. What current flows through each resistor?`, V / R, "A"],
+      Itp: [`${n} identical ${R} Ω resistors are connected in parallel to a ${V} V source. What is the total current from the source?`, (V * n) / R, "A"],
+      Vs: [`${n} identical resistors are connected in series to a battery of emf ${V} V. What is the potential difference across each resistor?`, V / n, "V"],
+      Vp: [`${n} identical resistors are connected in parallel to a battery of emf ${V} V. What is the potential difference across each resistor?`, V, "V"],
+      Rfind: [`${n} identical resistors are connected in series to a ${V} V source, and a current of ${fmt(V / (R * n))} A flows. What is the resistance of each one?`, R, "Ω"],
+    }[type];
+    [p.text, p.ans, p.unit] = T;
+    $("pq").textContent = p.text; $("punit").textContent = p.unit;
+    $("pin").value = ""; $("pin").disabled = false; $("pcheck").disabled = false; $("phint").disabled = false;
+    $("phintbox").textContent = ""; $("pfb").className = "feedback"; $("pfb").textContent = "";
+  }
+  function workLines(p) {
+    const { R, n, V } = p;
+    return {
+      Rs: [`Series: R′ = R × n = ${R} × ${n} = <b>${fmt(R * n)} Ω</b>.`],
+      Rp: [`Parallel: R′ = R ÷ n = ${R} ÷ ${n} = <b>${fmt(R / n)} Ω</b>.`],
+      Is: [`R′ = ${R} × ${n} = ${R * n} Ω.`, `I = V ÷ R′ = ${V} ÷ ${R * n} = <b>${fmt(V / (R * n))} A</b>, the same through each.`],
+      Ip: [`R′ = ${R} ÷ ${n} = ${fmt(R / n)} Ω, so the total current = ${V} ÷ ${fmt(R / n)} = ${fmt((V * n) / R)} A.`, `Shared equally: ${fmt((V * n) / R)} ÷ ${n} = <b>${fmt(V / R)} A</b> each.`],
+      Itp: [`R′ = ${R} ÷ ${n} = ${fmt(R / n)} Ω.`, `I = V ÷ R′ = ${V} ÷ ${fmt(R / n)} = <b>${fmt((V * n) / R)} A</b>.`],
+      Vs: [`Series: the emf is shared equally: ${V} ÷ ${n} = <b>${fmt(V / n)} V</b> each.`],
+      Vp: [`Parallel: each resistor gets the full emf: <b>${V} V</b>.`],
+      Rfind: [`R′ = V ÷ I = ${V} ÷ ${fmt(V / (R * n))} = ${R * n} Ω.`, `Series, so each = R′ ÷ n = ${R * n} ÷ ${n} = <b>${R} Ω</b>.`],
+    }[p.type];
+  }
+  const HINTS = {
+    Rs: ["Series makes one longer resistor.", "R′ = R × n."], Rp: ["Parallel makes one thicker resistor.", "R′ = R ÷ n."],
+    Is: ["First the equivalent resistance, then Ohm's law.", "R′ = R × n; then I = V ÷ R′. In series it's the same current through each."],
+    Ip: ["In parallel, each resistor gets the full voltage.", "So the current through each one = V ÷ R (or total ÷ n)."],
+    Itp: ["First the equivalent resistance in parallel.", "R′ = R ÷ n; then total I = V ÷ R′."],
+    Vs: ["In series, the emf is shared.", "Each identical resistor gets emf ÷ n."], Vp: ["In parallel, every resistor is straight across the battery.", "Each gets the full emf."],
+    Rfind: ["First find the equivalent resistance from Ohm's law.", "R′ = V ÷ I, then each = R′ ÷ n (series)."],
+  };
+  function hint() {
+    if (!p || p.done) return;
+    p.hints = Math.min(2, p.hints + 1);
+    $("phintbox").textContent = HINTS[p.type].slice(0, p.hints).join(" ");
+    if (p.hints === 2) $("phint").disabled = true;
+  }
+  const readNum = (s) => parseFloat(String(s).replace(/,/g, "").replace(/[^\d.\-]/g, ""));
+  function check(raw) {
+    if (!p || p.done) return;
+    const v = readNum(raw);
+    if (!isFinite(v)) { $("pfb").className = "feedback bad"; $("pfb").textContent = "Type a number, like 4."; return; }
+    p.done = true;
+    $("pin").disabled = true; $("pcheck").disabled = true; $("phint").disabled = true;
+    const { R, n, V } = p, ok = close(v, p.ans);
+    let why = "", see = "e7-rules";
+    if (!ok) {
+      if (p.type === "Rs" && close(v, R / n)) why = "That's the parallel rule. In series, the resistances add: R × n.";
+      else if (p.type === "Rp" && close(v, R * n)) why = "That's the series rule. In parallel, R′ = R ÷ n, smaller than each.";
+      else if (p.type === "Is") { see = "e7-current"; if (close(v, V / R)) why = "You used one resistor. Use the equivalent resistance: R′ = R × n."; }
+      else if (p.type === "Ip") { see = "e7-current"; if (close(v, (V * n) / R)) why = "That's the total current. Each resistor gets the total ÷ n."; }
+      else if (p.type === "Itp") { see = "e7-current"; if (close(v, V / R)) why = "That's the current through one branch. The total = each × n."; else if (close(v, V / (R * n))) why = "You used the series rule. In parallel, R′ = R ÷ n."; }
+      else if (p.type === "Vs") { see = "e7-voltage"; if (close(v, V)) why = "That's parallel. In series, the emf is shared: emf ÷ n each."; }
+      else if (p.type === "Vp") { see = "e7-voltage"; if (close(v, V / n)) why = "That's series. In parallel, each resistor gets the full emf."; }
+      else if (p.type === "Rfind" && close(v, R * n)) why = "That's the equivalent resistance. Divide by n to get each one.";
+      if (!why) why = "Check each step below.";
+    }
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = (ok ? "<b>Right!</b>" : `<b>Not quite.</b> The answer is ${fmt(p.ans)} ${p.unit}. ${why} <a class="kb-link" data-concept="${see}" href="#">Show me where this is explained →</a>`)
+      + `<ol class="work">${workLines(p).map((x) => `<li>${x}</li>`).join("")}</ol>`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pcheck").addEventListener("click", () => check($("pin").value));
+  $("pin").addEventListener("keydown", (e) => { if (e.key === "Enter") check($("pin").value); });
+  $("phint").addEventListener("click", hint);
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "In your home, one lamp blows. The other lamps…", correct: 0, ok: "Right. Let's find out what kind of wiring makes that happen.",
+       options: [["stay on", null], ["all go off", "In a home, the other lamps keep working."]] }],
+    [{ type: "choice", q: "In which kind of connection does the current follow one continuous path?", correct: 0, ok: "Right. Series: one path, one after another.", see: "e7-ways",
+       options: [["Series", null], ["Parallel", "Parallel has branching paths."]] }],
+    [{ type: "choice", q: "Four identical 8 Ω resistors in parallel. What is the equivalent resistance?", correct: 1, ok: "Right. 8 ÷ 4 = 2 Ω.", see: "e7-rules",
+       options: [["32 Ω", "That's series (8 × 4)."], ["2 Ω", null], ["8 Ω", "Parallel makes the resistance smaller than each one."]] }],
+    [{ type: "choice", q: "In a series circuit of identical resistors, the current through each one is…", correct: 0, ok: "Right. One path, so the same current everywhere.", see: "e7-current",
+       options: [["the same", null], ["shared: total ÷ n", "That's parallel."]] }],
+    [{ type: "choice", q: "A 12 V battery and three identical resistors in parallel. What is the voltage across each?", correct: 2, ok: "Right. In parallel, each gets the full emf.", see: "e7-voltage",
+       options: [["4 V", "That's series (12 ÷ 3)."], ["36 V", "Voltages never add up to more than the emf."], ["12 V", null]] }],
+    [{ type: "choice", q: "Why are household appliances connected in parallel?", correct: 1, ok: "Right. Each has its own path and gets the full voltage.", see: "e7-faults",
+       options: [["To share the voltage between them", "Each appliance needs the full 220 V."], ["So each can work on its own, even if another is off or broken", null]] }],
+    [{ type: "choice", q: "What does a pacemaker send to the heart?", correct: 0, ok: "Right. Regular electrical pulses that make the heart muscle contract regularly.", see: "e7-pacemaker",
+       options: [["Small electrical pulses at regular intervals", null], ["A constant large current", "It sends short, regular pulses, not a constant current."]] }],
+  ];
+  const AR = [
+    "لما لمبة في البيت تتحرق، الباقي بيفضل شغال. لكن في زينة قديمة، لمبة واحدة بتطفّي الكل. الفرق في طريقة التوصيل: <b>توالي</b> أو <b>توازي</b>.",
+    "<b>المقاومة المكافئة</b>: مقاومة واحدة ليها نفس تأثير مجموعة المقاومات. التوالي: التيار ماشي في مسار واحد متصل. التوازي: التيار بيتفرّع في أكتر من مسار.",
+    "مقاومات متماثلة: توالي <b>R′ = R × n</b> (كأنها سلك أطول، مقاومة أكبر). توازي <b>R′ = R ÷ n</b> (كأنها سلك أتخن، مقاومة أصغر).",
+    "التيار الكلي = V ÷ R′. التوالي: نفس التيار في كل مقاومة. التوازي: التيار الكلي بيتقسم بالتساوي.",
+    "التوالي: القوة الدافعة بتتقسم بالتساوي على المقاومات. التوازي: كل مقاومة عليها فرق الجهد الكامل للمصدر.",
+    "التوالي: لو جزء باظ، التيار بيقف في الدايرة كلها. التوازي: بيقف في الفرع ده بس. عشان كده أجهزة البيت متوصلة <b>توازي</b>.",
+    "البيت متوصل توازي، فكل جهاز بياخد 220 فولت وبيشتغل لوحده. <b>منظم ضربات القلب</b> فيه بطارية وشريحة ذكية بتبعت نبضات كهربية منتظمة للقلب.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-7-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E7_BANK = [
+    { id: "equiv-term", concept: "e7-equiv",
+      make: () => Q.mc("Write the scientific term: \"The single resistance that produces the same effect on a circuit as a group of interconnected resistors.\"", "Equivalent resistance", ["Resistivity", "Internal resistance", "Electromotive force"], "That's the equivalent resistance, R′.") },
+    { id: "series-def", concept: "e7-ways",
+      make: () => { const s = Math.random() < 0.5; return Q.mc(`Which connection method is this: "The current flows through the resistors along ${s ? "one continuous path" : "branching paths"}"?`, s ? "Connecting resistors in series" : "Connecting resistors in parallel", [s ? "Connecting resistors in parallel" : "Connecting resistors in series", "Neither"], s ? "One continuous path: series." : "Branching paths: parallel."); } },
+    { id: "rs", concept: "e7-rules",
+      make: () => { const r = pickOne([3, 5, 6, 10, 20]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical ${r} Ω resistors are connected in series. What is the equivalent resistance?`, `${r * n} Ω`, [`${fmt(r / n)} Ω`, `${r} Ω`, `${r + n} Ω`], `Series: R′ = R × n = ${r} × ${n} = ${r * n} Ω.`); } },
+    { id: "rp", concept: "e7-rules",
+      make: () => { const r = pickOne([6, 12, 20, 30, 60]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical ${r} Ω resistors are connected in parallel. What is the equivalent resistance?`, `${fmt(r / n)} Ω`, [`${r * n} Ω`, `${r} Ω`, `${r - n} Ω`], `Parallel: R′ = R ÷ n = ${r} ÷ ${n} = ${fmt(r / n)} Ω.`); } },
+    { id: "purpose", concept: "e7-purpose",
+      make: () => { const s = Math.random() < 0.5; return Q.mc(`What is the purpose of connecting resistors in ${s ? "series" : "parallel"}?`, s ? "To get a large equivalent resistance" : "To get a small equivalent resistance", [s ? "To get a small equivalent resistance" : "To get a large equivalent resistance", "To increase the emf of the battery", "To store charge"], s ? "In series they act like one longer resistor: a large equivalent resistance." : "In parallel they act like one thicker resistor: a small equivalent resistance."); } },
+    { id: "longer", concept: "e7-purpose", also: "e4-factors",
+      make: () => Q.mc("Why is the equivalent resistance of resistors in series greater than each of them?", "They act like one longer resistor", ["They act like one thicker resistor", "The current is bigger in series", "The voltage is shared"], "Longer conductor, more resistance (Level 4).") },
+    { id: "thicker", concept: "e7-purpose", also: "e4-factors",
+      make: () => Q.mc("Why is the equivalent resistance of resistors in parallel less than each of them?", "They act like one thicker resistor, with a bigger cross-section", ["They act like one longer resistor", "The voltage is shared among them", "The current is the same through each"], "Bigger cross-sectional area, less resistance (Level 4).") },
+    { id: "cur-series", concept: "e7-current",
+      make: () => Q.mc("In a series circuit, how does the current through each resistor compare?", "It's the same through every resistor", ["It's shared equally: total ÷ n", "It's largest through the first resistor", "It's zero in the middle"], "One path, so the same current everywhere: I = I₁ = I₂ = …") },
+    { id: "cur-par", concept: "e7-current",
+      make: () => Q.mc("In a parallel circuit of identical resistors, the total current is…", "shared equally among them, and the branch currents add up to the total", ["the same through each resistor and equal to the total", "zero", "only through the first branch"], "I = I₁ + I₂ + …; with identical resistors, each gets total ÷ n.") },
+    { id: "calc-series", concept: "e7-current",
+      make: () => Q.mc("Three identical 60 Ω resistors are connected in series to a 45 V source. What current flows through each?", "0.25 A", ["0.75 A", "2.25 A", "4.5 A"], "R′ = 180 Ω; I = 45 ÷ 180 = 0.25 A, the same through each.") },
+    { id: "calc-par", concept: "e7-current",
+      make: () => Q.mc("Three identical 30 Ω resistors are connected in parallel to a 45 V source. What current flows through each?", "1.5 A", ["4.5 A", "0.5 A", "15 A"], "R′ = 10 Ω; total I = 45 ÷ 10 = 4.5 A; each = 4.5 ÷ 3 = 1.5 A.") },
+    { id: "v-series", concept: "e7-voltage",
+      make: () => { const v = pickOne([12, 24, 60]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical resistors are in series with a ${v} V battery. What is the potential difference across each?`, `${fmt(v / n)} V`, [`${v} V`, `${v * n} V`, `${fmt(v / (n + 1))} V`], `In series, the emf is shared equally: ${v} ÷ ${n} = ${fmt(v / n)} V.`); } },
+    { id: "v-par", concept: "e7-voltage",
+      make: () => { const v = pickOne([6, 12, 24]), n = pickOne([2, 3, 4]); return Q.mc(`${n} identical resistors are in parallel with a ${v} V battery. What is the potential difference across each?`, `${v} V`, [`${fmt(v / n)} V`, `${v * n} V`, "0 V"], `In parallel, each resistor gets the full emf: ${v} V.`); } },
+    { id: "book-12v", concept: "e7-voltage",
+      make: () => { const s = Math.random() < 0.5; return Q.mc(`A 12 V battery is connected to two identical 3 Ω resistors in ${s ? "series" : "parallel"}. What is the potential difference across each?`, s ? "6 V" : "12 V", s ? ["12 V", "3 V", "24 V"] : ["6 V", "3 V", "24 V"], s ? "Series: 12 ÷ 2 = 6 V each." : "Parallel: the full 12 V across each."); } },
+    { id: "find-r", concept: "e7-rules", also: "e5-triangle",
+      make: () => Q.mc("Three identical resistors are connected in series to a 12 V source, and a current of 2 A flows. What is the resistance of each?", "2 Ω", ["6 Ω", "18 Ω", "8 Ω"], "R′ = V ÷ I = 12 ÷ 2 = 6 Ω; each = 6 ÷ 3 = 2 Ω.") },
+    { id: "fault-series", concept: "e7-faults",
+      make: () => Q.mc("Give reason: when one lamp in a series circuit breaks, all the lamps go out.", "Because the only path of the current is broken", ["Because the voltage increases", "Because the other lamps share its current", "Because the battery stops"], "In series there is one path; break it and the current stops everywhere.") },
+    { id: "fault-par", concept: "e7-faults",
+      make: () => Q.mc("Give reason: when one lamp in a parallel circuit breaks, the others keep working.", "Because the current flows through several separate paths", ["Because the voltage is shared", "Because the current becomes zero", "Because the lamps are in series"], "Each branch has its own path, so only the broken branch stops.") },
+    { id: "home", concept: "e7-faults",
+      make: () => Q.mc("Give reason: household appliances are connected in parallel.", "So each can be operated on its own, and if one is off or broken the others keep working", ["To share the 220 V between them", "To make the current the same through all of them", "To increase the equivalent resistance"], "Parallel gives each appliance its own path and the full voltage.") },
+    { id: "pacemaker", concept: "e7-pacemaker",
+      make: () => { const [q, right, wrongs] = pickOne([["Where is a pacemaker implanted?", "Under the skin, near the shoulder", ["Inside the heart", "In the wrist", "Under the tongue"]], ["What does a pacemaker consist of?", "A battery, a smart microchip with microcircuits, and wires to the heart muscle", ["A motor and a fan", "A battery only", "A light bulb and a switch"]], ["What does a pacemaker do when the heartbeat is irregular?", "Sends electrical pulses at regular intervals to make the heart contract regularly", ["Stops the heart", "Removes blood", "Measures the temperature"]]]); return Q.mc(q, right, wrongs, "The pacemaker: implanted near the shoulder; battery + microchip + wires to the heart; regular electrical pulses keep the heartbeat regular."); } },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E7_BANK, count: 10, storageKey: "elec-7-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-7-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e7" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e7", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-7-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "figHook"],
+    prepare() { steps.prepare(); },
+    quizBank: E7_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e7",
+    cases() {
+      const out = [];
+      for (let n = 1; n <= 4; n++) for (const mode of ["series", "parallel"]) for (const v of [6, 12]) for (const broken of [false, true])
+        out.push({ kind: "lab", s: { n, mode, v, broken }, name: `lab ${n} ${mode} ${v}V broken=${broken}` });
+      for (const type of ["Rs", "Rp", "Is", "Ip", "Itp", "Vs", "Vp", "Rfind"]) for (const answered of ["no", "right", "wrong"])
+        out.push({ kind: "practice", f: { type, R: 30, n: 3, V: 45 }, answered, name: `practice ${type} ${answered}` });
+      return out;
+    },
+    show(c) {
+      if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered === "right") check(String(p.ans)); if (c.answered === "wrong") check(String(p.ans * 7)); }
+    },
+    practice: () => p, check, newProblem,
+  };
+})();
+</script>

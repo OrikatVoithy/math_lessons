@@ -15,8 +15,8 @@
  *   - onReturn(ticket) is called when he comes back from another page with his quiz.
  */
 (function () {
-  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/" };
-  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6" };
+  const PATHS = { 1: "", 2: "level-2/", bk: "book-skills/", 3: "level-3/", 4: "level-4/", 5: "level-5/", e1: "electricity/", e2: "electricity-2/", e3: "electricity-3/", e4: "electricity-4/", e5: "electricity-5/", e6: "electricity-6/", e7: "electricity-7/" };
+  const NAMES = { 1: "Level 1", 2: "Level 2", bk: "Book skills", 3: "Level 3", 4: "Level 4", 5: "Level 5", exam: "Practice and exam", e1: "Electricity 1", e2: "Electricity 2", e3: "Electricity 3", e4: "Electricity 4", e5: "Electricity 5", e6: "Electricity 6", e7: "Electricity 7" };
   const levelName = (l) => NAMES[l] || `Level ${l}`;
   const MAP = {
     // Electricity 1: What makes electricity flow?
@@ -81,6 +81,17 @@
     "e6-mixed": ["e6", 5, ".unitbox", "mixed batteries"],
     "e6-design": ["e6", 5, ".recipe", "designing a battery for a target emf"],
     "e6-torch": ["e6", 6, ".checks", "why torches use series and power banks parallel"],
+    // Electricity 7: Series and parallel circuits
+    "e7-why": ["e7", 0, ".stepbody", "why home lamps stay on when one breaks"],
+    "e7-equiv": ["e7", 1, ".defbox", "equivalent resistance"],
+    "e7-ways": ["e7", 1, ".dirbox", "series (one path) and parallel (branches)"],
+    "e7-rules": ["e7", 2, ".bigeq", "equivalent resistance: R × n and R ÷ n"],
+    "e7-purpose": ["e7", 2, ".pair", "why series is bigger and parallel smaller"],
+    "e7-current": ["e7", 3, ".dirbox", "the current in series and parallel"],
+    "e7-voltage": ["e7", 4, ".dirbox", "the potential difference in series and parallel"],
+    "e7-faults": ["e7", 5, ".dirbox", "what happens when one part breaks; homes in parallel"],
+    "e7-compare": ["e7", 5, ".meters", "series vs parallel: the full comparison"],
+    "e7-pacemaker": ["e7", 6, ".pacer", "the pacemaker"],
     // Level 1: What are sin, cos and tan?
     "l1-why": [1, 0, ".stepbody", "why we need sin, cos and tan"],
     "l1-theta": [1, 1, ".stepbody", "what θ is"],
