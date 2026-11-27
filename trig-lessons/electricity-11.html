@@ -1,0 +1,1002 @@
+<title>The Electric Generator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: graph-paper workbench. Live diagram beside its readout, then practice, then the path of levels. */
+:root {
+  --paper: #F3F5F8;
+  --surface: #FFFFFF;
+  --grid: #E2E7EE;
+  --ink: #18263A;
+  --muted: #586880;
+  --line: #CBD3DE;
+  --opp: #D9480F;
+  --adj: #0C857A;
+  --hyp: #4B4ECF;
+  --angle: #A86A12;
+  --good: #276C47;
+  --good-bg: #E3F3EA;
+  --bad: #B42B2B;
+  --bad-bg: #FBE9E9;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+    --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+    --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F151E; --surface: #172131; --grid: #1B2636; --ink: #E5EBF3; --muted: #9AA8BC; --line: #2E3C50;
+  --opp: #FF8B5C; --adj: #3FCBB9; --hyp: #A3A6FF; --angle: #F0C150;
+  --good: #6FD69A; --good-bg: #163126; --bad: #FF8E8E; --bad-bg: #3B1E23;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 800; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.lede { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+.opp { color: var(--opp); } .adj { color: var(--adj); } .hyp { color: var(--hyp); } .ang { color: var(--angle); }
+b.opp, b.adj, b.hyp { font-weight: 700; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+/* Lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; overflow: hidden; }
+.stage { padding: 12px; border-right: 1px solid var(--line); min-width: 0; }
+.stage svg { width: 100%; height: auto; display: block; touch-action: none; user-select: none; cursor: crosshair; }
+.hint { font-size: 0.9rem; color: var(--muted); padding: 4px 8px 6px; }
+.readout { padding: 22px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.angle-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.angle-big .val { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; color: var(--angle); font-variant-numeric: tabular-nums; }
+.angle-big .lbl { color: var(--muted); }
+.ratios { display: grid; gap: 10px; }
+.ratio {
+  display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--paper);
+}
+.ratio .fn { font-family: var(--mono); font-weight: 700; }
+.ratio .words { font-size: 0.95rem; line-height: 1.35; }
+.ratio .nums { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratio .out { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.controls { display: grid; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > .label { font-size: 0.85rem; color: var(--muted); min-width: 5.5rem; }
+button, .seg label {
+  font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button:hover, .seg label:hover { border-color: var(--ink); }
+button:focus-visible, .seg input:focus-visible + label, input[type=range]:focus-visible, .handle:focus-visible {
+  outline: 3px solid var(--hyp); outline-offset: 2px;
+}
+.seg { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg input:checked + label { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+input[type=range] { flex: 1 1 160px; accent-color: var(--hyp); min-width: 0; }
+
+.note {
+  font-size: 0.95rem; padding: 12px 14px; border-radius: 10px;
+  border: 1px dashed var(--line); color: var(--ink);
+}
+
+/* Explainer strip */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { padding: 16px; display: grid; gap: 6px; align-content: start; background: var(--paper); border-radius: 10px; }
+.card .mn { font-family: var(--display); font-weight: 800; font-size: 1.9rem; letter-spacing: 0.02em; }
+.card p { font-size: 0.95rem; color: var(--muted); }
+
+/* Practice */
+.practice { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); overflow: hidden; }
+.practice .fig { padding: 16px; border-right: 1px solid var(--line); display: grid; align-content: center; min-width: 0; }
+.practice .fig svg { width: 100%; height: auto; display: block; }
+.practice .q { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.qtext { font-size: 1.2rem; }
+.qtext .fnq { font-family: var(--mono); font-weight: 700; }
+.opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.opt {
+  border-radius: 12px; padding: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+}
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.frac { display: inline-grid; justify-items: center; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 6px 2px; }
+.frac span:last-child { padding-top: 2px; }
+.feedback { font-size: 1rem; min-height: 3em; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.qfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.streak { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 700; }
+.primary:hover { opacity: 0.9; }
+
+/* Path */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.path li { padding: 16px; display: grid; gap: 4px; align-content: start; }
+.path .lv { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.path li p { font-size: 0.9rem; color: var(--muted); }
+.path li.now { border: 2px solid var(--ink); }
+.path li.now .lv { color: var(--ink); }
+.path li.later { background: transparent; border-style: dashed; }
+.pill { justify-self: start; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; margin-top: 6px; }
+
+/* Intro steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.step {
+  display: grid; grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 16px 24px; padding: 24px; align-items: start;
+}
+.stepnum {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: 1.3rem;
+}
+.stepbody { display: grid; gap: 12px; min-width: 0; }
+.stepbody .eyebrow { margin-bottom: -6px; }
+.span-body { grid-column: 2 / -1; }
+.step .span { grid-column: 2 / -1; display: grid; gap: 14px; min-width: 0; }
+.step figure { margin: 0; min-width: 0; display: grid; gap: 8px; }
+.step figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; }
+.num { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+p .num, li .num { font-size: 0.92em; }
+.defs { margin: 0; display: grid; gap: 10px; }
+.defs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 10px; }
+.defs dt { font-weight: 700; }
+.defs dd { margin: 0; }
+.recipe { margin: 0; padding-left: 1.4rem; display: grid; gap: 8px; }
+.recipe.compact { gap: 6px; }
+.example { background: var(--paper); border-radius: 10px; padding: 16px; display: grid; gap: 10px; }
+.tip { font-size: 0.95rem; color: var(--muted); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--paper); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+.uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.uses li { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.uses p { font-size: 0.92rem; color: var(--muted); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-angle { stroke: var(--angle); }
+.s-opp { stroke: var(--opp); } .s-adj { stroke: var(--adj); } .s-hyp { stroke: var(--hyp); }
+.f-ink { fill: var(--ink); } .f-hyp-soft { fill: var(--hyp); fill-opacity: 0.07; }
+.f-trunk { fill: var(--angle); fill-opacity: 0.7; } .f-leaf { fill: var(--adj); fill-opacity: 0.35; }
+.f-wall { fill: var(--muted); fill-opacity: 0.35; }
+.t-opp { fill: var(--opp); } .t-adj { fill: var(--adj); } .t-hyp { fill: var(--hyp); } .t-angle { fill: var(--angle); }
+@media (max-width: 760px) {
+  .step { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+  .step figure { grid-column: 2; }
+  .uses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step figure, .step .span, .span-body { grid-column: 1; }
+  .uses { grid-template-columns: minmax(0, 1fr); }
+  .defs div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.topbar .eyebrow { margin-bottom: 0; }
+.seg.theme label { font-size: 0.82rem; padding: 4px 12px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 0.92rem; padding-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend .sw.opp { background: var(--opp); } .legend .sw.adj { background: var(--adj); } .legend .sw.hyp { background: var(--hyp); }
+
+svg text { font-family: var(--body); }
+.handle { cursor: grab; }
+svg .num { font-family: var(--mono); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .lab, .practice { grid-template-columns: minmax(0, 1fr); }
+  .stage, .practice .fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .trio, .path { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .opts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ratio { grid-template-columns: 3rem minmax(0, 1fr) auto; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .opt, button { transition: background-color .15s, border-color .15s; }
+}
+
+/* Level 2 additions */
+.golink { justify-self: start; margin-top: 6px; font-weight: 700; color: var(--hyp); text-decoration: none; }
+.golink:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+a { color: var(--hyp); }
+.backlink { font-size: 0.9rem; color: var(--muted); text-decoration: none; }
+.backlink:hover { color: var(--ink); text-decoration: underline; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.big { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; }
+.cover { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cover figure { margin: 0; background: var(--paper); border-radius: 10px; padding: 12px; display: grid; gap: 6px; justify-items: center; align-content: start; }
+.cover svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.cover figcaption { font-family: var(--mono); font-size: 0.82rem; color: var(--ink); }
+.f-tri { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.t-ink { fill: var(--ink); }
+.checks { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; }
+.work { margin: 0; padding-left: 1.4rem; display: grid; gap: 10px; }
+.work li { padding-left: 2px; }
+.out { font-family: var(--mono); font-weight: 700; min-width: 3.5rem; font-variant-numeric: tabular-nums; }
+.answer-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer-row input {
+  font: inherit; font-family: var(--mono); font-size: 1.1rem; width: 7.5rem; padding: 7px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.answer-row input:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.values { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.scale-note { font-size: 0.85rem; color: var(--muted); text-align: center; min-height: 1.3em; }
+.feedback .work { margin-top: 8px; color: var(--ink); }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pair, .cover { grid-template-columns: minmax(0, 1fr); }
+  .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .cover { grid-template-columns: minmax(0, 1fr); }
+}
+.nextlevel { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 20px; color: var(--ink); text-decoration: none; font-size: 1.1rem; }
+.nextlevel .eyebrow { display: block; margin-bottom: 2px; }
+.nextlevel:hover { border-color: var(--ink); }
+.tablewrap { overflow-x: auto; }
+</style>
+<style data-include="steps.css"></style>
+<style data-include="quiz.css"></style>
+<style>
+/* Electricity: colour carries meaning, as in trigonometry */
+.k-i { color: var(--adj); } .k-v { color: var(--opp); } .k-r { color: var(--hyp); } .k-e { color: var(--angle); }
+b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
+.maptable { margin: 0; display: grid; gap: 8px; }
+.maptable div { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; background: var(--paper); border-radius: 10px; padding: 8px 12px; }
+.maptable dt { font-weight: 700; }
+.maptable dd { margin: 0; }
+.maptable .arrow { color: var(--muted); font-family: var(--mono); }
+.dirbox, .srcgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dirbox > div, .srcgrid > div { background: var(--paper); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roadmap li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.roadmap .lv { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.toggles { display: grid; gap: 10px; }
+.toggles .row > .label { min-width: 6.5rem; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.status.on { background: var(--good-bg); color: var(--good); }
+.status.off { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink); }
+.status b { font-size: 1.1rem; }
+.popts { display: grid; gap: 8px; }
+.popts button { border-radius: 10px; text-align: left; padding: 10px 14px; font-size: 1rem; }
+.popts button.right { background: var(--good-bg); border-color: var(--good); color: var(--good); font-weight: 700; }
+.popts button.wrong { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.popts button:disabled { cursor: default; }
+.c-wire { stroke: var(--ink); }
+.c-dead { stroke: var(--muted); stroke-dasharray: 3 3; }
+.f-glow { fill: var(--angle); fill-opacity: 0.3; }
+.f-charge { fill: var(--adj); }
+.f-water { fill: var(--adj); fill-opacity: 0.35; }
+.f-paper { fill: var(--paper); }
+.t-bad { fill: var(--bad); }
+.circfig { width: 100%; height: auto; display: block; }
+#torch { cursor: pointer; border-radius: 10px; }
+#torch:focus-visible { outline: 3px solid var(--hyp); outline-offset: 2px; }
+.figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.figpair figure { background: var(--paper); border-radius: 10px; padding: 8px; }
+.step .figpair figure { grid-column: auto; }
+@media (max-width: 560px) { .figpair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .dirbox, .srcgrid, .roadmap { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<style>
+/* Level 2 additions */
+.bigeq { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 1.5rem; font-weight: 700; background: var(--paper); border-radius: 12px; padding: 14px 18px; justify-self: start; }
+.bigeq .frac span:first-child { border-bottom-width: 3px; }
+.unitbox { border-left: 4px solid var(--adj); background: var(--paper); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.whatif { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.whatif th, .whatif td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.whatif th { background: var(--paper); font-weight: 700; }
+.whatif td.res { font-family: var(--mono); font-weight: 700; color: var(--adj); white-space: nowrap; }
+.dialwrap { display: grid; gap: 8px; }
+.slider-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.slider-row output { font-family: var(--mono); font-weight: 700; text-align: right; }
+.calc { font-family: var(--mono); font-size: 1.05rem; background: var(--paper); border-radius: 10px; padding: 10px 12px; }
+.calc .k-i { font-size: 1.25rem; }
+.changemsg { min-height: 1.5em; font-size: 0.95rem; }
+.pcard { padding: 22px; display: grid; gap: 16px; }
+.hintbox { background: var(--paper); border-radius: 10px; padding: 10px 14px; font-size: 0.95rem; }
+.hintbox:empty { display: none; }
+.step .cover { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.step .cover figure { padding: 8px 4px; grid-column: auto; }
+.step .cover svg { max-width: 110px; }
+.step .cover figcaption { font-size: 0.75rem; text-align: center; }
+@media (max-width: 480px) { .slider-row { grid-template-columns: 4.5rem minmax(0, 1fr) 4rem; } }
+</style>
+<style>
+/* Level 11 additions */
+.defbox { border: 2px solid var(--hyp); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.defbox .eyebrow { margin: 0; }
+.factors, .meters { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.factors th, .factors td, .meters th, .meters td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.factors th, .meters th { background: var(--paper); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.figctl { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.speedtxt { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--hyp); }
+.lampglow { transition: opacity .2s; }
+.compare th:first-child { width: 28%; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <a class="backlink" href="../electricity-10/">← Electricity 10: The electric motor</a>
+      <div class="topright">
+        <button type="button" class="artoggle" id="arBtn" aria-pressed="false"><span lang="ar" dir="rtl">مساعدة بالعربي</span></button>
+        <div class="seg theme" role="radiogroup" aria-label="Colour theme">
+          <input type="radio" name="theme" id="themeAuto" value="auto" checked><label for="themeAuto">Auto</label>
+          <input type="radio" name="theme" id="themeLight" value="light"><label for="themeLight">Light</label>
+          <input type="radio" name="theme" id="themeDark" value="dark"><label for="themeDark">Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Science · Electricity and magnetism · Level 11 of 11</div>
+    <h1>The electric generator: from motion to current</h1>
+    <p class="lede">Almost all the electricity in your home was made by spinning a coil inside a magnet. Go through the 7 short steps, then crank your own generator in the lab.</p>
+  </header>
+
+  <nav class="stepnav" id="stepnav" aria-label="Lesson steps">
+    <div class="stepnav-top">
+      <span class="eyebrow" id="stepCount">Step 1 of 7</span>
+      <button type="button" class="linkbtn" id="modeBtn">Show all steps</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </nav>
+
+  <ol class="steps">
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">1</div>
+      <div class="stepbody">
+        <div class="eyebrow">The problem</div>
+        <h2>Why does a bicycle lamp get brighter when you pedal faster?</h2>
+        <div class="in-short">Some bicycles have a lamp with no battery. A small dynamo touches the wheel; pedal and the lamp lights, pedal faster and it gets brighter. Motion goes in, electricity comes out: the opposite of a motor.</div>
+        <p>Some bicycles have a front lamp with <b>no battery</b>. A small device called a <b>dynamo</b> rubs against the wheel.</p>
+        <p>Stand still: the lamp is dark. Pedal: it lights. Pedal faster: it gets <b>brighter</b>.</p>
+        <p>In <a data-concept="e10-motor" href="#">Level 10</a>, a motor turned electricity into motion. Can we run it backwards, and turn motion into electricity?</p>
+        <div class="more">
+          <h3>Where does the energy come from?</h3>
+          <p>From your legs. Pedalling with the dynamo on feels a little harder, because some of your kinetic energy is being turned into electrical energy for the lamp.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figBike" viewBox="0 0 260 170" role="img" aria-label="A bicycle wheel turning a small dynamo that lights a lamp."></svg>
+        <figcaption>The wheel turns the dynamo, the dynamo lights the lamp.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">2</div>
+      <div class="stepbody">
+        <div class="eyebrow">The key experiment</div>
+        <h2>Run a motor backwards</h2>
+        <div class="in-short">The book's activity: connect a toy motor with a small fan to a battery, and the fan spins. Now connect the motor to an LED instead and spin the fan with your fingers: the LED lights, and it gets brighter the faster you spin.</div>
+        <p><b>The book's activity:</b> a small toy motor with a fan fixed to it, an LED (or a small bulb), a battery and wires. Try both steps with the picture:</p>
+        <ol class="recipe">
+          <li>Connect the motor to the <b>battery</b>. <b>Observation:</b> the fan spins. <i>The motor converts electrical energy into kinetic energy.</i></li>
+          <li>Connect the motor to the <b>LED</b> instead, and spin the fan with your fingers, slowly, then faster. <b>Observation:</b> the LED lights, and gets brighter the faster you spin. <i>Mechanical (kinetic) energy is converted into electrical energy.</i></li>
+        </ol>
+        <div class="more">
+          <h3>Book question: the LED doesn't light</h3>
+          <p>Why does an undamaged LED sometimes not light when it's connected to a battery? <i>Because the current flows in the opposite direction to the one it's supposed to.</i> To light it, reverse its connection to the battery.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figToy" viewBox="0 0 260 180" role="img" aria-label="A toy motor with a fan, connected either to a battery or to an LED."></svg>
+        <div class="figctl"><button type="button" id="toyBat">Step 1: battery</button><button type="button" id="toyLed">Step 2: LED, spin the fan</button></div>
+        <div class="slider-row" id="toySpinRow"><label for="toySpin">Spin</label><input type="range" id="toySpin" min="0" max="3" step="1" value="0"><output id="toySpinOut"></output></div>
+        <figcaption id="toyCap"></figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">3</div>
+      <div class="stepbody">
+        <div class="eyebrow">The generator</div>
+        <h2>Spin a coil in a magnet, get electricity</h2>
+        <div class="in-short">An electric generator (dynamo) converts mechanical (kinetic) energy into electrical energy. Its principle: when its coil is rotated between the poles of a magnet, an electromotive force is produced, which makes a current flow.</div>
+        <div class="defbox"><div class="eyebrow">Your book's definition</div><p><b class="k-r">Electric generator (dynamo)</b><span class="ar" lang="ar"> المولد الكهربي (الدينامو)</span>: a device that converts <b>mechanical (kinetic) energy</b> into <b>electrical energy</b>.</p></div>
+        <p>It has the same parts as a motor: a <b>coil</b>, a <b>magnet</b>, and brushes touching rings or a commutator on the coil's ends.</p>
+        <p><b>Its principle</b> (book): when the coil is <b>rotated between the poles of the magnet</b>, an <b class="k-v">electromotive force</b> is produced, which makes an <b class="k-i">electric current</b> flow.</p>
+        <div class="more">
+          <h3>Why does spinning make a current?</h3>
+          <p>As the coil turns, the amount of magnetic field passing through it keeps changing. A changing magnetic field through a coil pushes charges round it. No change, no push: a coil sitting still in a magnet makes nothing.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figGen" viewBox="0 0 260 190" role="img" aria-label="A hand turning a coil between magnet poles; wires lead to a glowing lamp."></svg>
+        <figcaption>Turn the coil: an emf is produced and the lamp lights.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">4</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">More electricity</div>
+        <h2>Spin faster, or use a stronger magnet</h2>
+        <div class="in-short">A generator makes more current if you increase the coil's rotational speed or the magnetic field's strength. That's why the bicycle lamp gets brighter as you pedal faster.</div>
+        <p>The current a generator makes increases by increasing:</p>
+        <div class="tablewrap">
+          <table class="factors">
+            <tbody>
+              <tr><th scope="row">1</th><td>The <b>rotational speed</b> of the coil</td></tr>
+              <tr><th scope="row">2</th><td>The <b>strength of the magnetic field</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="checks bike">
+          <li><b>Give reason:</b> a bicycle dynamo's lamp gets brighter as the wheel turns faster. <i>Because the electromotive force produced by the dynamo increases as the rotational speed of its coil increases.</i></li>
+          <li><b>What happens if</b> the dynamo's coil spins faster? <i>The emf and the current increase, so the lamp gets brighter.</i></li>
+        </ul>
+        <div class="more">
+          <h3>Compare with the motor</h3>
+          <p>In a motor, more current gives more turning. In a generator it's the other way round: more turning gives more current.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">5</div>
+      <div class="stepbody">
+        <div class="eyebrow">Two kinds of current</div>
+        <h2>Direct current and alternating current</h2>
+        <div class="in-short">Direct current (DC) has a constant value and flows in one direction, like a battery's. Alternating current (AC) changes its value and direction with time. A DC generator uses a commutator; power stations use AC generators.</div>
+        <div class="defbox dcac"><div class="eyebrow">Your book's definitions</div>
+          <p><b class="k-i">Direct current (DC)</b><span class="ar" lang="ar"> التيار المستمر</span>: an electric current that has a constant intensity and flows in one direction in the circuit.</p>
+          <p><b class="k-i">Alternating current (AC)</b><span class="ar" lang="ar"> التيار المتردد</span>: an electric current whose value and direction change with time.</p>
+        </div>
+        <div class="tablewrap">
+          <table class="meters gens">
+            <thead><tr><th scope="col">DC generator</th><th scope="col">AC generator</th></tr></thead>
+            <tbody>
+              <tr><td>The coil's ends are joined to a <b>commutator</b> (a metal cylinder split into two insulated halves).</td><td>Used in <b>power stations</b>.</td></tr>
+              <tr><td>Gives <b>direct current</b>: one direction.</td><td>Gives <b>alternating current</b>: changes direction and value.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="more">
+          <h3>What does the commutator do here?</h3>
+          <p>Every half turn, the current in a spinning coil wants to reverse. The commutator swaps the connections at that moment, so the current outside always flows the same way.</p>
+        </div>
+      </div>
+      <figure>
+        <svg id="figAC" viewBox="0 0 260 190" role="img" aria-label="Two graphs of current against time: DC is a flat line above zero; AC is a wave above and below zero."></svg>
+        <figcaption>DC stays the same way round; AC keeps swapping direction.</figcaption>
+      </figure>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">6</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Generators in real life</div>
+        <h2>Power stations, emergency generators and dynamos</h2>
+        <div class="in-short">Power stations turn huge generator coils with turbines, driven by falling water, wind or steam, to make electricity for cities and factories. Emergency generators and bicycle dynamos are smaller generators.</div>
+        <ul class="checks stations">
+          <li><b>Power stations:</b> huge <b>turbines</b> turn the coils of large generators. The turbines are driven by <b>falling water</b> (waterfalls and dams), <b>wind</b>, or <b>steam</b>.</li>
+          <li><b>Give reason:</b> huge turbines are used to drive the coils of large generators in power stations. <i>To produce the electricity needed by cities and factories.</i></li>
+          <li><b>Emergency generators:</b> an engine turns the coil when the mains power is cut (hospitals, buildings).</li>
+          <li><b>Bicycle dynamo:</b> the wheel turns the coil.</li>
+        </ul>
+        <div class="more">
+          <h3>Egypt's High Dam</h3>
+          <p>At the High Dam in Aswan, water falling through the dam turns turbines, which turn generators. It's the same idea as spinning the toy fan with your fingers, just enormous.</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="panel step">
+      <div class="stepnum" aria-hidden="true">7</div>
+      <div class="stepbody span-body">
+        <div class="eyebrow">Putting it together</div>
+        <h2>Motor or generator? Same parts, opposite jobs</h2>
+        <div class="in-short">A motor takes in electrical energy and gives out kinetic energy; a generator does the opposite. The same device can be both: connect its brushes to a battery and it's a motor; connect them to a lamp and spin the coil, and it's a generator.</div>
+        <div class="tablewrap">
+          <table class="meters compare">
+            <thead><tr><th scope="col">Feature</th><th scope="col">Electric motor</th><th scope="col">Electric generator</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Energy in</th><td>Electrical</td><td>Mechanical (kinetic)</td></tr>
+              <tr><th scope="row">Energy out</th><td>Mechanical (kinetic)</td><td>Electrical</td></tr>
+              <tr><th scope="row">Principle</th><td>A current in the coil produces a torque that rotates the coil.</td><td>Rotating the coil between the magnet's poles produces an emf that makes a current.</td></tr>
+              <tr><th scope="row">Examples</th><td>Electric drill, electric screwdriver</td><td>Emergency generators, bicycle dynamo</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><b>Book question:</b> how can one coil-and-magnet device be used</p>
+        <ul class="checks dual">
+          <li><b>as a motor?</b> <i>Connect the two graphite brushes to a battery: a current flows through the coil, a torque is produced, and the coil rotates.</i></li>
+          <li><b>as a generator to light a lamp?</b> <i>Connect the two brushes to a lamp and rotate the coil: an emf is produced, a current flows and the lamp lights.</i></li>
+        </ul>
+        <p><b>Back to the bicycle:</b> the wheel spins the dynamo's coil inside a magnet, so an emf is made and the lamp lights. Pedal faster, the coil spins faster, the emf is bigger: a brighter lamp.</p>
+      </div>
+    </li>
+  </ol>
+  <div class="stepbtns" id="stepbtns">
+    <button type="button" id="prevBtn">← Back</button>
+    <span class="nexthint" id="nextHint" aria-live="polite"></span>
+    <button type="button" class="primary" id="nextBtn">Next step →</button>
+  </div>
+
+  <div class="after" id="afterSteps">
+  <div>
+    <div class="eyebrow">Step 8</div>
+    <h2>Try it yourself: crank a generator</h2>
+    <p class="lede" style="margin-top:8px">Turn the handle faster or slower, change the magnet, and switch between DC and AC. Guess first: brighter or dimmer?</p>
+  </div>
+
+  <section class="panel lab" aria-label="Generator lab">
+    <div class="stage">
+      <svg id="lab" class="circfig" viewBox="0 0 320 230" role="img" aria-label="A generator coil turned by a handle, connected to a lamp and a current meter."></svg>
+    </div>
+    <div class="readout">
+      <div class="slider-row"><label for="spdIn">Turning speed</label><input type="range" id="spdIn" min="0" max="3" step="1" value="1"><output id="spdOut"></output></div>
+      <div class="row"><span class="label">Magnet</span><div class="seg" id="magSeg"><button type="button" data-m="1">Weak</button><button type="button" data-m="2">Strong</button></div></div>
+      <div class="row"><span class="label">Type</span><div class="seg" id="typeSeg"><button type="button" data-t="dc">DC (commutator)</button><button type="button" data-t="ac">AC</button></div></div>
+      <p class="speedtxt" id="speedTxt" aria-live="polite"></p>
+      <p class="changemsg" id="labMsg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="practiceTitle">
+    <div>
+      <div class="eyebrow">Practice</div>
+      <h2 id="practiceTitle">Think it through</h2>
+      <p class="lede" style="margin-top:8px">Predict what a generator does, and tell motors and generators apart. A new question each time.</p>
+    </div>
+    <div class="panel practice">
+      <div class="fig"><svg id="pfig" class="circfig" viewBox="0 0 320 200" role="img" aria-label="A generator for the practice question."></svg></div>
+      <div class="q">
+        <p class="qtext" id="pq"></p>
+        <div class="popts" id="popts"></div>
+        <div class="feedback" id="pfb" aria-live="polite"></div>
+        <div class="qfoot"><span class="streak" id="pstreak"></span><button type="button" id="pnext">Next question</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="quizTitle">
+    <div>
+      <div class="eyebrow">Quiz</div>
+      <h2 id="quizTitle">10 questions on the generator</h2>
+      <p class="lede" style="margin-top:8px">A random mix from the whole lesson, in your book's styles. Every time you start, you get different questions.</p>
+    </div>
+    <div class="panel" id="quiz"></div>
+  </section>
+
+  <section style="display:grid;gap:16px" aria-labelledby="pathTitle">
+    <div>
+      <div class="eyebrow">The path</div>
+      <h2 id="pathTitle">Electricity and magnetism</h2>
+    </div>
+    <ol class="path">
+      <li class="panel"><span class="lv">Levels 1–8</span><h3>Electric circuits</h3><p>Flow, push, resistance, Ohm's law, batteries, circuits and the bill.</p><a class="golink" href="../electricity/">Review from Level 1 →</a></li>
+      <li class="panel"><span class="lv">Level 9</span><h3>The electromagnet</h3><p>A current makes a magnetic field.</p><a class="golink" href="../electricity-9/">Review Level 9 →</a></li>
+      <li class="panel"><span class="lv">Level 10</span><h3>The electric motor</h3><p>A magnet pushes a current-carrying wire.</p><a class="golink" href="../electricity-10/">Review Level 10 →</a></li>
+      <li class="panel now"><span class="lv">Level 11</span><h3>The generator</h3><p>Spinning a coil in a magnet makes electricity.</p><span class="pill">You are here</span></li>
+    </ol>
+    <div class="panel"><h3>Unit 2 complete</h3><p>That's the whole of Unit 2: electric circuits, electromagnets, motors and generators. Next up: the other units of your science book.</p></div>
+  </section>
+  </div>
+</div>
+
+<script data-include="steps.js"></script>
+<script data-include="quiz.js"></script>
+<script data-include="concepts.js"></script>
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const Q = window.LessonQuiz;
+  const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+  function el(name, attrs, parent, text) {
+    const n = document.createElementNS(NS, name);
+    for (const k in attrs) n.setAttribute(k, String(attrs[k]));
+    if (text != null) n.textContent = text;
+    if (parent) parent.append(n);
+    return n;
+  }
+  const W = (svg, x1, y1, x2, y2, extra = {}) => el("line", { x1, y1, x2, y2, class: "c-wire", "stroke-width": 2.5, "stroke-linecap": "round", ...extra }, svg);
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const spinners = {};
+  function spin(key, g, cx, cy, speedFn, onAngle) { spinners[key] = { g, cx, cy, speedFn, onAngle, a: 0 }; }
+  let last = 0;
+  function tick(t) {
+    const dt = last ? Math.min(0.1, (t - last) / 1000) : 0; last = t;
+    for (const k in spinners) {
+      const s = spinners[k];
+      if (!s.g.isConnected) continue;
+      s.a = (s.a + s.speedFn() * dt * 360) % 360;
+      s.g.setAttribute("transform", `rotate(${s.a} ${s.cx} ${s.cy})`);
+      if (s.onAngle) s.onAngle(s.a);
+    }
+    requestAnimationFrame(tick);
+  }
+  if (!reduced()) requestAnimationFrame(tick);
+  function lamp(svg, x, y, level, label) {
+    // level 0..1
+    if (level > 0) el("circle", { cx: x, cy: y, r: 10 + 16 * level, fill: "var(--angle)", "fill-opacity": 0.15 + 0.35 * level, class: "lampglow" }, svg);
+    el("circle", { cx: x, cy: y, r: 10, fill: level > 0 ? "var(--angle)" : "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    if (label) el("text", { x, y: y + 40, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, label);
+  }
+
+  /* ---------- Step 1: bicycle dynamo ---------- */
+  (function bike() {
+    const svg = $("figBike");
+    el("circle", { cx: 90, cy: 90, r: 62, fill: "none", stroke: "var(--ink)", "stroke-width": 5 }, svg);
+    const g = el("g", {}, svg);
+    for (let a = 0; a < 180; a += 30) el("line", { x1: 90, y1: 30, x2: 90, y2: 150, stroke: "var(--muted)", "stroke-width": 1.5, transform: `rotate(${a} 90 90)` }, g);
+    el("circle", { cx: 90, cy: 90, r: 6, fill: "var(--ink)" }, svg);
+    el("rect", { x: 148, y: 52, width: 22, height: 34, rx: 6, fill: "var(--opp)" }, svg);
+    el("text", { x: 159, y: 42, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "dynamo");
+    W(svg, 170, 62, 214, 62); W(svg, 214, 62, 214, 70);
+    lamp(svg, 214, 80, 0.8, "");
+    el("text", { x: 214, y: 126, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "lamp");
+    spin("bike", g, 90, 90, () => 0.6);
+  })();
+
+  /* ---------- Step 2: toy motor run backwards ---------- */
+  const toy = { mode: "bat", spin: 0 };
+  function drawToy() {
+    const svg = $("figToy");
+    svg.replaceChildren();
+    el("rect", { x: 100, y: 70, width: 50, height: 40, rx: 8, fill: "var(--muted)" }, svg);
+    el("text", { x: 125, y: 128, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "motor");
+    el("line", { x1: 150, y1: 90, x2: 176, y2: 90, stroke: "var(--ink)", "stroke-width": 3 }, svg);
+    const g = el("g", {}, svg);
+    for (const a of [0, 90, 180, 270]) el("ellipse", { cx: 196, cy: 76, rx: 6, ry: 15, fill: "var(--adj)", "fill-opacity": 0.75, transform: `rotate(${a} 196 90)` }, g);
+    el("circle", { cx: 196, cy: 90, r: 4, fill: "var(--ink)" }, svg);
+    W(svg, 110, 70, 110, 40); W(svg, 140, 70, 140, 40);
+    W(svg, 110, 40, 60, 40); W(svg, 140, 40, 140, 30); W(svg, 140, 30, 60, 30);
+    let speed = 0;
+    if (toy.mode === "bat") {
+      el("rect", { x: 22, y: 22, width: 36, height: 26, rx: 4, fill: "var(--surface)", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+      el("text", { x: 40, y: 40, "text-anchor": "middle", class: "t-ink", "font-size": 12, "font-weight": 700 }, svg, "+ −");
+      el("text", { x: 40, y: 70, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "battery");
+      speed = 1.2;
+    } else {
+      lamp(svg, 44, 35, toy.spin / 3, "");
+      el("text", { x: 44, y: 70, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "LED");
+      speed = toy.spin * 0.5;
+    }
+    el("text", { x: 130, y: 166, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg,
+      toy.mode === "bat" ? "electrical → kinetic: the fan spins" : toy.spin ? "kinetic → electrical: the LED lights" : "fan still: the LED is off");
+    spin("toy", g, 196, 90, () => speed);
+    $("toyBat").setAttribute("aria-pressed", String(toy.mode === "bat"));
+    $("toyLed").setAttribute("aria-pressed", String(toy.mode === "led"));
+    $("toySpinRow").hidden = toy.mode !== "led";
+    $("toySpin").value = toy.spin;
+    $("toySpinOut").textContent = ["Still", "Slow", "Faster", "Fastest"][toy.spin];
+    $("toyCap").textContent = toy.mode === "bat" ? "Step 1: the battery drives the motor, and the fan spins." :
+      ["Step 2: the fan is still, so no electricity is made.", "Spinning slowly: the LED glows dimly.", "Spinning faster: the LED gets brighter.", "Spinning fastest: the LED is brightest."][toy.spin];
+  }
+  $("toyBat").addEventListener("click", () => { toy.mode = "bat"; drawToy(); });
+  $("toyLed").addEventListener("click", () => { toy.mode = "led"; drawToy(); });
+  $("toySpin").addEventListener("input", () => { toy.spin = +$("toySpin").value; drawToy(); });
+  drawToy();
+
+  /* ---------- Step 3: the generator ---------- */
+  (function gen() {
+    const svg = $("figGen");
+    el("rect", { x: 10, y: 40, width: 44, height: 80, rx: 4, fill: "var(--bad)", "fill-opacity": 0.75 }, svg);
+    el("rect", { x: 156, y: 40, width: 44, height: 80, rx: 4, fill: "var(--adj)", "fill-opacity": 0.75 }, svg);
+    el("text", { x: 32, y: 86, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "N");
+    el("text", { x: 178, y: 86, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "S");
+    const g = el("g", {}, svg);
+    el("rect", { x: 66, y: 74, width: 78, height: 12, rx: 6, fill: "var(--opp)" }, g);
+    el("circle", { cx: 105, cy: 80, r: 6, fill: "var(--muted)" }, svg);
+    W(svg, 105, 86, 105, 150); W(svg, 105, 150, 150, 150);
+    el("circle", { cx: 150, cy: 150, r: 8, fill: "var(--ink)" }, svg);
+    el("text", { x: 150, y: 176, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "handle");
+    W(svg, 105, 132, 228, 132); W(svg, 228, 132, 228, 90);
+    lamp(svg, 228, 76, 0.9, "");
+    el("text", { x: 228, y: 30, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "lamp");
+    spin("gen", g, 105, 80, () => 0.7);
+  })();
+
+  /* ---------- Step 5: DC and AC graphs ---------- */
+  (function graphs() {
+    const svg = $("figAC");
+    for (const [y0, name, cls] of [[50, "DC", "t-adj"], [140, "AC", "t-adj"]]) {
+      el("line", { x1: 40, y1: y0, x2: 240, y2: y0, stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+      el("line", { x1: 40, y1: y0 - 34, x2: 40, y2: y0 + 34, stroke: "var(--muted)", "stroke-width": 1.5 }, svg);
+      el("text", { x: 30, y: y0 + 4, "text-anchor": "end", class: "t-ink", "font-size": 11 }, svg, "0");
+      el("text", { x: 14, y: y0 - 20, class: cls, "font-size": 13, "font-weight": 700 }, svg, name);
+    }
+    el("path", { d: "M40,24 L236,24", stroke: "var(--adj)", "stroke-width": 3, fill: "none" }, svg);
+    let d = "M40,140";
+    for (let x = 0; x <= 196; x += 4) d += ` L${40 + x},${(140 - 26 * Math.sin((x / 196) * 4 * Math.PI)).toFixed(1)}`;
+    el("path", { d, stroke: "var(--adj)", "stroke-width": 3, fill: "none" }, svg);
+    el("text", { x: 236, y: 66, "text-anchor": "end", class: "t-ink", "font-size": 11 }, svg, "time →");
+    el("text", { x: 236, y: 184, "text-anchor": "end", class: "t-ink", "font-size": 11 }, svg, "time →");
+  })();
+
+  /* ---------- Lab: crank a generator ---------- */
+  const lab = { spd: 1, mag: 1, type: "dc" };
+  const out = () => lab.spd * lab.mag; // 0..6
+  let needle = null;
+  function setNeedle(a) {
+    if (!needle) return;
+    const amp = 10 * out(); // degrees, up to 60
+    const ang = lab.type === "dc" ? amp : amp * Math.sin((a * Math.PI) / 180);
+    needle.setAttribute("transform", `rotate(${ang.toFixed(1)} 262 196)`);
+  }
+  function renderLab(msg = "") {
+    const svg = $("lab");
+    svg.replaceChildren();
+    el("rect", { x: 10, y: 50, width: 44, height: 90, rx: 4, fill: "var(--bad)", "fill-opacity": 0.4 + 0.2 * lab.mag }, svg);
+    el("rect", { x: 156, y: 50, width: 44, height: 90, rx: 4, fill: "var(--adj)", "fill-opacity": 0.4 + 0.2 * lab.mag }, svg);
+    el("text", { x: 32, y: 101, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "N");
+    el("text", { x: 178, y: 101, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "S");
+    const g = el("g", {}, svg);
+    el("rect", { x: 66, y: 89, width: 78, height: 12, rx: 6, fill: "var(--opp)" }, g);
+    el("circle", { cx: 105, cy: 95, r: 6, fill: "var(--muted)" }, svg);
+    el("text", { x: 105, y: 30, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, lab.spd ? `turning: ${["", "slow", "faster", "fastest"][lab.spd]}` : "not turning");
+    // wires to lamp and meter
+    W(svg, 105, 101, 105, 190); W(svg, 105, 190, 216, 190);
+    W(svg, 105, 150, 236, 150); W(svg, 236, 150, 236, 80); W(svg, 236, 80, 252, 80);
+    const level = out() / 6;
+    lamp(svg, 262, 80, level, "");
+    el("text", { x: 262, y: 40, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "lamp");
+    // meter
+    el("path", { d: "M222,196 A40,40 0 0 1 302,196", fill: "none", stroke: "var(--line)", "stroke-width": 2 }, svg);
+    el("line", { x1: 262, y1: 156, x2: 262, y2: 162, stroke: "var(--muted)", "stroke-width": 2 }, svg);
+    el("text", { x: 262, y: 214, "text-anchor": "middle", class: "t-ink", "font-size": 11 }, svg, "current meter");
+    needle = el("line", { x1: 262, y1: 196, x2: 262, y2: 162, stroke: "var(--adj)", "stroke-width": 3, "stroke-linecap": "round" }, svg);
+    el("circle", { cx: 262, cy: 196, r: 4, fill: "var(--ink)" }, svg);
+    spin("lab", g, 105, 95, () => lab.spd * 0.5, setNeedle);
+    const still = reduced() || !lab.spd;
+    if (still) { g.setAttribute("transform", "rotate(30 105 95)"); setNeedle(lab.type === "ac" ? 90 : 0); }
+    else setNeedle(spinners.lab.a);
+    $("spdIn").value = lab.spd; $("spdOut").textContent = ["Still", "Slow", "Faster", "Fastest"][lab.spd];
+    document.querySelectorAll("#magSeg button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.m === lab.mag)));
+    document.querySelectorAll("#typeSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.t === lab.type)));
+    $("speedTxt").textContent = out() ? `Lamp: ${"▮".repeat(out())} · ${lab.type === "dc" ? "DC: needle stays on one side" : "AC: needle swings both ways"}` : "No turning, no current";
+    $("labMsg").textContent = msg || "Faster turning or a stronger magnet → bigger emf → more current → brighter lamp.";
+  }
+  $("spdIn").addEventListener("input", () => { lab.spd = +$("spdIn").value; renderLab(lab.spd ? "" : "The coil is still: nothing changes in it, so no emf and no current. The lamp goes out."); });
+  document.querySelectorAll("#magSeg button").forEach((b) => b.addEventListener("click", () => { lab.mag = +b.dataset.m; renderLab(); }));
+  document.querySelectorAll("#typeSeg button").forEach((b) => b.addEventListener("click", () => { lab.type = b.dataset.t; renderLab(lab.type === "dc" ? "DC generator: the commutator keeps the current flowing one way." : "AC generator: the current changes direction as the coil turns, like in power stations."); }));
+  renderLab();
+
+  /* ---------- Practice ---------- */
+  const CHANGES = [
+    { txt: "The coil is turned faster.", ans: "more", why: "Faster rotation → bigger emf → more current: the lamp gets brighter." },
+    { txt: "A stronger magnet is used.", ans: "more", why: "A stronger magnetic field → bigger emf → more current." },
+    { txt: "The coil is turned more slowly.", ans: "less", why: "Slower rotation → smaller emf → less current: the lamp gets dimmer." },
+    { txt: "A weaker magnet is used.", ans: "less", why: "A weaker magnetic field → smaller emf → less current." },
+    { txt: "The coil stops turning (it stays inside the magnet).", ans: "none", why: "A still coil makes no emf, so no current: the lamp goes out." },
+  ];
+  const KINDS = [
+    ["An electric drill", "motor"], ["A bicycle dynamo", "generator"], ["An emergency generator", "generator"],
+    ["A fan", "motor"], ["An electric screwdriver", "motor"], ["A power station's turbine-driven machine", "generator"],
+  ];
+  const CURRENTS = [
+    ["A battery gives this kind of current.", "DC"], ["Power stations generate this kind of current.", "AC"],
+    ["A current whose value and direction change with time.", "AC"], ["A current with a constant intensity flowing in one direction.", "DC"],
+    ["A generator whose coil ends are joined to a commutator gives this.", "DC"],
+  ];
+  let p = null, streak = 0;
+  function drawMini(svg) {
+    el("rect", { x: 30, y: 50, width: 50, height: 100, rx: 4, fill: "var(--bad)", "fill-opacity": 0.6 }, svg);
+    el("rect", { x: 240, y: 50, width: 50, height: 100, rx: 4, fill: "var(--adj)", "fill-opacity": 0.6 }, svg);
+    el("text", { x: 55, y: 106, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "N");
+    el("text", { x: 265, y: 106, "text-anchor": "middle", class: "t-ink", "font-size": 18, "font-weight": 700 }, svg, "S");
+    el("rect", { x: 100, y: 94, width: 120, height: 12, rx: 6, fill: "var(--opp)", transform: "rotate(-25 160 100)" }, svg);
+    el("circle", { cx: 160, cy: 100, r: 9, fill: "var(--muted)" }, svg);
+    el("text", { x: 160, y: 186, "text-anchor": "middle", class: "t-ink", "font-size": 12 }, svg, "coil between magnet poles");
+  }
+  function newProblem(f = {}) {
+    const kind = f.kind || pickOne(["change", "change", "kind", "current", "reason"]);
+    const svg = $("pfig");
+    svg.replaceChildren();
+    drawMini(svg);
+    p = { kind, done: false };
+    if (kind === "change") {
+      const c = f.c != null ? CHANGES[f.c] : pickOne(CHANGES);
+      p.q = `A generator is lighting a lamp. ${c.txt} What happens to the current?`;
+      p.opts = [["more", "It increases (brighter lamp)"], ["less", "It decreases (dimmer lamp)"], ["none", "It stops (lamp goes out)"]];
+      p.ans = c.ans; p.why = c.why; p.see = c.ans === "none" ? "e11-gen" : "e11-factors";
+    } else if (kind === "kind") {
+      const [thing, right] = f.k != null ? KINDS[f.k] : pickOne(KINDS);
+      p.q = `${thing}: is it a motor or a generator?`;
+      p.opts = [["motor", "A motor (electrical → kinetic)"], ["generator", "A generator (kinetic → electrical)"]];
+      p.ans = right; p.why = right === "motor" ? "It uses electricity to make movement, so it's a motor." : "It turns movement into electricity, so it's a generator."; p.see = "e11-compare";
+    } else if (kind === "current") {
+      const [st, right] = f.cu != null ? CURRENTS[f.cu] : pickOne(CURRENTS);
+      p.q = `${st} DC or AC?`;
+      p.opts = [["DC", "Direct current (DC)"], ["AC", "Alternating current (AC)"]];
+      p.ans = right; p.why = right === "DC" ? "DC: constant intensity, one direction." : "AC: its value and direction change with time."; p.see = right === "DC" && /commutator/.test(st) ? "e11-gens" : "e11-dcac";
+    } else {
+      const [st, right, wrongs, see] = f.r != null ? REASONS[f.r] : pickOne(REASONS);
+      p.q = `Give reason: ${st}`; p.opts = Q.shuffle([right, ...wrongs]).map((t) => [t, t]); p.ans = right;
+      p.why = `Because: ${right.charAt(0).toLowerCase() + right.slice(1)}.`; p.see = see;
+    }
+    $("pq").textContent = p.q;
+    $("popts").innerHTML = p.opts.map(([k, t]) => `<button type="button" data-k="${k.replace(/"/g, "&quot;")}">${t}</button>`).join("");
+    $("pfb").className = "feedback"; $("pfb").textContent = "";
+    $("popts").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => answer(b.dataset.k)));
+  }
+  const REASONS = [
+    ["A bicycle dynamo's lamp gets brighter as the wheel turns faster.", "The emf produced by the dynamo increases as its coil turns faster", ["The battery charges up", "The lamp heats up", "The wheel is made of metal"], "e11-bike"],
+    ["Huge turbines drive the coils of large generators in power stations.", "To produce the electricity needed by cities and factories", ["To cool the generators", "To store electricity", "To make direct current for batteries"], "e11-stations"],
+    ["The electric generator is called a converter of mechanical energy.", "It converts mechanical (kinetic) energy into electrical energy", ["It converts electrical energy into kinetic energy", "It stores mechanical energy", "It converts heat into light"], "e11-gen"],
+  ];
+  function answer(k) {
+    if (p.done) return;
+    p.done = true;
+    const ok = k === p.ans;
+    $("popts").querySelectorAll("button").forEach((b) => { b.disabled = true; if (b.dataset.k === p.ans) b.classList.add("right"); if (b.dataset.k === k && !ok) b.classList.add("wrong"); });
+    streak = ok ? streak + 1 : 0;
+    $("pfb").className = "feedback " + (ok ? "good" : "bad");
+    $("pfb").innerHTML = `${ok ? "<b>Right!</b>" : "<b>Not quite.</b>"} ${p.why}${ok ? "" : ` <a class="kb-link" data-concept="${p.see}" href="#">Show me where this is explained →</a>`}`;
+    $("pstreak").textContent = streak > 1 ? `${streak} right in a row` : "";
+  }
+  $("pnext").addEventListener("click", () => newProblem());
+  newProblem();
+
+  /* ---------- Quick checks and Arabic help ---------- */
+  const QUIZ = [
+    [{ type: "choice", q: "A bicycle dynamo changes which energy into which?", correct: 0, ok: "Right. Movement in, electricity out.",
+       options: [["Kinetic energy into electrical energy", null], ["Electrical energy into kinetic energy", "That's a motor, the opposite."]] }],
+    [{ type: "choice", q: "The toy motor is connected to an LED and its fan is spun faster. What happens?", correct: 1, ok: "Right. Faster spinning, brighter LED.", see: "e11-activity",
+       options: [["The LED gets dimmer", "It's the other way round."], ["The LED gets brighter", null], ["Nothing: a motor can't make electricity", "It can, when you spin it."]] }],
+    [{ type: "choice", q: "What does a generator need to make a current?", correct: 2, ok: "Right. The coil has to turn between the magnet's poles.", see: "e11-gen",
+       options: [["A battery connected to its coil", "That would make it a motor."], ["A coil sitting still in a magnet", "A still coil makes nothing."], ["Its coil rotating between the poles of a magnet", null]] }],
+    [{ type: "choice", q: "Which of these increases a generator's current?", correct: 0, ok: "Right. Faster rotation or a stronger magnet.", see: "e11-factors",
+       options: [["Turning the coil faster", null], ["Using a weaker magnet", "That would reduce it."]] }],
+    [{ type: "choice", q: "A current whose value and direction change with time is…", correct: 1, ok: "Right. That's alternating current.", see: "e11-dcac",
+       options: [["direct current (DC)", "DC stays constant and one way."], ["alternating current (AC)", null]] }],
+    [{ type: "choice", q: "What drives the turbines in power stations?", correct: 2, ok: "Right. Falling water, wind or steam.", see: "e11-stations",
+       options: [["Batteries", "They're far too small."], ["Electric motors", "Motors use electricity; we're making it here."], ["Falling water, wind or steam", null]] }],
+    [{ type: "choice", q: "One coil-and-magnet device is connected to a lamp and its coil is turned. It's working as…", correct: 0, ok: "Right. Turning in, electricity out.", see: "e11-dual",
+       options: [["a generator", null], ["a motor", "A motor would need a battery to feed it."]] }],
+  ];
+  const AR = [
+    "فانوس العجلة بينوّر من غير بطارية: <b>الدينامو</b> بيلف مع العجلة. كل ما تبدّل أسرع النور يزيد. حركة بتدخل وكهربا بتطلع، عكس المحرك.",
+    "تجربة الكتاب: موتور صغير بمروحة. وصّله ببطارية: المروحة تلف (كهربية ← حركية). وصّله بلمبة LED ولفّ المروحة بإيدك: اللمبة تنوّر، وكل ما تلف أسرع تنوّر أكتر (حركية ← كهربية).",
+    "<b>المولد الكهربي (الدينامو)</b>: جهاز بيحوّل الطاقة الميكانيكية (الحركية) لطاقة كهربية. فكرته: لما الملف يلف بين قطبي المغناطيس بتتولد <b>قوة دافعة كهربية</b> بتخلّي التيار يمشي.",
+    "التيار اللي بيطلع من المولد بيزيد بزيادة: <b>سرعة دوران الملف</b> و<b>شدة المجال المغناطيسي</b>. علشان كده فانوس العجلة بينوّر أكتر لما العجلة تلف أسرع.",
+    "<b>التيار المستمر</b>: شدته ثابتة وبيمشي في اتجاه واحد (زي البطارية). <b>التيار المتردد</b>: قيمته واتجاهه بيتغيروا مع الزمن. مولد التيار المستمر فيه أسطوانة مشقوقة، ومحطات الكهربا بتولّد تيار متردد.",
+    "في محطات الكهربا <b>توربينات</b> ضخمة بتلف ملفات المولدات، والتوربينات بيلفّها مية السدود أو الرياح أو البخار، علشان تنتج الكهربا اللي محتاجاها المدن والمصانع. وكمان فيه مولدات الطوارئ ودينامو العجلة.",
+    "المحرك: كهربية ← حركية. المولد: حركية ← كهربية. نفس الجهاز ممكن يبقى الاتنين: وصّله ببطارية يبقى محرك، وصّله بلمبة ولفّ الملف يبقى مولد.",
+  ];
+  const steps = LessonSteps.mount({ storageKey: "elec-11-steps", quiz: QUIZ, ar: AR });
+
+  /* ---------- Level quiz ---------- */
+  const E11_BANK = [
+    { id: "gen-term", concept: "e11-gen",
+      make: () => Q.mc("Write the scientific term: \"A device that converts mechanical (kinetic) energy into electrical energy.\"", "The electric generator (dynamo)", ["The electric motor", "The electromagnet", "The battery"], "A generator: kinetic → electrical. A motor does the opposite.") },
+    { id: "gen-principle", concept: "e11-gen",
+      make: () => Q.mc("What is the working principle of the electric generator?", "Rotating its coil between the poles of a magnet produces an emf that makes a current flow", ["A current in its coil produces a torque that turns it", "A magnet heats the coil", "A battery inside it pushes the current"], "Turning → emf → current. (The second option is the motor.)") },
+    { id: "toy-led", concept: "e11-activity",
+      make: () => Q.mc("A toy motor is connected to an LED and its fan is turned by hand. What do you observe?", "The LED lights, and gets brighter the faster you turn", ["Nothing happens", "The fan turns on its own", "The LED gets dimmer the faster you turn"], "Turning the motor makes it work as a generator.") },
+    { id: "toy-concl", concept: "e11-activity",
+      make: () => Q.mc("What does turning the toy motor's fan to light an LED show?", "Mechanical (kinetic) energy can be converted into electrical energy", ["Electrical energy can be converted into kinetic energy", "LEDs store energy", "Fans make light"], "Running a motor backwards makes it a generator.") },
+    { id: "led-rev", concept: "e11-activity",
+      make: () => Q.mc("Why might an undamaged LED not light when connected to a battery?", "The current flows in the opposite direction to the one it should", ["The battery is too strong", "LEDs need AC", "The wires are too long"], "Reverse its connection and it lights.") },
+    { id: "factors", concept: "e11-factors",
+      make: () => Q.mc("Which of these increases the current produced by a generator?", pickOne(["Increasing the rotational speed of the coil", "Increasing the strength of the magnetic field"]), ["Turning the coil more slowly", "Using a weaker magnet", "Stopping the coil"], "Faster rotation and a stronger field both increase the current.") },
+    { id: "bike-gr", concept: "e11-bike",
+      make: () => Q.mc("Give reason: a bicycle dynamo's lamp gets brighter as the wheel turns faster.", "Because the emf produced by the dynamo increases as its coil's rotational speed increases", ["Because the lamp's resistance increases", "Because the battery charges", "Because the wheel gets hot"], "Faster coil → bigger emf → more current.") },
+    { id: "whatif-speed", concept: "e11-bike",
+      make: () => Q.mc("What happens if the rotational speed of a dynamo's coil increases?", "The emf and current increase, so the connected lamp gets brighter", ["The lamp goes out", "The current reverses", "Nothing changes"], "From the book's \"what happens if\" list.") },
+    { id: "dc-term", concept: "e11-dcac",
+      make: () => Q.mc("Write the scientific term: \"An electric current that has a constant intensity and flows in one direction in the circuit.\"", "Direct current (DC)", ["Alternating current (AC)", "Electromotive force", "Torque"], "One direction, constant: DC.") },
+    { id: "ac-term", concept: "e11-dcac",
+      make: () => Q.mc("Write the scientific term: \"An electric current whose value and direction change with time.\"", "Alternating current (AC)", ["Direct current (DC)", "Resistance", "Potential difference"], "Changing value and direction: AC.") },
+    { id: "dc-gen", concept: "e11-gens",
+      make: () => Q.mc("In a direct-current generator, the ends of the coil are connected to…", "a metal cylinder split into two insulated halves (commutator)", ["a soft-iron core", "a rheostat", "a compass"], "The commutator keeps the output current flowing one way.") },
+    { id: "station-ac", concept: "e11-gens",
+      make: () => Q.mc("Power stations generate…", "alternating current (AC)", ["direct current (DC) only", "static electricity", "magnetism only"], "Power stations use AC generators.") },
+    { id: "turbines-gr", concept: "e11-stations",
+      make: () => Q.mc("Give reason: huge turbines are used to drive the coils of large generators in power stations.", "To produce the electricity needed by cities and factories", ["To reduce the current", "To store electricity", "To turn electricity into motion"], "Big turbines turn big coils for lots of electricity.") },
+    { id: "turbine-drive", concept: "e11-stations",
+      make: () => Q.mc("Power-station turbines can be driven by…", "falling water, wind or steam", ["batteries", "electric bells", "compasses"], "Waterfalls and dams, wind, or steam.") },
+    { id: "compare-in", concept: "e11-compare",
+      make: () => Q.mc("The input energy of an electric motor is … while that of a generator is …", "electrical / mechanical (kinetic)", ["mechanical / electrical", "light / heat", "chemical / electrical"], "Motor: electrical in. Generator: kinetic in.") },
+    { id: "compare-ex", concept: "e11-compare",
+      make: () => Q.mc("Which of these is an application of the electric generator?", pickOne(["The bicycle dynamo", "The emergency generator"]), ["The electric drill", "The electric screwdriver", "The electric fan"], "The drill, screwdriver and fan are motors.") },
+    { id: "dual-motor", concept: "e11-dual",
+      make: () => Q.mc("How can a coil-and-magnet device with brushes be used as a motor?", "Connect the brushes to a battery so a current flows and a torque turns the coil", ["Connect the brushes to a lamp and turn the coil", "Remove the magnet", "Heat the coil"], "Battery → current → torque → rotation.") },
+    { id: "dual-gen", concept: "e11-dual",
+      make: () => Q.mc("How can the same device be used as a generator to light a lamp?", "Connect the brushes to a lamp and rotate the coil", ["Connect the brushes to a battery", "Hold the coil still", "Reverse the magnet only"], "Turning → emf → current → lamp lights.") },
+    { id: "recap-motor", concept: "e10-motor",
+      make: () => Q.mc("Recap from Level 10: an electric motor converts…", "electrical energy into kinetic energy", ["kinetic energy into electrical energy", "light into heat", "chemical energy into light"], "The generator does the reverse.") },
+  ];
+  const quiz = LessonQuiz.mount({
+    root: $("quiz"), bank: E11_BANK, count: 10, storageKey: "elec-11-quiz-best",
+    explain: (g, k, also) => links.open(also ? g.also : g.concept, { label: "quiz", onBack: () => quiz.back(), quiz: { key: "elec-11-quiz-best", state: quiz.serialize() } }),
+    alsoLabel: (g) => { const c = LessonLinks.CONCEPTS[g.also]; return `Also see: ${c.title}${c.level === "e11" ? "" : ` (${LessonLinks.levelName(c.level)})`}`; },
+  });
+  const links = LessonLinks.init({
+    level: "e11", steps,
+    onReturn: (t) => { if (t.quiz && t.quiz.key === "elec-11-quiz-best") quiz.resume(t.quiz.state); },
+  });
+
+  /* ---------- Theme switch (same as every level) ---------- */
+  const root = document.documentElement;
+  function applyTheme(mode) {
+    if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); root.dataset.themeByPage = "1"; }
+    else if (root.dataset.themeByPage) { root.removeAttribute("data-theme"); delete root.dataset.themeByPage; }
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem("trig-theme") || "auto"; } catch (_) {}
+  const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+  if (themeInput) themeInput.checked = true;
+  applyTheme(theme);
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    applyTheme(r.value);
+    try { localStorage.setItem("trig-theme", r.value); } catch (_) {}
+  }));
+
+  /* ---------- Hooks for tests ---------- */
+  window.__layoutTest = {
+    svgs: ["lab", "pfig", "figBike", "figToy", "figGen", "figAC"],
+    prepare() { steps.prepare(); },
+    quizBank: E11_BANK,
+    quizKey: () => quiz.key(),
+    quizApi: quiz,
+    level: "e11",
+    cases() {
+      const out = [{ kind: "toy", t: { mode: "bat", spin: 0 }, name: "toy bat" }];
+      for (let s = 0; s < 4; s++) out.push({ kind: "toy", t: { mode: "led", spin: s }, name: `toy led ${s}` });
+      for (let spd = 0; spd < 4; spd++) for (const mag of [1, 2]) for (const type of ["dc", "ac"]) out.push({ kind: "lab", s: { spd, mag, type }, name: `lab ${spd} ${mag} ${type}` });
+      for (const answered of [false, true]) {
+        CHANGES.forEach((_, c) => out.push({ kind: "practice", f: { kind: "change", c }, answered, name: `practice change ${c} ${answered}` }));
+        KINDS.forEach((_, k) => out.push({ kind: "practice", f: { kind: "kind", k }, answered, name: `practice kind ${k} ${answered}` }));
+        CURRENTS.forEach((_, cu) => out.push({ kind: "practice", f: { kind: "current", cu }, answered, name: `practice current ${cu} ${answered}` }));
+        REASONS.forEach((_, r) => out.push({ kind: "practice", f: { kind: "reason", r }, answered, name: `practice reason ${r} ${answered}` }));
+      }
+      return out;
+    },
+    show(c) {
+      if (c.kind === "toy") { Object.assign(toy, c.t); drawToy(); }
+      else if (c.kind === "lab") { Object.assign(lab, c.s); renderLab(); }
+      else { newProblem(c.f); if (c.answered) answer(p.ans); }
+    },
+  };
+})();
+</script>
