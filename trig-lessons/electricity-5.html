@@ -435,7 +435,7 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         <div class="eyebrow">Ohm's experiment</div>
         <h2>Double the push, double the flow</h2>
         <div class="in-short">Ohm connected a resistor, an ammeter (in series) and a voltmeter (across it). Each time he raised the voltage, the current rose by the same proportion. Voltage ÷ current always came out the same: 10.</div>
-        <p>Here's the experiment from your book. A fixed resistor is connected to a battery and a rheostat, with an <a data-concept="e2-ammeter" href="#">ammeter in series</a> and a <a data-concept="e3-voltmeter" href="#">voltmeter across the resistor</a>. Moving the rheostat changes the voltage, and each pair of readings is recorded:</p>
+        <p>Here's the experiment from your book. A fixed resistor is connected to a battery, a switch and a rheostat, with an <a data-concept="e2-ammeter" href="#">ammeter in series</a> and a <a data-concept="e3-voltmeter" href="#">voltmeter across the resistor</a>. Moving the rheostat changes the voltage, and each pair of readings is recorded:</p>
         <div class="tablewrap">
           <table class="otable">
             <tr><th scope="row">Voltmeter (V)</th><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td></tr>
@@ -446,7 +446,10 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         <p>Every time the voltage goes up, the current goes up by the same proportion. And voltage ÷ current is <b>always 10</b>. That constant number is the resistor's <b class="k-r">resistance</b>: 10 Ω.</p>
         <div class="more">
           <h3>Why use a rheostat?</h3>
-          <p>To change the voltage across the resistor step by step, <a data-concept="e4-rheostat" href="#">as in Level 4</a>. Your book also starts with the rheostat at its maximum (G.R.: so that the current is as low as possible, to protect the circuit from damage).</p>
+          <p>To change the voltage across the resistor step by step, <a data-concept="e4-rheostat" href="#">as in Level 4</a>.</p>
+          <p><b>Give reason:</b> the rheostat is set to its maximum at the start of the experiment. <i>To pass the minimum current through the circuit, to protect the measuring devices (the ammeter and voltmeter) from damage.</i></p>
+          <h3>The variables</h3>
+          <p>Independent (what you change): the potential difference across the resistor. Dependent (what you measure): the current through it. Controlled (kept the same): the fixed resistance, at a constant temperature.</p>
           <h3>The graph</h3>
           <p>Plotting current against voltage gives a straight line through zero. Your book calls this a direct relationship.</p>
           <h3>Who was Ohm?</h3>
@@ -470,6 +473,10 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
         <p>It makes sense: a bigger <b class="k-v">push</b> drives more current, and more <b class="k-r">resistance</b> lets less through. Like water: a taller tank pushes more water through a pipe, and a narrower pipe lets less through.</p>
         <p class="unitbox">From V ÷ I = R: <b>1 ohm = 1 volt per ampere</b> (1 Ω = 1 V/A). A 10 Ω resistor needs 10 V to push 1 A through it.</p>
         <div class="more">
+          <h3>Your book's definitions that come from Ohm's law</h3>
+          <p><b>Electrical resistance:</b> "the ratio of the potential difference between the terminals of a conductor to the electric current intensity passing through it."</p>
+          <p><b>The ohm:</b> "the resistance of a conductor carrying a current of 1 A when the potential difference between its terminals is 1 V."</p>
+          <p><b>The ampere:</b> "the current passing through a resistance of 1 Ω when the potential difference between its terminals is 1 V." <b>The volt:</b> "the potential difference between the terminals of a resistance of 1 Ω when a current of 1 A passes through it."</p>
           <h3>Why "at constant temperature"?</h3>
           <p>Because <a data-concept="e4-temp" href="#">resistance changes with temperature</a> (Level 4). If the conductor heats up, its resistance rises and V ÷ I is no longer constant. A lamp filament, which gets very hot, doesn't follow Ohm's law well for exactly this reason.</p>
           <h3>Same idea, three ways</h3>
@@ -491,8 +498,9 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           <figure><svg viewBox="0 0 120 100" aria-hidden="true"><polygon points="60,6 114,94 6,94" class="f-tri"/><polygon points="60,58 92,58 114,94 60,94" fill="var(--angle)" fill-opacity="0.45"/><line x1="28" y1="58" x2="92" y2="58" class="s-ink" stroke-width="2"/><line x1="60" y1="58" x2="60" y2="94" class="s-ink" stroke-width="2"/><text x="60" y="48" text-anchor="middle" class="t-opp" font-size="20" font-weight="700">V</text><text x="40" y="84" text-anchor="middle" class="t-adj" font-size="18" font-weight="700">I</text><text x="80" y="84" text-anchor="middle" class="t-hyp" font-size="18" font-weight="700">R</text></svg><figcaption>Want R? R = V ÷ I</figcaption></figure>
         </div>
         <div class="pair">
-          <div class="example"><div class="eyebrow">Find R</div><p><b>A resistor carries 2 A when the potential difference across it is 12 V. What is its resistance?</b></p><ol class="recipe compact"><li>Want R: <span class="num">R = V ÷ I</span>.</li><li><span class="num">R = 12 ÷ 2 = 6 Ω</span>.</li></ol></div>
-          <div class="example"><div class="eyebrow">Find V</div><p><b>A current of 0.5 A flows through a 40 Ω resistor. What is the potential difference across it?</b></p><ol class="recipe compact"><li>Want V, on top: multiply.</li><li><span class="num">V = I × R = 0.5 × 40 = 20 V</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find R (book)</div><p><b>A heater coil carries 5 A when the potential difference across it is 220 V. What is its resistance?</b></p><ol class="recipe compact"><li>Want R: <span class="num">R = V ÷ I</span>.</li><li><span class="num">R = 220 ÷ 5 = 44 Ω</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find V (book)</div><p><b>A vacuum cleaner has a resistance of 22 Ω and carries 10 A. What is the potential difference across it?</b></p><ol class="recipe compact"><li>Want V, on top: multiply.</li><li><span class="num">V = I × R = 10 × 22 = 220 V</span>.</li></ol></div>
+          <div class="example"><div class="eyebrow">Find I (book)</div><p><b>A metal wire of resistance 2 Ω has 6 V across it. What current flows?</b></p><ol class="recipe compact"><li>Want I: <span class="num">I = V ÷ R</span>.</li><li><span class="num">I = 6 ÷ 2 = 3 A</span>.</li></ol></div>
         </div>
         <div class="more">
           <h3>Units check</h3>
@@ -523,6 +531,10 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           </table>
         </div>
         <div class="more">
+          <h3>Finding R from a graph (book)</h3>
+          <p>On a graph of current against voltage, pick two points and use <span class="num">R = (V₂ − V₁) ÷ (I₂ − I₁)</span>. Your book's example: the voltage goes from 10 V to 20 V and the current from 2 A to 4 A, so <span class="num">R = (20 − 10) ÷ (4 − 2) = 10 ÷ 2 = 5 Ω</span>.</p>
+          <h3>If the resistor burns out</h3>
+          <p>In Ohm's experiment, if the fixed resistor burns out, the loop is broken: the <b>ammeter reads zero</b>, and the voltmeter, still connected across the gap to the battery, shows the <b>battery's voltage</b>.</p>
           <h3>How your book says the consequences</h3>
           <p>"Increasing the electrical resistance to double, while the temperature remains constant (with respect to the electric current): the electric current intensity decreases to its half."</p>
           <p>"Increasing the potential difference between the two terminals of a conductor to double, while the temperature remains constant: the electric current intensity increases to double."</p>
@@ -546,6 +558,7 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
           <li><b>coulomb (C)</b> = ampere × second = joule ÷ volt</li>
           <li><b class="k-e">joule (J)</b> = volt × coulomb</li>
           <li><b>second (s)</b> = coulomb ÷ ampere</li>
+          <li><b class="k-r">ohm (Ω)</b> also = volt × second ÷ coulomb = joule ÷ (coulomb × ampere)</li>
         </ul>
         <div class="pair">
           <div class="example"><div class="eyebrow">Two steps (book)</div><p><b>Find the charge that passes through a 1000 Ω resistor in 30 minutes, if the potential difference across it is 220 V.</b></p><ol class="recipe compact"><li>Ohm: <span class="num">I = V ÷ R = 220 ÷ 1000 = 0.22 A</span>.</li><li>Time: 30 × 60 = <span class="num">1800 s</span>.</li><li><span class="num">Q = I × t = 0.22 × 1800 = 396 C</span>.</li></ol></div>
@@ -896,6 +909,27 @@ b.k-i, b.k-v, b.k-r, b.k-e { font-weight: 700; }
       make: () => Q.mc("Find the charge passing through a 1000 Ω resistor in 30 minutes when 220 V is across it.", "396 C", ["0.22 C", "6.6 C", "6,600 C"], "I = 220 ÷ 1000 = 0.22 A; t = 1800 s; Q = 0.22 × 1800 = 396 C.") },
     { id: "two-w", concept: "e5-multi", also: "e3-triangle",
       make: () => Q.mc("Find the work done to move 500 C through a 3 Ω conductor carrying 2 A.", "3000 J", ["6 J", "1000 J", "1500 J"], "V = I × R = 2 × 3 = 6 V; W = V × Q = 6 × 500 = 3000 J.") },
+    { id: "exam-r", concept: "e5-triangle",
+      make: () => { const [v, i, r, tag] = pickOne([[220, 5.5, 40, "Sohag 25"], [240, 0.3, 800, "Ismailia 25"], [220, 5, 44, "book"]]); return Q.mc(`A current of ${i} A flows through a device with ${v} V across it. What is its resistance? (${tag})`, `${r} Ω`, [`${big(v * i)} Ω`, `${fmt(i / v)} Ω`, `${v - i} Ω`], `R = V ÷ I = ${v} ÷ ${i} = ${r} Ω.`); } },
+    { id: "exam-i", concept: "e5-formula",
+      make: () => Q.mc("Calculate the current through a device of resistance 20 Ω when 220 V is across it. (Sohag 19)", "11 A", ["4400 A", "0.09 A", "240 A"], "I = V ÷ R = 220 ÷ 20 = 11 A.") },
+    { id: "def-terms", concept: "e5-law",
+      make: () => { const [d, right, wrongs] = pickOne([
+        ["The resistance of a conductor carrying a current of 1 A when the potential difference across it is 1 V.", "The ohm", ["The volt", "The ampere", "The coulomb"]],
+        ["The current through a resistance of 1 Ω when the potential difference across it is 1 V.", "The ampere", ["The ohm", "The volt", "The coulomb"]],
+        ["The potential difference across a resistance of 1 Ω when a current of 1 A passes through it.", "The volt", ["The ohm", "The ampere", "The joule"]],
+        ["The ratio of the potential difference between the terminals of a conductor to the current passing through it.", "Electrical resistance", ["Electric current", "Potential difference", "Resistivity"]]]);
+        return Q.mc(`Write the scientific term: "${d}"`, right, wrongs, `${right}: ${d}`); } },
+    { id: "graph-delta", concept: "e5-relations",
+      make: () => { const [v1, v2, i1, i2] = pickOne([[10, 20, 2, 4], [6, 12, 1, 2], [20, 40, 1, 2]]); const r = (v2 - v1) / (i2 - i1); return Q.mc(`On an Ohm's law graph, the voltage rises from ${v1} V to ${v2} V while the current rises from ${i1} A to ${i2} A. What is the resistance?`, `${r} Ω`, [`${fmt((i2 - i1) / (v2 - v1))} Ω`, `${(v2 - v1) * (i2 - i1)} Ω`, `${v2 / i1} Ω`], `R = (V₂ − V₁) ÷ (I₂ − I₁) = ${v2 - v1} ÷ ${i2 - i1} = ${r} Ω.`); } },
+    { id: "gr-rheo-max", concept: "e5-experiment",
+      make: () => Q.mc("Give reason: the rheostat is set to its maximum at the start of the Ohm's law experiment.", "To pass the minimum current and protect the measuring devices from damage", ["To make the current as large as possible", "To measure the battery's voltage", "To keep the voltmeter in series"], "Maximum rheostat resistance → minimum current → the ammeter and voltmeter are protected.") },
+    { id: "gr-aswan", concept: "e5-law",
+      make: () => Q.mc("Give reason: the current through a resistor increases when the potential difference across it increases. (Aswan 25)", "By Ohm's law, current is directly proportional to potential difference at constant temperature", ["Because the resistance increases", "Because the resistor gets colder", "Because more charge is stored in the resistor"], "That's Ohm's law: I ∝ V at constant temperature.") },
+    { id: "burnt", concept: "e5-relations",
+      make: () => Q.mc("In the Ohm's law experiment, the fixed resistor burns out. What happens to the meters?", "The ammeter reads zero; the voltmeter shows the battery's voltage", ["Both read zero", "The ammeter reads the maximum; the voltmeter reads zero", "Nothing changes"], "The loop is broken, so no current flows (ammeter 0). The voltmeter, connected across the gap, now shows the battery's voltage.") },
+    { id: "variables", concept: "e5-experiment",
+      make: () => { const [k, right, wrongs] = pickOne([["independent variable (the one you change)", "The potential difference across the resistor", ["The current through the resistor", "The fixed resistance"]], ["dependent variable (the one you measure)", "The current through the resistor", ["The potential difference across the resistor", "The fixed resistance"]], ["controlled variable (kept the same)", "The fixed resistance, at constant temperature", ["The current through the resistor", "The potential difference across the resistor"]]]); return Q.mc(`In the experiment to verify Ohm's law, what is the ${k}?`, right, wrongs, "Independent: potential difference. Dependent: current. Controlled: the fixed resistance (at constant temperature)."); } },
     { id: "wet-skin", concept: "e5-heater",
       make: () => Q.mc("Why is touching a live wire with wet hands more dangerous?", "Wet skin has less resistance, so the same voltage pushes more current through you", ["Water raises the voltage", "Water makes the current flow backwards", "Wet skin has more resistance"], "I = V ÷ R: lower resistance, same voltage, bigger current.") },
   ];
